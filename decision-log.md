@@ -55,3 +55,45 @@
   2. 제안함에 "기준값 초안 승인 요청"으로 노출
   3. 운영자 승인 → performance-baselines 확정
   4. 이후 시즌 종료마다 AI가 재검토 제안
+
+---
+
+## 2026-05-18
+
+### [D-006] Railway + Vercel 배포 완료
+- **결정:** Railway Pro (Static IP) + Vercel 배포 구조 확정 및 완료
+- **배포 정보:**
+  - 백엔드: https://wanjuberry-insight-production.up.railway.app
+  - 프론트엔드: https://wanjuberry-insight.vercel.app
+  - Static IP: 162.220.232.99 (네이버 커머스 API 허용 등록 완료)
+- **환경변수 구조:**
+  - Railway: CORS_ORIGIN=https://wanjuberry-insight.vercel.app
+  - Vercel: VITE_API_URL=https://wanjuberry-insight-production.up.railway.app
+
+---
+
+### [D-007] Phase 4 작업 순서 확정
+- **결정:** 아래 순서로 진행
+  1. 리뷰 API 연결 (네이버 커머스 API, 별도 신청 불필요)
+  2. 광고 소재/카피 연동 (KB 파일 완성 후 — Cowork에서 작업 중)
+  3. 에이전트 폴더 구조 리팩터링 (네이버/쿠팡 분리)
+  4. 쿠팡 에이전트 구현
+- **제외 항목:** API데이터솔루션 — 브랜드스토어 전용, 현재 해당 없음
+
+---
+
+### [D-008] 에이전트 폴더 구조 리팩터링 시점
+- **결정:** 쿠팡 연동 전에 리팩터링 먼저 완료 후 쿠팡 구현
+- **배경:** 지금 리팩터링하면 동작 중인 네이버 연동 전체 임포트 경로가 바뀌어 리스크가 큼. 네이버 작업 완료 후 독립적인 리팩터링 단계로 분리하는 게 안전함
+- **목표 구조:**
+  ```
+  agents/
+  ├── naver/
+  │   ├── collector/  (commerce.py, ad.py)
+  │   └── analyzer/   (product.py, ad.py)
+  ├── coupang/
+  │   ├── collector/  (commerce.py)
+  │   └── analyzer/   (product.py, revenue.py)
+  └── executor/       (공통 유지)
+  ```
+- **임시 방편:** 리팩터링 전까지 쿠팡 파일은 `coupang_` 접두사로 기존 폴더에 추가하지 않음 (쿠팡 구현 자체를 리팩터링 이후로 미룸)

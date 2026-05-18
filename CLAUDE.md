@@ -79,8 +79,13 @@ AI가 먼저 제안하고, 운영자가 생각해서 먼저 입력하는 구조�
 Phase 1: API Knowledge Base 구축               ← 완료 (구조/템플릿) / 3종 세트는 Cowork 관리
 Phase 2: 에이전트 구조 + Internal Model 설계   ← ✅ 완료
 Phase 3: 실제 API 호출 + 오류 발견 + KB 수정  ← ✅ 완료 (네이버 커머스 + 네이버 광고)
-Phase 4: 광고 키워드/카피 엔진 + 성과 분석    ← 다음 단계
-Phase 5: 자동화 루프 고도화 (Learning Loop)   ← 기획 예정
+Phase 4: 네이버 고도화 + 에이전트 구조 정비   ← 진행 중
+  4-1: Railway + Vercel 배포                   ← ✅ 완료 (2026-05-18)
+  4-2: 리뷰 API 연결                           ← 다음
+  4-3: 광고 소재/카피 연동                     ← KB 완성 대기 중 (Cowork)
+  4-4: 에이전트 폴더 구조 리팩터링             ← 4-3 완료 후
+Phase 5: 쿠팡 에이전트 구현                    ← Phase 4 완료 후
+Phase 6: 자동화 루프 고도화 (Learning Loop)   ← 기획 예정
 ```
 
 ---
