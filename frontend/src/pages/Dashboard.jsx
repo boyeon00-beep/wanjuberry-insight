@@ -46,7 +46,7 @@ export default function Dashboard() {
             </tr>
             <tr>
               <td className="text-muted">제안 수</td>
-              <td>{analyzeStep?.result?.total ?? '-'}개</td>
+              <td>{analyzeStep?.result?.total_suggestions ?? '-'}개</td>
             </tr>
           </tbody>
         </table>

@@ -76,7 +76,7 @@ export default function Analysis() {
                   <td className="text-muted">제안 생성</td>
                   <td>
                     {analyzeStep?.status === 'success'
-                      ? `${analyzeStep.result?.total}개 제안 생성됨`
+                      ? `${analyzeStep.result?.total_suggestions}개 제안 생성됨`
                       : analyzeStep?.status}
                   </td>
                 </tr>
