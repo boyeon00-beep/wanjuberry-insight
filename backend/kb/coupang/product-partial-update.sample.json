@@ -1,0 +1,59 @@
+{
+  "_meta": {
+    "api": "product-partial-update",
+    "platform": "coupang",
+    "sample_type": "official_doc",
+    "verified_at": "2026-05-17",
+    "notes": "공식 문서(상품 수정 (승인불필요) – Open APIs.pdf) Request/Response Example. URL API Name: UPDATE_PARTIAL_PRODUCT. 응답은 외부 HTTP 래퍼 + 내부 API 결과 이중 구조."
+  },
+  "request": {
+    "method": "PUT",
+    "url": "https://api-gateway.coupang.com/v2/providers/seller_api/apis/api/v1/marketplace/seller-products/30100201234/partial",
+    "headers": {
+      "Authorization": "CEA algorithm=HmacSHA256, access-key=MASKED, signed-date=MASKED, signature=MASKED",
+      "Content-Type": "application/json"
+    },
+    "path_params": {
+      "sellerProductId": "30100201234"
+    },
+    "body": {
+      "sellerProductId": 30100201234,
+      "deliveryMethod": "SEQUENCIAL",
+      "deliveryCompanyCode": "HYUNDAI",
+      "deliveryChargeType": "CONDITIONAL_FREE",
+      "deliveryCharge": 2500,
+      "freeShipOverAmount": 10000,
+      "deliveryChargeOnReturn": 0,
+      "remoteAreaDeliverable": "N",
+      "unionDeliveryType": "UNION_DELIVERY",
+      "returnCenterCode": "1000274592",
+      "returnChargeName": "반품지명_1",
+      "companyContactNumber": "02-123-1234",
+      "returnZipCode": "15200",
+      "returnAddress": "서울특별시 송파구 송파대로 12길",
+      "returnAddressDetail": "123호",
+      "returnCharge": 2500,
+      "outboundShippingPlaceCode": 63714,
+      "extraInfoMessage": "",
+      "pccNeeded": false,
+      "outboundShippingTimeDay": 2
+    },
+    "body_minimal_example": {
+      "sellerProductId": 30100208559,
+      "deliveryCharge": 3000
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {"Content-Type": "application/json"},
+    "body": {
+      "code": "200",
+      "message": "",
+      "data": {
+        "code": "SUCCESS",
+        "message": "",
+        "data": 30100201234
+      }
+    }
+  }
+}

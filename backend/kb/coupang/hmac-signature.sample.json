@@ -1,0 +1,48 @@
+{
+  "_meta": {
+    "api": "hmac-signature",
+    "platform": "coupang",
+    "sample_type": "official_doc",
+    "verified_at": "2026-05-17",
+    "notes": "doc_type=guide. HMAC-SHA256 기반 Authorization 헤더 생성 가이드. accessKey/secretKey/vendorId/signature 모두 MASKED. message 포맷, datetime 포맷(yyMMddTHHmmssZ, GMT+0), 언어별 구현 예시(Java/PHP/Python/C#) 포함."
+  },
+  "authorization_header": {
+    "format": "CEA algorithm=HmacSHA256, access-key={accessKey}, signed-date={datetime}, signature={hexHmac}",
+    "example": "CEA algorithm=HmacSHA256, access-key=MASKED, signed-date=180809T010203Z, signature=MASKED"
+  },
+  "signing": {
+    "algorithm": "HmacSHA256",
+    "datetime_format": "yyMMddTHHmmssZ",
+    "timezone": "GMT+0",
+    "message_format": "{datetime}{method}{path}{query}",
+    "signature_encoding": "hex (lowercase, 2-digit per byte)",
+    "inputs": {
+      "accessKey": "MASKED",
+      "secretKey": "MASKED",
+      "method": "GET",
+      "path": "/v2/providers/openapi/apis/api/v4/vendors/MASKED/returnRequests",
+      "query": "createdAtFrom=2018-08-09&createdAtTo=2018-08-09&status=UC",
+      "datetime": "180809T010203Z"
+    },
+    "message_example": "180809T010203ZGET/v2/providers/openapi/apis/api/v4/vendors/MASKED/returnRequestscreatedAtFrom=2018-08-09&createdAtTo=2018-08-09&status=UC",
+    "signature_example": "MASKED"
+  },
+  "request_example_authenticated": {
+    "method": "GET",
+    "url": "https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v4/vendors/MASKED/returnRequests?createdAtFrom=2018-08-09&createdAtTo=2018-08-09&status=UC",
+    "headers": {
+      "Authorization": "CEA algorithm=HmacSHA256, access-key=MASKED, signed-date=180809T010203Z, signature=MASKED",
+      "Content-Type": "application/json;charset=UTF-8"
+    },
+    "body": null
+  },
+  "code_snippets": {
+    "java": "// 쿠팡 공식 SDK 사용\nString authorization = Hmac.generate(method, uriBuilder.build().toString(), SECRET_KEY, ACCESS_KEY);\nget.addHeader(\"Authorization\", authorization);",
+    "php": "<?php\ndate_default_timezone_set(\"GMT+0\");\n$datetime = date(\"ymd\").'T'.date(\"His\").'Z';\n$message = $datetime.$method.$path.$query;\n$signature = hash_hmac('sha256', $message, $secretkey);\n$authorization = \"CEA algorithm=HmacSHA256, access-key=\".$accesskey.\", signed-date=\".$datetime.\", signature=\".$signature;",
+    "python": "import os, time, hmac, hashlib\nos.environ['TZ'] = 'GMT+0'\ndatetime = time.strftime('%y%m%d')+'T'+time.strftime('%H%M%S')+'Z'\nmessage = datetime + method + path + query\nsignature = hmac.new(secretkey.encode('utf-8'), message.encode('utf-8'), hashlib.sha256).hexdigest()\nauthorization = f\"CEA algorithm=HmacSHA256, access-key={accesskey}, signed-date={datetime}, signature={signature}\"",
+    "csharp": "string datetime = DateTime.Now.ToUniversalTime().ToString(\"yyMMddTHHmmssZ\");\nstring message = $\"{datetime}{method}{path}{query}\";\nvar hmac = new HMACSHA256(Encoding.ASCII.GetBytes(secretKey));\nbyte[] hash = hmac.ComputeHash(Encoding.ASCII.GetBytes(message));\nstring signature = string.Concat(hash.Select(b => b.ToString(\"x2\")));\nstring authorization = $\"CEA algorithm=HmacSHA256, access-key={accessKey}, signed-date={datetime}, signature={signature}\";"
+  },
+  "downloads": {
+    "official_sdk": "hmac_sdk.zip (공식 문서 첨부, 약 200KB)"
+  }
+}

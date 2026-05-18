@@ -1,0 +1,9 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+product-inflow-status,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,MASKED,hmac-signature 가이드 참조
+product-inflow-status,response,code,string,Y,결과 코드,SUCCESS,"Possible: SUCCESS, ERROR (문자열)"
+product-inflow-status,response,message,string,Y,결과 메시지,,빈 문자열 가능
+product-inflow-status,response,data,object,Y,데이터,(object),
+product-inflow-status,response,data.vendorId,string,Y,판매자 ID,MASKED,쿠팡에서 발급한 고유 코드
+product-inflow-status,response,data.restricted,boolean,Y,상품 생성 불가 여부,false,"false: 생성가능, true: 생성불가능"
+product-inflow-status,response,data.registeredCount,number,Y,등록된 상품수 (삭제 제외),8125,
+product-inflow-status,response,data.permittedCount,number,N,생성 가능한 최대 상품수,10000,null이면 제한 없음

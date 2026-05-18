@@ -1,0 +1,6 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+vendor-item-quantity-update,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,MASKED,
+vendor-item-quantity-update,request,path.vendorItemId,number,Y,옵션 ID,3572784698,벤더아이템 고유 번호
+vendor-item-quantity-update,request,path.quantity,number,Y,변경할 재고 수량,100,
+vendor-item-quantity-update,response,code,string,Y,결과 코드,SUCCESS,"Possible: SUCCESS, ERROR"
+vendor-item-quantity-update,response,message,string,Y,결과 메시지,재고 변경을 완료했습니다.,

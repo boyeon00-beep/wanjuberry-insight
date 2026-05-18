@@ -1,0 +1,8 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+vendor-item-price-update,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,MASKED,
+vendor-item-price-update,request,path.vendorItemId,number,Y,옵션 ID,3572784698,벤더아이템에 부여되는 고유 번호
+vendor-item-price-update,request,path.price,number,Y,변경할 가격,49000,최소 10원 단위; 1원 단위 불가
+vendor-item-price-update,request,query.forceSalePriceUpdate,boolean,N,가격 변경 비율 제한 여부,true,"false(기본; -50%~+100% 제한), true(제한 없음)"
+vendor-item-price-update,response,code,string,Y,결과 코드,SUCCESS,"Possible: SUCCESS, ERROR"
+vendor-item-price-update,response,message,string,Y,결과 메시지,가격 변경을 완료했습니다.,
+vendor-item-price-update,response,data,object,N,데이터,,본 API에서는 항상 null

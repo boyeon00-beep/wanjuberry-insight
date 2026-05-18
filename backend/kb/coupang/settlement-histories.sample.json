@@ -1,0 +1,53 @@
+{
+  "_meta": {
+    "api": "settlement-histories",
+    "platform": "coupang",
+    "sample_type": "official_doc",
+    "verified_at": "2026-05-18",
+    "notes": "공식 문서(지급내역조회 – Open APIs.pdf) Response Example. URL API Name: SETTLEMENT_HISTORIES. 응답은 배열 직접 반환(래퍼 없음). 계좌/예금주/은행명은 서버 측에서 이미 마스킹된 형태로 응답."
+  },
+  "request": {
+    "method": "GET",
+    "url": "https://api-gateway.coupang.com/v2/providers/marketplace_openapi/apis/api/v1/settlement-histories?revenueRecognitionYearMonth=2019-10",
+    "headers": {
+      "Authorization": "CEA algorithm=HmacSHA256, access-key=MASKED, signed-date=MASKED, signature=MASKED"
+    },
+    "query_params": {
+      "revenueRecognitionYearMonth": "2019-10"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {"Content-Type": "application/json"},
+    "body": [
+      {
+        "settlementType": "DAILY",
+        "settlementDate": "2019-10-10",
+        "revenueRecognitionYearMonth": "2019-10",
+        "revenueRecognitionDateFrom": "2019-10-01",
+        "revenueRecognitionDateTo": "2019-10-01",
+        "totalSale": 58150,
+        "serviceFee": 8782,
+        "settlementTargetAmount": 39368,
+        "settlementAmount": 39368,
+        "lastAmount": 0,
+        "pendingReleasedAmount": 0,
+        "sellerDiscountCoupon": 0,
+        "downloadableCoupon": 0,
+        "dedicatedDeliveryAmount": 0,
+        "sellerServiceFee": 0,
+        "couranteeFee": 0,
+        "couranteeCustomerReward": 0,
+        "deductionAmount": 0,
+        "debtOfLastWeek": 0,
+        "finalAmount": 39368,
+        "bankAccountHolder": "MASKED",
+        "bankName": "MASKED",
+        "bankAccount": "100560****",
+        "status": "DONE",
+        "storeFeeDiscount": 0
+      }
+    ]
+  }
+}

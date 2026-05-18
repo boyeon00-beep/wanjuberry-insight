@@ -1,0 +1,35 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+product-partial-update,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,MASKED,
+product-partial-update,request,headers.Content-Type,string,Y,요청 본문 타입,application/json,
+product-partial-update,request,path.sellerProductId,string,Y,등록상품 ID (path),30100208559,상품 생성 완료 시 출력된 ID
+product-partial-update,request,body.sellerProductId,number,Y,등록상품 ID (body),30100201234,path와 일치 필요
+product-partial-update,request,body.companyContactNumber,string,N,반품지 연락처,02-123-1234,Wing 또는 반품지 생성 API로 등록 후 확인
+product-partial-update,request,body.deliveryCharge,number,N,기본배송비,2500,유료/조건부 무료 시 편도 금액
+product-partial-update,request,body.deliveryChargeOnReturn,number,N,초도반품배송비,0,무료배송 시 반품 시 소비자 지불
+product-partial-update,request,body.deliveryChargeType,string,N,배송비 종류,CONDITIONAL_FREE,"Possible: FREE/NOT_FREE/CHARGE_RECEIVED/CONDITIONAL_FREE"
+product-partial-update,request,body.deliveryCompanyCode,string,N,택배사 코드,HYUNDAI,택배사 코드표 참조
+product-partial-update,request,body.deliveryMethod,string,N,배송방법,SEQUENCIAL,"Possible: SEQUENCIAL/COLD_FRESH/MAKE_ORDER/AGENT_BUY/VENDOR_DIRECT (INSTRUCTURE·MAKE_ORDER_DIRECT는 VENDOR_DIRECT로 통합)"
+product-partial-update,request,body.extraInfoMessage,string,N,주문제작 안내 메시지,,주문제작 배송 방법 시 사용
+product-partial-update,request,body.freeShipOverAmount,number,N,무료배송 조건 금액,10000,100원 이상 단위; 무료배송이면 0
+product-partial-update,request,body.outboundShippingPlaceCode,number,N,출고지 주소 코드,63714,묶음배송 시 필수
+product-partial-update,request,body.outboundShippingTimeDay,number,N,기준 출고일(일),2,당일/다음날(D+1) 모두 1 입력
+product-partial-update,request,body.sameDayShipping,object,N,당일배송 설정,(object),
+product-partial-update,request,body.sameDayShipping.active,boolean,N,당일배송 설정 가능 여부,true,
+product-partial-update,request,body.sameDayShipping.cutOffTimeHour,number,N,당일출고 마감 시(시),18,범위 10~23
+product-partial-update,request,body.sameDayShipping.cutOffTimeMinute,number,N,마감 분,0,active=true면 0
+product-partial-update,request,body.sameDayShipping.cutOffTimeZone,string,N,타임존,KR,active=true면 기본값 KR
+product-partial-update,request,body.pccNeeded,boolean,N,PCC(개인통관부호) 필수 여부,false,기본 false; 해외구매대행 상품용
+product-partial-update,request,body.remoteAreaDeliverable,string,N,도서산간 배송여부,N,"Possible: Y, N"
+product-partial-update,request,body.returnAddress,string,N,반품지 주소,서울특별시 송파구 송파대로 12길,
+product-partial-update,request,body.returnAddressDetail,string,N,반품지 주소 상세,123호,
+product-partial-update,request,body.returnCenterCode,string,N,반품지 센터코드,1000274592,반품지 생성 불가 시 NO_RETURN_CENTERCODE 가능
+product-partial-update,request,body.returnCharge,number,N,반품 배송비,2500,반품회수 편도
+product-partial-update,request,body.returnChargeName,string,N,반품지명,반품지명_1,
+product-partial-update,request,body.returnZipCode,string,N,반품지 우편번호,15200,
+product-partial-update,request,body.unionDeliveryType,string,N,묶음 배송 여부,UNION_DELIVERY,"Possible: UNION_DELIVERY, NOT_UNION_DELIVERY"
+product-partial-update,response,code,string,Y,외부 HTTP 상태 코드 (문자열),200,
+product-partial-update,response,message,string,Y,외부 메시지,,
+product-partial-update,response,data,object,Y,내부 응답 본문,(object),
+product-partial-update,response,data.code,string,Y,결과 코드,SUCCESS,"Possible: SUCCESS/ERROR"
+product-partial-update,response,data.message,string,Y,메시지,,
+product-partial-update,response,data.data,number,Y,수정된 등록상품 ID,30100201234,= 입력 sellerProductId

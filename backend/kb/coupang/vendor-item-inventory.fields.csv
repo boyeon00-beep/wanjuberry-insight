@@ -1,0 +1,10 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+vendor-item-inventory,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,MASKED,
+vendor-item-inventory,request,path.vendorItemId,number,Y,옵션 ID,3000000000,벤더아이템 고유 번호
+vendor-item-inventory,response,code,string,Y,결과 코드,SUCCESS,"Possible: SUCCESS/ERROR (문서 Number 표기지만 실제 String)"
+vendor-item-inventory,response,message,string,Y,결과 메시지,,
+vendor-item-inventory,response,data,object,Y,조회된 옵션 수량/가격/상태,(object),
+vendor-item-inventory,response,data.sellerItemId,number,Y,옵션 아이디,3000000000,요청 path vendorItemId와 동일 ID (이름만 다름)
+vendor-item-inventory,response,data.amountInStock,number,Y,옵션 잔여 수량,0,
+vendor-item-inventory,response,data.salePrice,number,Y,옵션 판매 가격,32000,
+vendor-item-inventory,response,data.onSale,boolean,Y,옵션 판매 상태,true,"Possible: true, false"

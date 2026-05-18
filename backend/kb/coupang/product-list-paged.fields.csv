@@ -1,0 +1,29 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+product-list-paged,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,MASKED,
+product-list-paged,request,query.vendorId,string,Y,판매자 ID,MASKED,
+product-list-paged,request,query.nextToken,number,N,다음 페이지 키값,2,첫 페이지는 생략 또는 1
+product-list-paged,request,query.maxPerPage,number,N,페이지당 건수,100,기본 10; 최대 100
+product-list-paged,request,query.sellerProductId,number,N,등록상품 ID,239092172,
+product-list-paged,request,query.sellerProductName,string,N,등록상품명 검색,헬로키티,20자 이하
+product-list-paged,request,query.status,string,N,업체상품상태,APPROVED,"Possible: IN_REVIEW/SAVED/APPROVING/APPROVED/PARTIAL_APPROVED/DENIED/DELETED"
+product-list-paged,request,query.manufacture,string,N,제조사,,
+product-list-paged,request,query.createdAt,string,N,상품등록일시,2017-02-13,yyyy-MM-dd; 해당일 00:00:00~23:59:59
+product-list-paged,request,query.violationTypes,array,N,위반 유형 검색 필드 (다중 가능),"[\"ATTR\", \"MOTA_V2\"]","Possible: NO_VA_V2/MOTA_V2/ATTR"
+product-list-paged,request,query.violationTypeAndOr,string,N,위반 유형 결합 방식,OR,"violationTypes 2개 이상이면 필수; Possible: AND, OR"
+product-list-paged,response,code,string,Y,결과 코드,SUCCESS,"Possible: SUCCESS/ERROR (문서 Number 표기지만 실제 String)"
+product-list-paged,response,message,string,Y,결과 메시지,,
+product-list-paged,response,nextToken,string,Y,다음 페이지 토큰,2,없으면 빈 문자열
+product-list-paged,response,data,array,Y,등록상품 목록,(see data[]),
+product-list-paged,response,data[].sellerProductId,number,Y,등록상품 ID,239092172,문서 String 표기지만 실제 Number
+product-list-paged,response,data[].sellerProductName,string,Y,등록상품명,R07 헬로키티 미니낚시놀이,
+product-list-paged,response,data[].displayCategoryCode,number,Y,노출 카테고리 코드,77413,
+product-list-paged,response,data[].categoryId,number,Y,카테고리 ID,2102,
+product-list-paged,response,data[].productId,number,Y,Product ID,14784194,
+product-list-paged,response,data[].vendorId,string,Y,판매자 ID,MASKED,
+product-list-paged,response,data[].mdId,string,N,MD ID,MASKED,스펙 미문서화; 응답엔 존재
+product-list-paged,response,data[].mdName,string,N,MD 이름,,null 가능
+product-list-paged,response,data[].saleStartedAt,string,Y,판매시작일시,2017-02-14T06:00:00,yyyy-MM-ddTHH:mm:ss
+product-list-paged,response,data[].saleEndedAt,string,Y,판매종료일시,2099-12-31T00:00:00,yyyy-MM-ddTHH:mm:ss
+product-list-paged,response,data[].brand,string,Y,브랜드,상세설명별도참조,
+product-list-paged,response,data[].statusName,string,Y,등록상품 상태 한글명,승인완료,심사중/임시저장/승인대기중/승인완료/부분승인완료/승인반려/상품삭제
+product-list-paged,response,data[].createdAt,string,Y,판매등록일시,2017-02-13T02:09:47,yyyy-MM-ddTHH:mm:ss

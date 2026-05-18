@@ -1,0 +1,25 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+product-partial-get,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,MASKED,
+product-partial-get,request,path.sellerProductId,string,Y,등록상품 ID,30100201234,상품 생성 완료 시 출력
+product-partial-get,response,code,string,Y,결과 코드,SUCCESS,"Possible: SUCCESS, ERROR"
+product-partial-get,response,message,string,Y,메시지,,
+product-partial-get,response,data,object,Y,부분 상품 정보,(object),
+product-partial-get,response,data.sellerProductId,number,Y,등록상품 ID,30100201234,
+product-partial-get,response,data.companyContactNumber,string,N,반품지 연락처,02-123-7678,
+product-partial-get,response,data.deliveryCharge,number,N,기본배송비,2500,유료/조건부 무료 시 편도
+product-partial-get,response,data.deliveryChargeOnReturn,number,N,초도반품배송비,0,무료배송 시 반품 소비자 지불
+product-partial-get,response,data.deliveryChargeType,string,N,배송비 종류,NOT_FREE,"Possible: FREE/NOT_FREE/CHARGE_RECEIVED/CONDITIONAL_FREE"
+product-partial-get,response,data.deliveryCompanyCode,string,N,택배사 코드,HYUNDAI,
+product-partial-get,response,data.deliveryMethod,string,N,배송방법,SEQUENCIAL,"Possible: SEQUENCIAL/COLD_FRESH/MAKE_ORDER/AGENT_BUY/VENDOR_DIRECT"
+product-partial-get,response,data.extraInfoMessage,string,N,주문제작 안내 메시지,,주문제작 배송 시
+product-partial-get,response,data.freeShipOverAmount,number,N,무료배송 조건 금액,0,100원 이상 단위
+product-partial-get,response,data.outboundShippingPlaceCode,number,N,출고지 주소 코드,63714,
+product-partial-get,response,data.pccNeeded,boolean,N,PCC 필수 여부,false,해외구매대행 상품용
+product-partial-get,response,data.remoteAreaDeliverable,string,N,도서산간 배송여부,N,"Possible: Y, N"
+product-partial-get,response,data.returnAddress,string,N,반품지 주소,서울특별시 송파구 송파대로 570 (신천동),
+product-partial-get,response,data.returnAddressDetail,string,N,반품지 주소 상세,타워,
+product-partial-get,response,data.returnCenterCode,string,N,반품지 센터코드,56642,
+product-partial-get,response,data.returnCharge,number,N,반품 배송비,2500,편도
+product-partial-get,response,data.returnChargeName,string,N,반품지명,타워730,
+product-partial-get,response,data.returnZipCode,string,N,반품지 우편번호,13590,
+product-partial-get,response,data.unionDeliveryType,string,N,묶음 배송 여부,NOT_UNION_DELIVERY,"Possible: UNION_DELIVERY, NOT_UNION_DELIVERY"

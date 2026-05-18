@@ -1,0 +1,19 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+product-summary-by-external-sku,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,MASKED,
+product-summary-by-external-sku,request,path.externalVendorSkuCode,string,Y,판매자 상품코드 (업체상품코드),170816368810,
+product-summary-by-external-sku,response,code,string,Y,결과 코드,SUCCESS,"Possible: SUCCESS, ERROR"
+product-summary-by-external-sku,response,message,string,Y,결과 메시지,,
+product-summary-by-external-sku,response,data,array,Y,업체상품 목록,(see data[]),조회된 개수만큼 반복
+product-summary-by-external-sku,response,data[].sellerProductId,number,Y,등록상품 ID,123,
+product-summary-by-external-sku,response,data[].sellerProductName,string,Y,등록상품명,[인xx] 컴퓨터잡지,20자 이하
+product-summary-by-external-sku,response,data[].displayCategoryCode,number,N,노출 카테고리 코드,,null 가능
+product-summary-by-external-sku,response,data[].categoryId,number,N,카테고리 ID,5555,스펙 미문서화; 응답엔 존재
+product-summary-by-external-sku,response,data[].productId,number,N,Product ID,3333,스펙 미문서화; 응답엔 존재
+product-summary-by-external-sku,response,data[].vendorId,string,Y,판매자 ID,MASKED,
+product-summary-by-external-sku,response,data[].mdId,string,N,MD ID,MASKED,스펙 미문서화
+product-summary-by-external-sku,response,data[].mdName,string,N,MD 이름,MASKED,스펙 미문서화
+product-summary-by-external-sku,response,data[].saleStartedAt,string,Y,판매시작일시,2015-12-28T06:00:00,yyyy-MM-ddTHH:mm:ss
+product-summary-by-external-sku,response,data[].saleEndedAt,string,Y,판매종료일시,2099-01-01T00:00:00,yyyy-MM-ddTHH:mm:ss; 2099년까지
+product-summary-by-external-sku,response,data[].brand,string,N,브랜드,,null 가능; 한글/영어 표준이름
+product-summary-by-external-sku,response,data[].statusName,string,Y,업체상품상태명,승인완료,심사중/임시저장/승인대기중/승인완료/부분승인완료/승인반려/상품삭제
+product-summary-by-external-sku,response,data[].createdAt,string,Y,판매등록일시,2015-12-28T18:57:34,yyyy-MM-ddTHH:mm:ss

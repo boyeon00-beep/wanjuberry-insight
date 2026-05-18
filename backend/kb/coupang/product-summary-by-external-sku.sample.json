@@ -1,0 +1,45 @@
+{
+  "_meta": {
+    "api": "product-summary-by-external-sku",
+    "platform": "coupang",
+    "sample_type": "official_doc",
+    "verified_at": "2026-05-17",
+    "notes": "공식 문서(상품 요약 정보 조회 – Open APIs.pdf) Response Example. URL API Name: GET_PRODUCT_BY_EXTERNAL_SKU. 등록 후 1분 이상 경과 후 호출 권장. vendorId/mdId/mdName은 MASKED."
+  },
+  "request": {
+    "method": "GET",
+    "url": "https://api-gateway.coupang.com/v2/providers/seller_api/apis/api/v1/marketplace/seller-products/external-vendor-sku-codes/170816368810",
+    "headers": {
+      "Authorization": "CEA algorithm=HmacSHA256, access-key=MASKED, signed-date=MASKED, signature=MASKED"
+    },
+    "path_params": {
+      "externalVendorSkuCode": "170816368810"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {"Content-Type": "application/json"},
+    "body": {
+      "code": "SUCCESS",
+      "message": "",
+      "data": [
+        {
+          "sellerProductId": 123,
+          "sellerProductName": "[인xx] 컴퓨터잡지",
+          "displayCategoryCode": null,
+          "categoryId": 5555,
+          "productId": 3333,
+          "vendorId": "MASKED",
+          "mdId": "MASKED",
+          "mdName": "MASKED",
+          "saleStartedAt": "2015-12-28T06:00:00",
+          "saleEndedAt": "2099-01-01T00:00:00",
+          "brand": null,
+          "statusName": "승인완료",
+          "createdAt": "2015-12-28T18:57:34"
+        }
+      ]
+    }
+  }
+}

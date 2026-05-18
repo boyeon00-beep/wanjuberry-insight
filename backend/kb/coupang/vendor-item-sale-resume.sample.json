@@ -1,0 +1,26 @@
+{
+  "_meta": {
+    "api": "vendor-item-sale-resume",
+    "platform": "coupang",
+    "sample_type": "official_doc",
+    "verified_at": "2026-05-17",
+    "notes": "공식 문서(상품 아이템별 판매 재개 – Open APIs.pdf). URL API Name: RESUME_PRODUCT_SALES_BY_ITEM. body 없음, path-only."
+  },
+  "request": {
+    "method": "PUT",
+    "url": "https://api-gateway.coupang.com/v2/providers/seller_api/apis/api/v1/marketplace/vendor-items/3572784698/sales/resume",
+    "headers": {
+      "Authorization": "CEA algorithm=HmacSHA256, access-key=MASKED, signed-date=MASKED, signature=MASKED"
+    },
+    "path_params": {"vendorItemId": 3572784698},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {"Content-Type": "application/json"},
+    "body": {
+      "code": "SUCCESS",
+      "message": "판매가 재개되었습니다."
+    }
+  }
+}

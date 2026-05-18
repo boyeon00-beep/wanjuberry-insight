@@ -1,0 +1,5 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+vendor-item-sale-resume,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,MASKED,
+vendor-item-sale-resume,request,path.vendorItemId,number,Y,옵션 ID,3572784698,벤더아이템 고유 번호
+vendor-item-sale-resume,response,code,string,Y,결과 코드,SUCCESS,"Possible: SUCCESS, ERROR"
+vendor-item-sale-resume,response,message,string,Y,결과 메시지,판매가 재개되었습니다.,

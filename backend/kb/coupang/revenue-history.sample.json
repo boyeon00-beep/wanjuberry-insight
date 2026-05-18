@@ -1,0 +1,203 @@
+{
+  "_meta": {
+    "api": "revenue-history",
+    "platform": "coupang",
+    "sample_type": "official_doc",
+    "verified_at": "2026-05-17",
+    "notes": "공식 문서(매출내역 조회 – Open APIs.pdf) Response Example 그대로 (URL API Name: GET_REVENUE_HISTORY). vendorId/access-key 등 민감 정보는 MASKED. 문서의 상품/주문 ID는 예시값으로 유지."
+  },
+  "request": {
+    "method": "GET",
+    "url": "https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1/revenue-history",
+    "headers": {
+      "Authorization": "CEA algorithm=HmacSHA256, access-key=MASKED, signed-date=MASKED, signature=MASKED"
+    },
+    "query_params": {
+      "vendorId": "MASKED",
+      "recognitionDateFrom": "2019-10-01",
+      "recognitionDateTo": "2019-10-30",
+      "token": "",
+      "maxPerPage": 50
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "code": 200,
+      "message": "OK",
+      "data": [
+        {
+          "orderId": 28000048862315,
+          "saleType": "REFUND",
+          "saleDate": "2019-09-06",
+          "recognitionDate": "2019-10-02",
+          "settlementDate": "2019-11-21",
+          "finalSettlementDate": "2019-11-21",
+          "deliveryFee": {
+            "amount": 0,
+            "fee": 0,
+            "feeVat": 0,
+            "feeRatio": 3,
+            "settlementAmount": 0,
+            "baseAmount": 0,
+            "baseFee": 0,
+            "baseFeeVat": 0,
+            "remoteAmount": 0,
+            "remoteFee": 0,
+            "remoteFeeVat": 0
+          },
+          "items": [
+            {
+              "taxType": "TAX",
+              "productId": 294693352,
+              "productName": "gtest 테스트 비정품잉크",
+              "vendorItemId": 5307184135,
+              "vendorItemName": "gtest 테스트 비정품잉크, 1개, 블랙",
+              "salePrice": 300,
+              "quantity": 2,
+              "coupangDiscountCoupon": 0,
+              "discountCouponPolicyAgreement": false,
+              "saleAmount": 300,
+              "sellerDiscountCoupon": 0,
+              "downloadableCoupon": 0,
+              "serviceFee": 22,
+              "serviceFeeVat": 2,
+              "serviceFeeRatio": 7.0,
+              "settlementAmount": 276,
+              "couranteeFeeRatio": 0,
+              "couranteeFee": 0,
+              "couranteeFeeVat": 0,
+              "storeFeeDiscountVat": 0,
+              "storeFeeDiscount": 0,
+              "externalSellerSkuCode": ""
+            },
+            {
+              "taxType": "TAX",
+              "productId": 294692050,
+              "productName": "gtest 테스트 훈제란",
+              "vendorItemId": 5307179471,
+              "vendorItemName": "gtest 테스트 훈제란, 1개, 500g",
+              "salePrice": 100,
+              "quantity": 1,
+              "coupangDiscountCoupon": 0,
+              "discountCouponPolicyAgreement": false,
+              "saleAmount": 100,
+              "sellerDiscountCoupon": 0,
+              "downloadableCoupon": 0,
+              "serviceFee": 10,
+              "serviceFeeVat": 1,
+              "serviceFeeRatio": 10.0,
+              "settlementAmount": 89,
+              "couranteeFeeRatio": 0,
+              "couranteeFee": 0,
+              "couranteeFeeVat": 0,
+              "storeFeeDiscountVat": 0,
+              "storeFeeDiscount": 0,
+              "externalSellerSkuCode": ""
+            }
+          ]
+        },
+        {
+          "orderId": 2000050175528,
+          "saleType": "SALE",
+          "saleDate": "2019-09-26",
+          "recognitionDate": "2019-10-03",
+          "settlementDate": "2019-11-21",
+          "finalSettlementDate": "2019-11-21",
+          "deliveryFee": {
+            "amount": 0,
+            "fee": 0,
+            "feeVat": 0,
+            "feeRatio": 3,
+            "settlementAmount": 0,
+            "baseAmount": 0,
+            "baseFee": 0,
+            "baseFeeVat": 0,
+            "remoteAmount": 0,
+            "remoteFee": 0,
+            "remoteFeeVat": 0
+          },
+          "items": [
+            {
+              "taxType": "TAX",
+              "productId": 290865426,
+              "productName": "쁘띠드엔 ㅇㅇ",
+              "vendorItemId": 5291775079,
+              "vendorItemName": "쁘띠드엔 ㅇㅇ, 남아, L(7호)",
+              "salePrice": 200,
+              "quantity": 1,
+              "coupangDiscountCoupon": 0,
+              "discountCouponPolicyAgreement": false,
+              "saleAmount": 200,
+              "sellerDiscountCoupon": 0,
+              "downloadableCoupon": 0,
+              "serviceFee": 21,
+              "serviceFeeVat": 2,
+              "serviceFeeRatio": 10.5,
+              "settlementAmount": 177,
+              "couranteeFeeRatio": 0,
+              "couranteeFee": 0,
+              "couranteeFeeVat": 0,
+              "storeFeeDiscountVat": 0,
+              "storeFeeDiscount": 0,
+              "externalSellerSkuCode": ""
+            }
+          ]
+        },
+        {
+          "orderId": 0,
+          "saleType": "SALE",
+          "saleDate": "2019-10-31",
+          "recognitionDate": "2019-10-31",
+          "settlementDate": "2019-11-21",
+          "finalSettlementDate": "2019-11-21",
+          "deliveryFee": {
+            "amount": 0,
+            "fee": 0,
+            "feeVat": 0,
+            "feeRatio": 3,
+            "settlementAmount": 0,
+            "baseAmount": 0,
+            "baseFee": 0,
+            "baseFeeVat": 0,
+            "remoteAmount": 0,
+            "remoteFee": 0,
+            "remoteFeeVat": 0
+          },
+          "items": [
+            {
+              "taxType": "",
+              "productId": 0,
+              "productName": "",
+              "vendorItemId": 0,
+              "vendorItemName": "",
+              "salePrice": 0,
+              "quantity": 0,
+              "coupangDiscountCoupon": 0,
+              "discountCouponPolicyAgreement": false,
+              "saleAmount": 0,
+              "sellerDiscountCoupon": 0,
+              "downloadableCoupon": 0,
+              "serviceFee": 0,
+              "serviceFeeVat": 0,
+              "serviceFeeRatio": null,
+              "settlementAmount": 0,
+              "couranteeFeeRatio": 0,
+              "couranteeFee": 0,
+              "couranteeFeeVat": 0,
+              "storeFeeDiscountVat": 0,
+              "storeFeeDiscount": 0,
+              "externalSellerSkuCode": ""
+            }
+          ]
+        }
+      ],
+      "hasNext": false,
+      "nextToken": ""
+    }
+  }
+}

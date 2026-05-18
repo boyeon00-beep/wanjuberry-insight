@@ -1,0 +1,200 @@
+{
+  "_meta": {
+    "api": "ordersheet-list-daily",
+    "platform": "coupang",
+    "sample_type": "official_doc",
+    "verified_at": "2026-05-17",
+    "notes": "공식 문서(발주서 목록 조회(일단위 페이징) – Open APIs.pdf) Response Example 그대로. URL API Name: GET_ORDERSHEET. vendorId/주문자 정보(이름/연락처/주소)는 MASKED 정책. 본 샘플에서는 문서가 이미 부분 마스킹된 값(예: 신*희) 그대로 유지."
+  },
+  "request": {
+    "method": "GET",
+    "url": "https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v5/vendors/MASKED/ordersheets",
+    "headers": {
+      "Authorization": "CEA algorithm=HmacSHA256, access-key=MASKED, signed-date=MASKED, signature=MASKED"
+    },
+    "path_params": {
+      "vendorId": "MASKED"
+    },
+    "query_params": {
+      "createdAtFrom": "2025-07-15%2B09:00",
+      "createdAtTo": "2025-07-25%2B09:00",
+      "maxPerPage": 50,
+      "status": "INSTRUCT"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "code": 200,
+      "message": "OK",
+      "data": [
+        {
+          "shipmentBoxId": 64253897006401429,
+          "orderId": 22000009546234,
+          "orderedAt": "2025-01-15T14:17:13.973885-08:00",
+          "orderer": {
+            "name": "MASKED",
+            "email": "",
+            "safeNumber": "MASKED",
+            "ordererNumber": null
+          },
+          "paidAt": "2025-01-15T14:17:13.973885-08:00",
+          "status": "FINAL_DELIVERY",
+          "shippingPrice": {"currencyCode": "KRW", "units": 5000, "nanos": 0},
+          "remotePrice": null,
+          "remoteArea": false,
+          "parcelPrintMessage": "문 앞",
+          "splitShipping": false,
+          "ableSplitShipping": false,
+          "receiver": {
+            "name": "MASKED",
+            "safeNumber": "MASKED",
+            "receiverNumber": null,
+            "addr1": "MASKED",
+            "addr2": "MASKED",
+            "postCode": "447-700"
+          },
+          "orderItems": [
+            {
+              "vendorItemPackageId": 0,
+              "vendorItemPackageName": "인디고뱅크키즈 기모 테잎배색 트레이닝 팬츠 IKTM17WG1",
+              "productId": 31846051,
+              "vendorItemId": 3242596358,
+              "vendorItemName": "인디고뱅크키즈 기모 테잎배색 트레이닝 팬츠 IKTM17WG1, 07 DARK GREY, 160호",
+              "shippingCount": 1,
+              "salesPrice": {"currencyCode": "KRW", "units": 19000, "nanos": 0},
+              "orderPrice": {"currencyCode": "KRW", "units": 19000, "nanos": 0},
+              "discountPrice": {"currencyCode": "KRW", "units": 3000, "nanos": 0},
+              "instantCouponDiscount": {"currencyCode": "KRW", "units": 2000, "nanos": 0},
+              "downloadableCouponDiscount": {"currencyCode": "KRW", "units": 1000, "nanos": 0},
+              "coupangDiscount": {"currencyCode": "KRW", "units": 0, "nanos": 0},
+              "externalVendorSkuCode": "170816368810",
+              "etcInfoHeader": null,
+              "etcInfoValue": null,
+              "etcInfoValues": ["추가메시지1", "추가메시지2"],
+              "sellerProductId": 80240831,
+              "sellerProductName": "인디고뱅크키즈 A5 기모 배색츄키니 IKTM17WG1",
+              "sellerProductItemName": "07 DARK GREY 160호",
+              "firstSellerProductItemName": "07 DARK GREY/160호",
+              "cancelCount": 0,
+              "holdCountForCancel": 0,
+              "estimatedShippingDate": "2017-10-16",
+              "plannedShippingDate": "",
+              "invoiceNumberUploadDate": "",
+              "extraProperties": {},
+              "pricingBadge": false,
+              "usedProduct": false,
+              "confirmDate": "2025-01-15T14:17:13.973885-08:00",
+              "deliveryChargeTypeName": "유료",
+              "canceled": false
+            }
+          ],
+          "overseaShippingInfoDto": {
+            "personalCustomsClearanceCode": "",
+            "ordererSsn": "",
+            "ordererPhoneNumber": ""
+          },
+          "deliveryCompanyName": "CJ 대한통운",
+          "invoiceNumber": "340010913442",
+          "inTrasitDateTime": "2025-01-15T14:17:13.973885-08:00",
+          "deliveredDate": "2025-01-15T14:17:13.973885-08:00",
+          "refer": "안드로이드앱",
+          "shipmentType": "THIRD_PARTY",
+          "isCod": false,
+          "extraProperties": {
+            "sameDayShipping": "false",
+            "cutOffTimeHour": "0"
+          }
+        },
+        {
+          "shipmentBoxId": 64253897006401428,
+          "orderId": 22000009546630,
+          "orderedAt": "2025-01-15T14:17:13.973885-08:00",
+          "orderer": {
+            "name": "MASKED",
+            "email": "MASKED",
+            "safeNumber": "MASKED",
+            "ordererNumber": null
+          },
+          "paidAt": "2025-01-15T14:17:13.973885-08:00",
+          "status": "FINAL_DELIVERY",
+          "shippingPrice": {"currencyCode": "KRW", "units": 0, "nanos": 0},
+          "remotePrice": null,
+          "remoteArea": false,
+          "parcelPrintMessage": "직접 받고 부재 시 문 앞",
+          "splitShipping": false,
+          "ableSplitShipping": false,
+          "receiver": {
+            "name": "MASKED",
+            "safeNumber": "MASKED",
+            "receiverNumber": null,
+            "addr1": "MASKED",
+            "addr2": "MASKED",
+            "postCode": "423-747"
+          },
+          "orderItems": [
+            {
+              "vendorItemPackageId": 0,
+              "vendorItemPackageName": "리틀브렌 후드달이 구스 경량 점퍼 LBJD17WG5",
+              "productId": 34047877,
+              "vendorItemId": 3261300431,
+              "vendorItemName": "리틀브렌 후드달이 구스 경량 점퍼 LBJD17WG5, 04 MIDDLE MELANGE GR, 170호",
+              "shippingCount": 1,
+              "salesPrice": {"currencyCode": "KRW", "units": 27800, "nanos": 0},
+              "orderPrice": {"currencyCode": "KRW", "units": 278000, "nanos": 0},
+              "discountPrice": {"currencyCode": "KRW", "units": 2470, "nanos": 0},
+              "instantCouponDiscount": {"currencyCode": "KRW", "units": 560, "nanos": 0},
+              "downloadableCouponDiscount": {"currencyCode": "KRW", "units": 1910, "nanos": 0},
+              "coupangDiscount": {"currencyCode": "KRW", "units": 0, "nanos": 0},
+              "externalVendorSkuCode": "170824416510",
+              "etcInfoHeader": null,
+              "etcInfoValue": null,
+              "etcInfoValues": ["추가메시지1", "추가메시지2"],
+              "sellerProductId": 87037167,
+              "sellerProductName": "리틀브렌 후드달이 구스 경량 점퍼 LBJD17WG5",
+              "sellerProductItemName": "04 MIDDLE MELANGE GR 170호",
+              "firstSellerProductItemName": "04 MIDDLE MELANGE GR/170호",
+              "cancelCount": 0,
+              "holdCountForCancel": 0,
+              "estimatedShippingDate": "2017-10-16",
+              "plannedShippingDate": "",
+              "invoiceNumberUploadDate": "",
+              "extraProperties": {},
+              "pricingBadge": false,
+              "usedProduct": false,
+              "confirmDate": "2025-01-15T14:17:13.973885-08:00",
+              "deliveryChargeTypeName": "무료",
+              "canceled": false
+            }
+          ],
+          "overseaShippingInfoDto": {
+            "personalCustomsClearanceCode": "",
+            "ordererSsn": "",
+            "ordererPhoneNumber": ""
+          },
+          "deliveryCompanyName": "CJ 대한통운",
+          "invoiceNumber": "340010912565",
+          "inTrasitDateTime": "2025-01-15T14:17:13.973885-08:00",
+          "deliveredDate": "2025-01-15T14:17:13.973885-08:00",
+          "refer": "안드로이드앱",
+          "shipmentType": "CGF LITE",
+          "isCod": false,
+          "extraProperties": {
+            "taxReceiptInfo": {
+              "appliedValue": null,
+              "receiptOption": "PAPER",
+              "appliedType": "PERSONAL_COUPANG_MEMBER_CARRIER"
+            },
+            "sameDayShipping": "true",
+            "cutOffTimeHour": "18"
+          }
+        }
+      ],
+      "nextToken": "448537989"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+settlement-histories,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,MASKED,
+settlement-histories,request,query.revenueRecognitionYearMonth,string,Y,매출인식월,2019-10,형식 YYYY-MM; 당월까지만
+settlement-histories,response,[].settlementType,string,Y,정산 유형,DAILY,"Possible: MONTHLY/WEEKLY/ADDITIONAL/RESERVE (예시에 DAILY도 출현)"
+settlement-histories,response,[].settlementDate,string,Y,정산(예정)일,2019-10-10,
+settlement-histories,response,[].revenueRecognitionYearMonth,string,Y,매출인식월,2019-10,
+settlement-histories,response,[].revenueRecognitionDateFrom,string,Y,매출인식 시작일,2019-10-01,
+settlement-histories,response,[].revenueRecognitionDateTo,string,Y,매출인식 종료일,2019-10-01,
+settlement-histories,response,[].totalSale,number,Y,총판매액,58150,= 판매액 + 판매배송료 - (취소액 + 취소배송료 + 할인쿠폰)
+settlement-histories,response,[].serviceFee,number,Y,판매수수료,8782,= 판매수수료 + 우대수수료 환급액
+settlement-histories,response,[].settlementTargetAmount,number,Y,정산 대상액,39368,= 총판매액 - 판매수수료
+settlement-histories,response,[].settlementAmount,number,Y,지급액,39368,주정산 70% / 월정산 100%
+settlement-histories,response,[].lastAmount,number,Y,최종액(유보),0,주정산 30% 유보금액
+settlement-histories,response,[].pendingReleasedAmount,number,Y,보류 해제 금액,0,이번 지급에 포함될 금액
+settlement-histories,response,[].sellerDiscountCoupon,number,Y,판매자 할인쿠폰(즉시),0,
+settlement-histories,response,[].downloadableCoupon,number,Y,판매자 할인쿠폰(다운로드),0,
+settlement-histories,response,[].dedicatedDeliveryAmount,number,Y,전담택배비,0,사용 안함
+settlement-histories,response,[].sellerServiceFee,number,Y,판매자 서비스 이용료,0,서버 이용료
+settlement-histories,response,[].couranteeFee,number,Y,쿠런티 이용료,0,
+settlement-histories,response,[].couranteeCustomerReward,number,Y,쿠런티 보상금,0,
+settlement-histories,response,[].deductionAmount,number,Y,정산 차감,0,
+settlement-histories,response,[].debtOfLastWeek,number,Y,전주 채권,0,전주 손실 관련 차감액
+settlement-histories,response,[].finalAmount,number,Y,최종 지급액/지급 예정액,39368,셀러 실수령액
+settlement-histories,response,[].bankAccountHolder,string,Y,예금주,MASKED,서버 측 마스킹 응답
+settlement-histories,response,[].bankName,string,Y,은행명,MASKED,서버 측 마스킹 응답
+settlement-histories,response,[].bankAccount,string,Y,정산대금 입금 계좌번호,100560****,뒤 4자리 마스킹 처리
+settlement-histories,response,[].status,string,Y,지급 상태,DONE,"Possible: DONE, SUBJECT"
+settlement-histories,response,[].storeFeeDiscount,number,Y,셀러 스토어 이용료 할인 금액,0,

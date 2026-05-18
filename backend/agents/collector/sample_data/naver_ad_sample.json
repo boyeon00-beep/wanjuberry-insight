@@ -1,0 +1,108 @@
+{
+  "campaigns": [
+    {
+      "nccCampaignId": "cmp-mock-001",
+      "name": "완주베리_냉동복분자_브랜드",
+      "campaignTp": "WEB_SITE",
+      "deliveryMethod": "STANDARD",
+      "useDailyBudget": true,
+      "dailyBudget": 10000,
+      "status": "ELIGIBLE",
+      "statusReason": "ELIGIBLE",
+      "stats": {
+        "impCnt": 3200,
+        "clkCnt": 128,
+        "salesAmt": 320000,
+        "ctr": 4.0,
+        "cpc": 2500,
+        "revenueConvAmt": 220000,
+        "rvsCnt": 8
+      }
+    },
+    {
+      "nccCampaignId": "cmp-mock-002",
+      "name": "완주베리_복분자즙_선물세트",
+      "campaignTp": "WEB_SITE",
+      "deliveryMethod": "STANDARD",
+      "useDailyBudget": true,
+      "dailyBudget": 5000,
+      "status": "ELIGIBLE",
+      "statusReason": "ELIGIBLE",
+      "stats": {
+        "impCnt": 1500,
+        "clkCnt": 45,
+        "salesAmt": 90000,
+        "ctr": 3.0,
+        "cpc": 2000,
+        "revenueConvAmt": 76000,
+        "rvsCnt": 2
+      }
+    }
+  ],
+  "keywords": [
+    {
+      "nccKeywordId": "kwd-mock-001",
+      "nccCampaignId": "cmp-mock-001",
+      "keyword": "냉동복분자",
+      "bidAmt": 500,
+      "status": "ELIGIBLE",
+      "stats": {
+        "impCnt": 1800,
+        "clkCnt": 72,
+        "ctr": 4.0,
+        "cpc": 490,
+        "revenueConvAmt": 132000,
+        "rvsCnt": 5,
+        "avgRnk": 2.1
+      }
+    },
+    {
+      "nccKeywordId": "kwd-mock-002",
+      "nccCampaignId": "cmp-mock-001",
+      "keyword": "복분자 효능",
+      "bidAmt": 300,
+      "status": "ELIGIBLE",
+      "stats": {
+        "impCnt": 900,
+        "clkCnt": 18,
+        "ctr": 2.0,
+        "cpc": 300,
+        "revenueConvAmt": 44000,
+        "rvsCnt": 2,
+        "avgRnk": 4.3
+      }
+    },
+    {
+      "nccKeywordId": "kwd-mock-003",
+      "nccCampaignId": "cmp-mock-001",
+      "keyword": "국산 복분자",
+      "bidAmt": 400,
+      "status": "ELIGIBLE",
+      "stats": {
+        "impCnt": 500,
+        "clkCnt": 38,
+        "ctr": 7.6,
+        "cpc": 410,
+        "revenueConvAmt": 44000,
+        "rvsCnt": 1,
+        "avgRnk": 1.5
+      }
+    },
+    {
+      "nccKeywordId": "kwd-mock-004",
+      "nccCampaignId": "cmp-mock-002",
+      "keyword": "복분자즙 선물세트",
+      "bidAmt": 600,
+      "status": "ELIGIBLE",
+      "stats": {
+        "impCnt": 1500,
+        "clkCnt": 45,
+        "ctr": 3.0,
+        "cpc": 600,
+        "revenueConvAmt": 76000,
+        "rvsCnt": 2,
+        "avgRnk": 2.8
+      }
+    }
+  ]
+}

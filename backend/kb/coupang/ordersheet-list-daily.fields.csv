@@ -1,0 +1,92 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+ordersheet-list-daily,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,MASKED,hmac-signature 가이드 참조
+ordersheet-list-daily,request,path.vendorId,string,Y,판매자 ID. 쿠팡에서 업체에 발급한 고유 코드,MASKED,예: A00012345
+ordersheet-list-daily,request,query.createdAtFrom,string,Y,검색 시작일시 (ISO-8601),2025-07-01%2B09:00,형식 yyyy-mm-dd%2B09:00; + → %2B 인코딩 필수
+ordersheet-list-daily,request,query.createdAtTo,string,Y,검색 종료일시 (ISO-8601),2025-07-31%2B09:00,createdAtFrom과 함께 최대 31일
+ordersheet-list-daily,request,query.status,string,Y,발주서 상태,INSTRUCT,"Possible: ACCEPT/INSTRUCT/DEPARTURE/DELIVERING/FINAL_DELIVERY/NONE_TRACKING"
+ordersheet-list-daily,request,query.nextToken,string,N,다음 페이지 토큰,448537989,첫 호출 시 생략
+ordersheet-list-daily,request,query.maxPerPage,number,N,페이지당 최대 조회 요청 값,50,default 50; 최대 50
+ordersheet-list-daily,request,query.searchType,string,N,검색 타입,timeFrame,timeFrame이면 분단위 전체 API로 라우팅
+ordersheet-list-daily,response,code,number,Y,서버 응답 코드,200,
+ordersheet-list-daily,response,message,string,Y,서버 응답 메시지,OK,
+ordersheet-list-daily,response,data,array,Y,결과 리스트,(see data[]),결과 없을 시 빈 배열
+ordersheet-list-daily,response,data[].shipmentBoxId,number,Y,배송번호 (묶음배송번호),64253897006401429,
+ordersheet-list-daily,response,data[].orderId,number,Y,주문번호,22000009546234,
+ordersheet-list-daily,response,data[].orderedAt,string,Y,주문일시 (ISO-8601),2025-01-15T14:17:13.973885-08:00,YYYY-MM-DDThh:mm:ss.ssssss±hh:mm
+ordersheet-list-daily,response,data[].orderer,object,Y,주문자 정보,(object),
+ordersheet-list-daily,response,data[].orderer.name,string,Y,주문자 이름,MASKED,민감 정보
+ordersheet-list-daily,response,data[].orderer.email,string,N,주문자 email,,미사용 (빈값)
+ordersheet-list-daily,response,data[].orderer.safeNumber,string,Y,수취인 안심번호 (E.164),MASKED,
+ordersheet-list-daily,response,data[].orderer.ordererNumber,string,N,주문자 실전화번호 (E.164),,null 가능
+ordersheet-list-daily,response,data[].paidAt,string,Y,결제일시 (ISO-8601),2025-01-15T14:17:13.973885-08:00,
+ordersheet-list-daily,response,data[].status,string,Y,발주서 상태,FINAL_DELIVERY,"Possible: ACCEPT/INSTRUCT/DEPARTURE/DELIVERING/FINAL_DELIVERY/NONE_TRACKING"
+ordersheet-list-daily,response,data[].shippingPrice,object,Y,배송비 (Money),(Money),
+ordersheet-list-daily,response,data[].shippingPrice.currencyCode,string,Y,통화 코드,KRW,ISO-4217 대문자 3자
+ordersheet-list-daily,response,data[].shippingPrice.units,number,Y,통화 정수 부분,5000,64bit
+ordersheet-list-daily,response,data[].shippingPrice.nanos,number,Y,통화 소수점 부분,0,"32bit, [-9999999999, 999999999]"
+ordersheet-list-daily,response,data[].remotePrice,object,N,도서산간 배송비 (Money),,null 가능
+ordersheet-list-daily,response,data[].remoteArea,boolean,Y,도서산간 여부,false,
+ordersheet-list-daily,response,data[].parcelPrintMessage,string,N,배송 메시지,문 앞,optional
+ordersheet-list-daily,response,data[].splitShipping,boolean,Y,분리배송 여부,false,
+ordersheet-list-daily,response,data[].ableSplitShipping,boolean,Y,분리배송 가능 여부,false,
+ordersheet-list-daily,response,data[].receiver,object,Y,수취인 정보,(object),민감 정보 포함
+ordersheet-list-daily,response,data[].receiver.name,string,Y,수취인 이름,MASKED,
+ordersheet-list-daily,response,data[].receiver.safeNumber,string,Y,수취인 안심번호 (E.164),MASKED,
+ordersheet-list-daily,response,data[].receiver.receiverNumber,string,N,수취인 실전화번호 (E.164),,null 가능
+ordersheet-list-daily,response,data[].receiver.addr1,string,Y,수취인 배송지1,MASKED,
+ordersheet-list-daily,response,data[].receiver.addr2,string,Y,수취인 배송지2,MASKED,
+ordersheet-list-daily,response,data[].receiver.postCode,string,Y,수취인 우편번호,447-700,
+ordersheet-list-daily,response,data[].orderItems,array,Y,배송 대상 아이템 목록,(array),
+ordersheet-list-daily,response,data[].orderItems[].vendorItemPackageId,number,N,vendorItemPackageId,0,미사용; 없으면 0
+ordersheet-list-daily,response,data[].orderItems[].vendorItemPackageName,string,N,vendorItemPackageName,(string),미사용
+ordersheet-list-daily,response,data[].orderItems[].productId,number,N,productId,31846051,optional; 없으면 0
+ordersheet-list-daily,response,data[].orderItems[].vendorItemId,number,Y,옵션 ID,3242596358,매핑/대사 key로 사용 권장
+ordersheet-list-daily,response,data[].orderItems[].vendorItemName,string,Y,노출상품명,"인디고뱅크키즈 ..., 160호",
+ordersheet-list-daily,response,data[].orderItems[].shippingCount,number,Y,구매 수량,1,발주가능 수량 = shippingCount - (holdCountForCancel + cancelCount)
+ordersheet-list-daily,response,data[].orderItems[].salesPrice,object,Y,개당 상품 가격 (Money),(Money),
+ordersheet-list-daily,response,data[].orderItems[].orderPrice,object,Y,결제 가격 (Money),(Money),= salesPrice × shippingCount
+ordersheet-list-daily,response,data[].orderItems[].discountPrice,object,Y,총 할인 가격 (Money),(Money),= 즉시할인 + 다운로드 + 쿠팡지원
+ordersheet-list-daily,response,data[].orderItems[].instantCouponDiscount,object,Y,즉시할인 쿠폰 할인 (Money),(Money),
+ordersheet-list-daily,response,data[].orderItems[].downloadableCouponDiscount,object,Y,다운로드 쿠폰 할인 (Money),(Money),
+ordersheet-list-daily,response,data[].orderItems[].coupangDiscount,object,Y,쿠팡 지원 할인 (Money),(Money),장바구니/카테고리 쿠폰
+ordersheet-list-daily,response,data[].orderItems[].externalVendorSkuCode,string,N,external code,170816368810,optional
+ordersheet-list-daily,response,data[].orderItems[].etcInfoHeader,string,N,상품별 개별 입력 항목,,optional
+ordersheet-list-daily,response,data[].orderItems[].etcInfoValue,string,N,상품별 개별 입력값,,optional; 필드 존재하나 값 없음 (etcInfoValues 사용 권장)
+ordersheet-list-daily,response,data[].orderItems[].etcInfoValues,array,N,상품별 개별 입력값 리스트,"[\"추가메시지1\", \"추가메시지2\"]",optional
+ordersheet-list-daily,response,data[].orderItems[].sellerProductId,number,Y,등록상품 ID,80240831,
+ordersheet-list-daily,response,data[].orderItems[].sellerProductName,string,Y,등록상품명,인디고뱅크키즈 A5 ...,
+ordersheet-list-daily,response,data[].orderItems[].sellerProductItemName,string,Y,등록옵션명,07 DARK GREY 160호,
+ordersheet-list-daily,response,data[].orderItems[].firstSellerProductItemName,string,Y,최초등록옵션명,07 DARK GREY/160호,
+ordersheet-list-daily,response,data[].orderItems[].cancelCount,number,Y,취소 수량,0,
+ordersheet-list-daily,response,data[].orderItems[].holdCountForCancel,number,Y,환불대기 수량,0,
+ordersheet-list-daily,response,data[].orderItems[].estimatedShippingDate,string,N,주문시 출고예정일,2017-10-16,optional; yyyy-mm-dd
+ordersheet-list-daily,response,data[].orderItems[].plannedShippingDate,string,N,실제 출고예정일 (분리배송 시),,optional; yyyy-mm-dd
+ordersheet-list-daily,response,data[].orderItems[].invoiceNumberUploadDate,string,N,운송장번호 업로드 일시,,optional; yyyy-MM-dd'T'HH:mm:ss
+ordersheet-list-daily,response,data[].orderItems[].extraProperties,object,N,업체상품옵션 추가 정보,{},optional; key:value
+ordersheet-list-daily,response,data[].orderItems[].pricingBadge,boolean,Y,최저가 상품 여부,false,
+ordersheet-list-daily,response,data[].orderItems[].usedProduct,boolean,Y,중고 상품 여부,false,
+ordersheet-list-daily,response,data[].orderItems[].confirmDate,string,N,구매확정일자,2025-01-15T14:17:13.973885-08:00,ISO-8601 또는 yyyy-MM-dd HH:mm:ss
+ordersheet-list-daily,response,data[].orderItems[].deliveryChargeTypeName,string,Y,배송비 구분,유료,Possible: 유료/무료
+ordersheet-list-daily,response,data[].orderItems[].upBundleVendorItemId,number,N,자동생성옵션 ID,,
+ordersheet-list-daily,response,data[].orderItems[].upBundleVendorItemName,string,N,자동생성옵션 노출상품명,,
+ordersheet-list-daily,response,data[].orderItems[].upBundleSize,number,N,자동생성옵션 개수,,
+ordersheet-list-daily,response,data[].orderItems[].upBundleItem,boolean,N,자동생성옵션 아이템 여부,false,
+ordersheet-list-daily,response,data[].orderItems[].canceled,boolean,Y,주문 취소 여부,false,
+ordersheet-list-daily,response,data[].overseaShippingInfoDto,object,N,해외배송정보,(object),optional
+ordersheet-list-daily,response,data[].overseaShippingInfoDto.personalCustomsClearanceCode,string,N,개인통관 고유부호,,optional; 민감 정보 가능
+ordersheet-list-daily,response,data[].overseaShippingInfoDto.ordererSsn,string,N,미사용,,optional
+ordersheet-list-daily,response,data[].overseaShippingInfoDto.ordererPhoneNumber,string,N,통관용 수신자 전화번호 (E.164),,
+ordersheet-list-daily,response,data[].deliveryCompanyName,string,Y,택배사,CJ 대한통운,예: CJ 대한통운/한진택배
+ordersheet-list-daily,response,data[].invoiceNumber,string,Y,운송장번호,340010913442,
+ordersheet-list-daily,response,data[].inTrasitDateTime,string,N,출고일(발송일),2025-01-15T14:17:13.973885-08:00,ISO-8601
+ordersheet-list-daily,response,data[].deliveredDate,string,N,배송완료일,2025-01-15T14:17:13.973885-08:00,ISO-8601
+ordersheet-list-daily,response,data[].refer,string,Y,결제 위치,안드로이드앱,"Possible: 아이폰앱, 안드로이드앱, PC웹, 모바일웹"
+ordersheet-list-daily,response,data[].shipmentType,string,Y,배송 유형,THIRD_PARTY,"Possible: THIRD_PARTY, CGF, CGF LITE"
+ordersheet-list-daily,response,data[].isCod,boolean,Y,현금결제(착불/COD) 방식 여부,false,
+ordersheet-list-daily,response,data[].extraProperties,object,N,주문 속성 기타 정보,(object),key:value 형식
+ordersheet-list-daily,response,data[].extraProperties.taxReceiptInfo.receiptOption,string,N,영수증 옵션,PAPER,"Possible: PAPER, E-GUI"
+ordersheet-list-daily,response,data[].extraProperties.taxReceiptInfo.appliedType,string,N,세금 계산서 유형,PERSONAL_COUPANG_MEMBER_CARRIER,"Possible: PERSONAL_COUPANG_MEMBER_CARRIER/PERSONAL_MOBILE_BARCODE_CARRIER/DONATION/BUSINESS"
+ordersheet-list-daily,response,data[].extraProperties.taxReceiptInfo.appliedValue,string,N,통합 영수증 번호/정보,,appliedType에 따라 의미 다름; null/모바일바코드/기부번호/사업자등록번호
+ordersheet-list-daily,response,data[].extraProperties.sameDayShipping,string,N,당일 배송 여부,"false","Possible: true, false (문자열)"
+ordersheet-list-daily,response,data[].extraProperties.cutOffTimeHour,string,N,당일 배송 미적용 시간,"18","문자열; 10~23 또는 0"
+ordersheet-list-daily,response,nextToken,string,Y,다음 페이지 요청 토큰,448537989,마지막 페이지면 빈 문자열

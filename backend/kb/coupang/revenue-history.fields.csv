@@ -1,0 +1,53 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+revenue-history,request,headers.Authorization,string,Y,HMAC Signature 인증 헤더,"CEA algorithm=HmacSHA256, access-key=MASKED, signed-date=MASKED, signature=MASKED",쿠팡 Open API 표준; HMAC Signature 생성 API 참조
+revenue-history,request,vendorId,string,Y,판매자 ID. 쿠팡에서 업체에 발급한 고유 코드,MASKED,예: A00012345
+revenue-history,request,recognitionDateFrom,string,Y,매출인식 시작일,2019-10-01,형식 YYYY-MM-dd; recognitionDateTo와 함께 최대 31일
+revenue-history,request,recognitionDateTo,string,Y,매출인식 종료일,2019-10-30,형식 YYYY-MM-dd; 전일까지만 허용
+revenue-history,request,token,string,Y,다음 페이지 조회용 토큰,,첫 페이지는 빈값; 두 번째부터는 nextToken
+revenue-history,request,maxPerPage,number,N,페이지당 최대 호출 개수,50,기본값 50; 범위 1-50
+revenue-history,response,code,number,Y,서버 응답 코드,200,HTTP 상태와 별도로 본문에도 포함
+revenue-history,response,message,string,Y,상세 메시지,OK,
+revenue-history,response,data,array,Y,결과 리스트,(see data[]),결과 없을 시 빈 배열
+revenue-history,response,data[].orderId,number,Y,주문번호,28000048862315,비주문성 매출인식 데이터는 0 가능
+revenue-history,response,data[].saleType,string,Y,항목구분,SALE,"Possible values: SALE(주문 건), REFUND(반품 건)"
+revenue-history,response,data[].saleDate,string,Y,결제완료일,2019-09-06,형식 YYYY-MM-dd
+revenue-history,response,data[].recognitionDate,string,Y,매출인식일,2019-10-02,'배송완료+7day' 또는 '구매확정'; 형식 YYYY-MM-dd
+revenue-history,response,data[].settlementDate,string,Y,지급예정일,2019-11-21,형식 YYYY-MM-dd
+revenue-history,response,data[].finalSettlementDate,string,N,유보액지급 예정일,2019-11-21,주 단위 정산에만 사용; 형식 YYYY-MM-dd
+revenue-history,response,data[].deliveryFee,object,Y,배송비 관련 상세,(object),
+revenue-history,response,data[].deliveryFee.amount,number,Y,총 배송비 (기본 + 도서산간),0,
+revenue-history,response,data[].deliveryFee.fee,number,Y,총 배송비 수수료,0,
+revenue-history,response,data[].deliveryFee.feeVat,number,Y,총 배송비 부가가치세,0,
+revenue-history,response,data[].deliveryFee.feeRatio,number,Y,배송비 수수료율,3,단위 %
+revenue-history,response,data[].deliveryFee.settlementAmount,number,Y,배송비 정산 대상액,0,= 총 배송비 - 수수료 - 부가세
+revenue-history,response,data[].deliveryFee.baseAmount,number,Y,기본배송비,0,
+revenue-history,response,data[].deliveryFee.baseFee,number,Y,기본배송비 수수료,0,
+revenue-history,response,data[].deliveryFee.baseFeeVat,number,Y,기본배송비 부가가치세,0,
+revenue-history,response,data[].deliveryFee.remoteAmount,number,Y,도서산간 배송비,0,
+revenue-history,response,data[].deliveryFee.remoteFee,number,Y,도서산간 배송비 수수료,0,
+revenue-history,response,data[].deliveryFee.remoteFeeVat,number,Y,도서산간 배송비 부가가치세,0,
+revenue-history,response,data[].items,array,Y,주문상품별 정산금액 상세,(see items[]),
+revenue-history,response,data[].items[].taxType,string,Y,과세여부,TAX,비주문성 데이터에서는 빈 문자열 가능
+revenue-history,response,data[].items[].productId,number,Y,노출상품 ID,294693352,머지/분리로 변경 가능 → 정산 대사 key로 사용 불가
+revenue-history,response,data[].items[].productName,string,Y,노출상품명,gtest 테스트 비정품잉크,
+revenue-history,response,data[].items[].vendorItemId,number,Y,옵션 ID,5307184135,변경되지 않음; **정산 대사 key 권장**
+revenue-history,response,data[].items[].vendorItemName,string,Y,옵션명,"gtest 테스트 비정품잉크, 1개, 블랙",
+revenue-history,response,data[].items[].salePrice,number,Y,총 판매가,300,수량이 반영된 총 판매가
+revenue-history,response,data[].items[].quantity,number,Y,수량,2,
+revenue-history,response,data[].items[].coupangDiscountCoupon,number,Y,쿠팡지원할인금액,0,
+revenue-history,response,data[].items[].discountCouponPolicyAgreement,boolean,Y,쿠팡지원 할인쿠폰 동의여부,false,
+revenue-history,response,data[].items[].saleAmount,number,Y,매출금액,300,= 판매액 - 쿠팡지원할인
+revenue-history,response,data[].items[].sellerDiscountCoupon,number,Y,판매자할인쿠폰,0,
+revenue-history,response,data[].items[].downloadableCoupon,number,Y,다운로드 쿠폰,0,
+revenue-history,response,data[].items[].serviceFee,number,Y,서비스 이용료,22,
+revenue-history,response,data[].items[].serviceFeeVat,number,Y,서비스 이용 부가가치세,2,
+revenue-history,response,data[].items[].serviceFeeRatio,number,N,서비스이용율,7.0,단위 %; VAT별도; null 가능
+revenue-history,response,data[].items[].settlementAmount,number,Y,정산금액,276,= 매출금액 - (서비스이용료 + 서비스이용VAT)
+revenue-history,response,data[].items[].couranteeFeeRatio,number,Y,쿠런티 이용료율,0,단위 %
+revenue-history,response,data[].items[].couranteeFee,number,Y,쿠런티 이용료 (금액),0,
+revenue-history,response,data[].items[].couranteeFeeVat,number,Y,쿠런티 이용 부가가치세,0,
+revenue-history,response,data[].items[].externalSellerSkuCode,string,N,셀러 상품 관리코드,,빈 문자열 가능
+revenue-history,response,data[].items[].storeFeeDiscount,number,Y,셀러 스토어 이용료 할인 금액,0,
+revenue-history,response,data[].items[].storeFeeDiscountVat,number,Y,셀러 스토어 이용료 부가세,0,
+revenue-history,response,hasNext,boolean,Y,다음 페이지 데이터 존재 여부,false,페이지네이션 종료 판단
+revenue-history,response,nextToken,string,Y,다음 페이지 조회용 토큰값,,hasNext=false 시 빈 문자열

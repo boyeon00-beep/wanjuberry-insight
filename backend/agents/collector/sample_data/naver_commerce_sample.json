@@ -1,0 +1,131 @@
+{
+  "_comment": "네이버 스마트스토어 상품 목록 API 응답 샘플 (Phase 2 mock용)",
+  "_api_ref": "GET /v2/products?channelNo={channelNo}",
+  "totalCount": 4,
+  "page": 1,
+  "pageSize": 20,
+  "products": [
+    {
+      "productNo": "10000001",
+      "productName": "[완주베리] 냉동 복분자 1kg 국내산",
+      "salePrice": 22000,
+      "stockQuantity": 180,
+      "saleStatusType": "SALE",
+      "productImages": [
+        { "imageType": "REPRESENTATIVE", "url": "https://example.com/img/frozen_1kg.jpg" }
+      ],
+      "options": [
+        { "optionName": "1kg", "price": 0, "stockQuantity": 120 },
+        { "optionName": "2kg (세트)", "price": 18000, "stockQuantity": 60 }
+      ],
+      "category": {
+        "id": "50000803",
+        "name": "냉동과일"
+      },
+      "tags": ["복분자", "냉동", "국내산", "완주", "항산화"],
+      "reviewStatistics": {
+        "totalReviewCount": 312,
+        "averageReviewScore": 4.8
+      },
+      "saleStatistics": {
+        "totalSalesCount": 1840
+      },
+      "domain": {
+        "product_type": "냉동",
+        "weight_kg": 1.0,
+        "berry_variety": "복분자"
+      }
+    },
+    {
+      "productNo": "10000002",
+      "productName": "[완주베리] 냉동 복분자 500g 국내산",
+      "salePrice": 12000,
+      "stockQuantity": 95,
+      "saleStatusType": "SALE",
+      "productImages": [
+        { "imageType": "REPRESENTATIVE", "url": "https://example.com/img/frozen_500g.jpg" }
+      ],
+      "options": [
+        { "optionName": "500g", "price": 0, "stockQuantity": 95 }
+      ],
+      "category": {
+        "id": "50000803",
+        "name": "냉동과일"
+      },
+      "tags": ["복분자", "냉동", "소용량", "국내산", "완주"],
+      "reviewStatistics": {
+        "totalReviewCount": 148,
+        "averageReviewScore": 4.7
+      },
+      "saleStatistics": {
+        "totalSalesCount": 730
+      },
+      "domain": {
+        "product_type": "냉동",
+        "weight_kg": 0.5,
+        "berry_variety": "복분자"
+      }
+    },
+    {
+      "productNo": "10000003",
+      "productName": "[완주베리] 복분자즙 30포 선물세트",
+      "salePrice": 38000,
+      "stockQuantity": 42,
+      "saleStatusType": "SALE",
+      "productImages": [
+        { "imageType": "REPRESENTATIVE", "url": "https://example.com/img/juice_set.jpg" }
+      ],
+      "options": [
+        { "optionName": "30포", "price": 0, "stockQuantity": 30 },
+        { "optionName": "60포 (대용량)", "price": 34000, "stockQuantity": 12 }
+      ],
+      "category": {
+        "id": "50000804",
+        "name": "과일즙/음료"
+      },
+      "tags": ["복분자즙", "선물세트", "완주", "건강즙", "명절선물"],
+      "reviewStatistics": {
+        "totalReviewCount": 87,
+        "averageReviewScore": 4.6
+      },
+      "saleStatistics": {
+        "totalSalesCount": 290
+      },
+      "domain": {
+        "product_type": "즙",
+        "weight_kg": 0.9,
+        "berry_variety": "복분자"
+      }
+    },
+    {
+      "productNo": "10000004",
+      "productName": "[완주베리] 생 블랙베리 500g (냉장)",
+      "salePrice": 18000,
+      "stockQuantity": 0,
+      "saleStatusType": "OUTOFSTOCK",
+      "productImages": [
+        { "imageType": "REPRESENTATIVE", "url": "https://example.com/img/fresh_blackberry.jpg" }
+      ],
+      "options": [
+        { "optionName": "500g", "price": 0, "stockQuantity": 0 }
+      ],
+      "category": {
+        "id": "50000801",
+        "name": "생과일"
+      },
+      "tags": ["블랙베리", "생과", "국내산", "완주", "여름과일"],
+      "reviewStatistics": {
+        "totalReviewCount": 203,
+        "averageReviewScore": 4.9
+      },
+      "saleStatistics": {
+        "totalSalesCount": 560
+      },
+      "domain": {
+        "product_type": "생과",
+        "weight_kg": 0.5,
+        "berry_variety": "블랙베리"
+      }
+    }
+  ]
+}

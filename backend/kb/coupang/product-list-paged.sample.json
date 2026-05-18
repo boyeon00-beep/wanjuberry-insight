@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "api": "product-list-paged",
+    "platform": "coupang",
+    "sample_type": "official_doc",
+    "verified_at": "2026-05-17",
+    "notes": "공식 문서(상품 목록 페이징 조회 – Open APIs.pdf) Response Example. URL API Name: GET_PRODUCTS_BY_QUERY. vendorId/mdId는 MASKED."
+  },
+  "request": {
+    "method": "GET",
+    "url": "https://api-gateway.coupang.com/v2/providers/seller_api/apis/api/v1/marketplace/seller-products",
+    "headers": {
+      "Authorization": "CEA algorithm=HmacSHA256, access-key=MASKED, signed-date=MASKED, signature=MASKED"
+    },
+    "query_params": {
+      "vendorId": "MASKED",
+      "nextToken": 1,
+      "maxPerPage": 100,
+      "status": "APPROVED",
+      "createdAt": "2017-02-13"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {"Content-Type": "application/json"},
+    "body": {
+      "code": "SUCCESS",
+      "message": "",
+      "nextToken": "2",
+      "data": [
+        {
+          "sellerProductId": 239092172,
+          "sellerProductName": "R07 헬로키티 미니낚시놀이",
+          "displayCategoryCode": 77413,
+          "categoryId": 2102,
+          "productId": 14784194,
+          "vendorId": "MASKED",
+          "mdId": "MASKED",
+          "mdName": null,
+          "saleStartedAt": "2017-02-14T06:00:00",
+          "saleEndedAt": "2099-12-31T00:00:00",
+          "brand": "상세설명별도참조",
+          "statusName": "승인완료",
+          "createdAt": "2017-02-13T02:09:47"
+        },
+        {
+          "sellerProductId": 239092161,
+          "sellerProductName": "R07 러닝리소스 손가락 지시봉 (10개 세트) (LER2657) - 러닝리소스 지시봉 손가락 포인터 장난감",
+          "displayCategoryCode": 77413,
+          "categoryId": 2102,
+          "productId": 14784126,
+          "vendorId": "MASKED",
+          "mdId": "MASKED",
+          "mdName": null,
+          "saleStartedAt": "2017-02-14T06:00:00",
+          "saleEndedAt": "2099-12-31T00:00:00",
+          "brand": "상세설명별도참조",
+          "statusName": "승인완료",
+          "createdAt": "2017-02-13T02:09:46"
+        }
+      ]
+    }
+  }
+}

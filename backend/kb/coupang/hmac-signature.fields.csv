@@ -1,0 +1,17 @@
+api_name,direction,field_path,field_type,required,description,example_value,notes
+hmac-signature,request,headers.Authorization,string,Y,모든 쿠팡 Open API 호출의 HMAC 인증 헤더,"CEA algorithm=HmacSHA256, access-key=MASKED, signed-date=180809T010203Z, signature=MASKED","형식: CEA algorithm=HmacSHA256, access-key={accessKey}, signed-date={datetime}, signature={hex}"
+hmac-signature,request,headers.Content-Type,string,N,JSON 본문 사용 시 Content-Type,application/json;charset=UTF-8,
+hmac-signature,signature_input,accessKey,string,Y,쿠팡에서 발급한 액세스 키,MASKED,Authorization 헤더에 그대로 포함
+hmac-signature,signature_input,secretKey,string,Y,쿠팡에서 발급한 시크릿 키,MASKED,HMAC-SHA256 키로만 로컬 사용; 외부 전송 금지
+hmac-signature,signature_input,method,string,Y,요청의 HTTP method (대문자),GET,
+hmac-signature,signature_input,path,string,Y,요청 경로 (호스트 제외),/v2/providers/openapi/apis/api/v4/vendors/MASKED/returnRequests,
+hmac-signature,signature_input,query,string,N,URL 쿼리 문자열 (앞 ? 제외),createdAtFrom=2018-08-09&createdAtTo=2018-08-09&status=UC,빈 쿼리는 빈 문자열
+hmac-signature,signature_input,datetime,string,Y,서명용 timestamp,180809T010203Z,형식 yyMMddTHHmmssZ; GMT+0
+hmac-signature,signature_internal,message,string,Y,서명 대상 문자열 (단순 연결),180809T010203ZGET/v2/...UC,형식: {datetime}{method}{path}{query}
+hmac-signature,signature_internal,algorithm,string,Y,HMAC 알고리즘,HmacSHA256,
+hmac-signature,signature_output,signature,string,Y,HMAC-SHA256(message; secretKey)을 hex 인코딩한 결과,MASKED,lowercase; 2-digit per byte
+hmac-signature,config,host,string,Y,쿠팡 Open API 호스트,api-gateway.coupang.com,HTTPS 필수
+hmac-signature,config,scheme,string,Y,요청 스킴,https,
+hmac-signature,config,port,number,N,요청 포트,443,
+hmac-signature,response,status_401,number,N,Authorization 누락/잘못 시 응답 코드,401,
+hmac-signature,response,status_403,number,N,권한 없음 / 시간 차이 등,403,
