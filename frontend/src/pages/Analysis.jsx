@@ -86,17 +86,12 @@ export default function Analysis() {
 
           {analyzeStep?.status === 'success' && (
             <div className="card">
-              <div className="card-title">생성된 제안 미리보기</div>
-              {analyzeStep.result.suggestions.map(s => (
-                <div key={s.suggestion_id} style={{ padding: '8px 0', borderBottom: '1px solid #f3f4f6' }}>
-                  <span className={`badge badge-${s.priority}`}>{s.priority}</span>
-                  {' '}
-                  <strong>{s.action_type}</strong> — {s.target_name}
-                  <div className="text-muted mt-8">{s.reason.slice(0, 80)}…</div>
-                </div>
-              ))}
+              <div className="card-title">제안 생성 완료</div>
+              <p className="text-muted" style={{ marginBottom: 16 }}>
+                {analyzeStep.result.total_suggestions}개 제안이 제안함에 저장되었습니다.
+              </p>
               <button
-                className="btn btn-ghost mt-16"
+                className="btn btn-ghost"
                 onClick={() => navigate('/suggestions')}
               >
                 제안함으로 이동 →
