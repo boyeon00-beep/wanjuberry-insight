@@ -4,6 +4,7 @@ import { api } from '../api'
 export default function Dashboard() {
   const [lastRun, setLastRun] = useState(null)
   const [adCopies, setAdCopies] = useState([])
+  const [coupangProducts, setCoupangProducts] = useState([])
 
   useEffect(() => {
     api.getRuns()
@@ -11,6 +12,9 @@ export default function Dashboard() {
       .catch(() => {})
     api.getAds()
       .then(setAdCopies)
+      .catch(() => {})
+    api.getCoupangProducts()
+      .then(setCoupangProducts)
       .catch(() => {})
   }, [])
 
@@ -86,6 +90,34 @@ export default function Dashboard() {
                   </tr>
                 )
               })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {coupangProducts.length > 0 && (
+        <div className="card">
+          <div className="card-title">수집 상품 현황 (쿠팡)</div>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>상품명</th>
+                <th>가격</th>
+                <th>판매수</th>
+                <th>매출액</th>
+                <th>상품유형</th>
+              </tr>
+            </thead>
+            <tbody>
+              {coupangProducts.map(p => (
+                <tr key={p.product_id}>
+                  <td>{p.name}</td>
+                  <td>{p.price ? p.price.toLocaleString() + '원' : '-'}</td>
+                  <td>{p.sales_count.toLocaleString()}</td>
+                  <td>{p.sales_revenue ? p.sales_revenue.toLocaleString() + '원' : '-'}</td>
+                  <td>{p.product_type}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

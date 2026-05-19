@@ -80,6 +80,13 @@ def get_ads():
     return store.get_latest_ads()
 
 
+# --- 쿠팡 ---
+
+@app.get("/coupang/products")
+def get_coupang_products():
+    return store.get_latest_coupang_products()
+
+
 # --- 실행 로그 ---
 
 @app.get("/action-logs")

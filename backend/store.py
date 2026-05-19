@@ -138,6 +138,22 @@ def get_latest_products() -> list[dict]:
     return res.data
 
 
+def get_latest_coupang_products() -> list[dict]:
+    runs = get_runs()
+    if not runs:
+        return []
+    latest_task_id = runs[0]["task_id"]
+    res = (
+        get_client()
+        .table("collected_products")
+        .select("*")
+        .eq("task_id", latest_task_id)
+        .eq("platform", "coupang")
+        .execute()
+    )
+    return res.data
+
+
 # --- CollectedAds ---
 
 def save_ads(task_id: str, ad_copies: list[dict]) -> None:

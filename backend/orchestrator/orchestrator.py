@@ -59,7 +59,7 @@ class Orchestrator:
             raise
 
     async def _collect(self, context: dict) -> dict:
-        from agents.collector import naver_commerce, naver_ad
+        from agents.collector import naver_commerce, naver_ad, coupang
 
         naver_result = await naver_commerce.collect(context)
         products = naver_result.get("products", [])
@@ -74,26 +74,38 @@ class Orchestrator:
             store.save_ads(context["task_id"], ad_copies)
         context["collected_ad_copies"] = ad_copies
 
+        coupang_result   = await coupang.collect(context)
+        coupang_products = coupang_result.get("products", [])
+        context["coupang_products"] = coupang_products
+        if coupang_products:
+            store.save_products(context["task_id"], coupang_products)
+
         return {
-            "sources":        ["naver_commerce", "naver_ad"],
+            "sources":        ["naver_commerce", "naver_ad", "coupang"],
             "naver_commerce": naver_result,
             "naver_ad":       ad_result,
+            "coupang":        coupang_result,
         }
 
     async def _analyze(self, context: dict) -> dict:
-        from agents.analyzer import product, ad
+        from agents.analyzer import product, ad, coupang as coupang_analyzer
         from models.suggestion import Suggestion
 
         context["ad_rejection_history"] = store.get_recent_rejections(
             agent="ad_analyzer", limit=10
         )
+        context["coupang_rejection_history"] = store.get_recent_rejections(
+            agent="coupang_analyzer", limit=10
+        )
 
-        product_result = await product.analyze(context)
-        ad_result      = await ad.analyze(context)
+        product_result  = await product.analyze(context)
+        ad_result       = await ad.analyze(context)
+        coupang_result  = await coupang_analyzer.analyze(context)
 
         all_suggestions = (
             product_result.get("suggestions", []) +
-            ad_result.get("suggestions", [])
+            ad_result.get("suggestions", []) +
+            coupang_result.get("suggestions", [])
         )
         suggestions = [Suggestion(**s) for s in all_suggestions]
 
@@ -106,6 +118,7 @@ class Orchestrator:
         return {
             "product": product_result,
             "ad":      ad_result,
+            "coupang": coupang_result,
             "total_suggestions": len(suggestions),
             "saved_to_store":    len(suggestions),
         }
