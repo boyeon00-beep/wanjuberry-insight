@@ -47,7 +47,7 @@ export default function Analysis() {
         <div className={`status-bar ${state}`}>
           {state === 'running' && '분석 실행 중입니다. 잠시 기다려 주세요.'}
           {state === 'success' && '분석이 완료되었습니다.'}
-          {state === 'error'   && `오류: ${error}`}
+          {state === 'error'   && `오류: ${error ?? result?.error ?? '알 수 없는 오류'}`}
         </div>
       )}
 

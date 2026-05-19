@@ -207,7 +207,7 @@ def save_keyword_volume(task_id: str, volumes: list[dict]) -> None:
             "monthly_mobile": v["monthly_mobile"],
             "monthly_total":  v["monthly_total"],
             "competition":    v["competition"],
-            "is_bidding":     v["is_bidding"],
+            "is_bidding":     v.get("is_bidding", False),
         }
         for v in volumes
         if v.get("keyword")
