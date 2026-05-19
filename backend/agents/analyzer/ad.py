@@ -27,6 +27,10 @@ _USER_TEMPLATE = """현재 시즌: {season_flag}
 
 {ad_copies_json}
 
+키워드 월간 검색량 (현재 입찰 키워드 + 연관 키워드):
+
+{keyword_volume_json}
+
 최근 거절/만료된 제안 이력:
 
 {rejection_history_json}
@@ -34,6 +38,7 @@ _USER_TEMPLATE = """현재 시즌: {season_flag}
 위 광고 데이터를 분석하고 운영 개선 제안을 JSON 배열로 반환하세요.
 제약: 최대 5개 / 비수기 성과 최적화 제안 금지 / 구체적 수치 포함
 카피 소재가 있는 경우 카피_수정 제안을 반드시 1개 이상 포함하세요.
+키워드 검색량이 있는 경우, 검색량이 높으나 입찰하지 않는 연관 키워드는 키워드_추가로 제안하세요.
 거절 이력이 있으면 그 이유를 반영해 다른 각도의 제안을 하세요.
 
 반환 형식 (JSON 배열만, 다른 텍스트 없이):
@@ -68,16 +73,19 @@ async def analyze(context: dict) -> dict:
     task_id          = context.get("task_id", "unknown")
     ad_copies        = context.get("collected_ad_copies", [])
     rejection_history = context.get("ad_rejection_history", [])
+    keyword_volume   = context.get("keyword_volume", [])
 
-    campaigns_summary = _summarize_campaigns(campaigns)
-    ad_copies_summary = _summarize_ad_copies(ad_copies)
-    rejection_summary = _summarize_rejections(rejection_history)
+    campaigns_summary    = _summarize_campaigns(campaigns)
+    ad_copies_summary    = _summarize_ad_copies(ad_copies)
+    rejection_summary    = _summarize_rejections(rejection_history)
+    kw_volume_summary    = _summarize_keyword_volume(keyword_volume, campaigns)
 
     user_msg = _constraints_block(context.get("farm_constraints", [])) + _USER_TEMPLATE.format(
         season_flag=season_flag,
         season_note=season_note,
         campaigns_json=json.dumps(campaigns_summary, ensure_ascii=False, indent=2),
         ad_copies_json=json.dumps(ad_copies_summary, ensure_ascii=False, indent=2),
+        keyword_volume_json=json.dumps(kw_volume_summary, ensure_ascii=False, indent=2),
         rejection_history_json=json.dumps(rejection_summary, ensure_ascii=False, indent=2),
     )
 
@@ -155,6 +163,40 @@ def _summarize_ad_copies(ad_copies: list[dict]) -> list[dict]:
         }
         for c in ad_copies
     ]
+
+
+def _summarize_keyword_volume(volume_list: list[dict], campaigns: list[dict]) -> list[dict]:
+    """검색량 데이터 요약 — 현재 입찰 여부 표시"""
+    bidding_keywords = {
+        kw.keyword.lower()
+        for c in campaigns
+        for kw in c.get("keywords", [])
+        if hasattr(kw, "keyword")
+    }
+    # campaigns가 dict인 경우도 처리
+    if campaigns and isinstance(campaigns[0], dict):
+        bidding_keywords = {
+            kw.get("keyword", "").lower()
+            for c in campaigns
+            for kw in c.get("keywords", [])
+        }
+
+    return sorted(
+        [
+            {
+                "keyword":        v["keyword"],
+                "monthly_total":  v["monthly_total"],
+                "monthly_pc":     v["monthly_pc"],
+                "monthly_mobile": v["monthly_mobile"],
+                "competition":    v["competition"],
+                "is_bidding":     v["keyword"].lower() in bidding_keywords,
+            }
+            for v in volume_list
+            if v.get("keyword")
+        ],
+        key=lambda x: x["monthly_total"],
+        reverse=True,
+    )
 
 
 def _summarize_rejections(history: list[dict]) -> list[dict]:

@@ -86,3 +86,21 @@ def get_keyword_stats(keyword_ids: list[str], start_date: str, end_date: str) ->
 def get_ads(adgroup_id: str) -> list[dict]:
     """광고그룹 하위 광고 소재 목록 조회"""
     return _get_simple(f"/ncc/ads?nccAdgroupId={adgroup_id}")
+
+
+def get_keyword_tool(hint_keywords: list[str]) -> list[dict]:
+    """키워드별 월간 검색량 + 연관 키워드 조회 (최대 5개 hint)
+
+    반환: keywordList 배열 — relKeyword, monthlyPcQcCnt, monthlyMobileQcCnt, compIdx 포함
+    주의: 검색량 < 10이면 Naver가 '< 10' 문자열로 반환 → _parse_qc_cnt로 정규화
+    """
+    hints_query = "&".join(f"hintKeywords={quote(kw)}" for kw in hint_keywords[:5])
+    data = _get_simple(f"/keywordstool?{hints_query}&showDetail=1")
+    return data.get("keywordList", []) if isinstance(data, dict) else []
+
+
+def _parse_qc_cnt(val) -> int:
+    """Naver 검색량 값 정규화 — '< 10' 문자열 → 5, 숫자 → int"""
+    if isinstance(val, str):
+        return 5  # '< 10' 처리
+    return int(val or 0)

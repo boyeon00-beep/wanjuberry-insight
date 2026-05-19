@@ -87,6 +87,18 @@ async def _collect_real(context: dict) -> dict:
 
     all_copies = _flatten_ad_copies(models)
 
+    # 키워드 검색량 + 연관 키워드 조회
+    # 현재 입찰 중인 키워드 + 농장 기본 시드
+    bidding_keywords = list({
+        kw.get("keyword", "")
+        for cid, kws in keywords_by_campaign.items()
+        for kw in kws
+        if kw.get("keyword")
+    })
+    seed_keywords = _build_seed_keywords(bidding_keywords)
+    keyword_tool_data = client.get_keyword_tool(seed_keywords)
+    kw_volume_list = [_normalize_kw_volume(k) for k in keyword_tool_data]
+
     return {
         "source":    "naver_ad",
         "mode":      "real",
@@ -94,6 +106,7 @@ async def _collect_real(context: dict) -> dict:
         "campaigns": [m.model_dump() for m in models],
         "total_ad_copies": len(all_copies),
         "ad_copies": [c.model_dump() for c in all_copies],
+        "keyword_volume": kw_volume_list,
     }
 
 
@@ -208,6 +221,33 @@ def _collect_mock(context: dict) -> dict:
         "campaigns": [m.model_dump() for m in models],
         "total_ad_copies": len(all_copies),
         "ad_copies": [c.model_dump() for c in all_copies],
+        "keyword_volume": [],
+    }
+
+
+# 완주베리 농장 핵심 시드 키워드 — 검색량 조회 기준점
+_FARM_SEED_KEYWORDS = ["복분자", "블랙베리", "냉동복분자", "복분자즙"]
+
+
+def _build_seed_keywords(bidding_keywords: list[str]) -> list[str]:
+    """현재 입찰 키워드 + 농장 기본 시드 → 중복 제거 후 최대 5개"""
+    combined = _FARM_SEED_KEYWORDS + [
+        kw for kw in bidding_keywords if kw not in _FARM_SEED_KEYWORDS
+    ]
+    return combined[:5]
+
+
+def _normalize_kw_volume(raw: dict) -> dict:
+    """Naver keywordstool 응답 정규화 — '< 10' 처리"""
+    from clients.naver_ad import _parse_qc_cnt
+    pc     = _parse_qc_cnt(raw.get("monthlyPcQcCnt", 0))
+    mobile = _parse_qc_cnt(raw.get("monthlyMobileQcCnt", 0))
+    return {
+        "keyword":       raw.get("relKeyword", ""),
+        "monthly_pc":    pc,
+        "monthly_mobile": mobile,
+        "monthly_total": pc + mobile,
+        "competition":   raw.get("compIdx", ""),  # 낮음|보통|높음
     }
 
 
