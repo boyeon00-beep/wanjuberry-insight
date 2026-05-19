@@ -13,8 +13,9 @@ const TIER_BADGE = {
 }
 
 const PLATFORM = {
-  product_analyzer: { label: '스마트스토어', color: '#03c75a', bg: '#e6f9ee' },
-  ad_analyzer:      { label: '검색광고',     color: '#1a73e8', bg: '#e8f0fe' },
+  product_analyzer:  { label: '스마트스토어', color: '#03c75a', bg: '#e6f9ee' },
+  ad_analyzer:       { label: '검색광고',     color: '#1a73e8', bg: '#e8f0fe' },
+  coupang_analyzer:  { label: '쿠팡',         color: '#e4371c', bg: '#fdecea' },
 }
 
 const PRIORITIES = ['high', 'medium', 'low']
@@ -59,8 +60,9 @@ export default function Suggestions() {
   const repeatItems = agent => byAgent(agent).filter(s => s.is_repeat)
 
   const tabs = [
-    { key: 'product_analyzer', ...PLATFORM.product_analyzer },
-    { key: 'ad_analyzer',      ...PLATFORM.ad_analyzer },
+    { key: 'product_analyzer',  ...PLATFORM.product_analyzer },
+    { key: 'ad_analyzer',       ...PLATFORM.ad_analyzer },
+    { key: 'coupang_analyzer',  ...PLATFORM.coupang_analyzer },
   ]
 
   return (

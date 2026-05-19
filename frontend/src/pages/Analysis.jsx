@@ -32,7 +32,7 @@ export default function Analysis() {
       <div className="card">
         <div className="card-title">수집 → 분석 → 제안 생성</div>
         <p className="text-muted" style={{ marginBottom: 16 }}>
-          버튼을 누르면 네이버 커머스 데이터 수집, AI 분석, 제안 생성을 순서대로 실행합니다.
+          버튼을 누르면 네이버 커머스·광고, 쿠팡 데이터 수집, AI 분석, 제안 생성을 순서대로 실행합니다.
         </p>
         <button
           className="btn btn-primary"
@@ -65,10 +65,22 @@ export default function Analysis() {
                   </td>
                 </tr>
                 <tr>
-                  <td className="text-muted">수집</td>
+                  <td className="text-muted">네이버 수집</td>
                   <td>
                     {collectStep?.status === 'success'
-                      ? `상품 ${collectStep.result?.naver_commerce?.total}개 · 광고소재 ${collectStep.result?.naver_ad?.total_ad_copies ?? 0}개`
+                      ? `상품 ${collectStep.result?.naver_commerce?.total ?? 0}개 · 광고소재 ${collectStep.result?.naver_ad?.total_ad_copies ?? 0}개`
+                      : collectStep?.status}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="text-muted">쿠팡 수집</td>
+                  <td>
+                    {collectStep?.status === 'success'
+                      ? (() => {
+                          const c = collectStep.result?.coupang
+                          if (!c || c.mode === 'skip') return '미설정'
+                          return `상품 ${c.total ?? 0}개`
+                        })()
                       : collectStep?.status}
                   </td>
                 </tr>
@@ -76,7 +88,14 @@ export default function Analysis() {
                   <td className="text-muted">제안 생성</td>
                   <td>
                     {analyzeStep?.status === 'success'
-                      ? `${analyzeStep.result?.total_suggestions}개 제안 생성됨`
+                      ? (() => {
+                          const r = analyzeStep.result
+                          const parts = []
+                          if (r?.product?.total) parts.push(`스마트스토어 ${r.product.total}개`)
+                          if (r?.ad?.total)      parts.push(`검색광고 ${r.ad.total}개`)
+                          if (r?.coupang?.total) parts.push(`쿠팡 ${r.coupang.total}개`)
+                          return `총 ${r?.total_suggestions}개 (${parts.join(' · ')})`
+                        })()
                       : analyzeStep?.status}
                   </td>
                 </tr>
