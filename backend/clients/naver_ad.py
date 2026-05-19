@@ -81,3 +81,8 @@ def get_keyword_stats(keyword_ids: list[str], start_date: str, end_date: str) ->
         ["impCnt", "clkCnt", "salesAmt", "ctr", "cpc", "convAmt", "avgRnk"],
         start_date, end_date,
     )
+
+
+def get_ads(adgroup_id: str) -> list[dict]:
+    """광고그룹 하위 광고 소재 목록 조회"""
+    return _get_simple(f"/ncc/ads?nccAdgroupId={adgroup_id}")

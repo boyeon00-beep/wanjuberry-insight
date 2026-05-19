@@ -96,7 +96,6 @@ def save_products(task_id: str, products: list[dict]) -> None:
 
 
 def get_latest_products() -> list[dict]:
-    # 가장 최근 run의 상품만 반환
     runs = get_runs()
     if not runs:
         return []
@@ -104,6 +103,30 @@ def get_latest_products() -> list[dict]:
     res = (
         get_client()
         .table("collected_products")
+        .select("*")
+        .eq("task_id", latest_task_id)
+        .execute()
+    )
+    return res.data
+
+
+# --- CollectedAds ---
+
+def save_ads(task_id: str, ad_copies: list[dict]) -> None:
+    if not ad_copies:
+        return
+    rows = [_ad_copy_to_row(task_id, c) for c in ad_copies]
+    get_client().table("collected_ads").insert(rows).execute()
+
+
+def get_latest_ads() -> list[dict]:
+    runs = get_runs()
+    if not runs:
+        return []
+    latest_task_id = runs[0]["task_id"]
+    res = (
+        get_client()
+        .table("collected_ads")
         .select("*")
         .eq("task_id", latest_task_id)
         .execute()
@@ -129,6 +152,21 @@ def _suggestion_to_row(s: Suggestion) -> dict:
         "status":         s.status,
         "created_at":     s.created_at,
         "expires_at":     s.expires_at,
+    }
+
+
+def _ad_copy_to_row(task_id: str, c: dict) -> dict:
+    return {
+        "task_id":      task_id,
+        "ad_id":        c["ad_id"],
+        "adgroup_id":   c["adgroup_id"],
+        "campaign_id":  c["campaign_id"],
+        "headline":     c["headline"],
+        "description1": c["description1"],
+        "description2": c.get("description2", ""),
+        "ad_type":      c.get("ad_type", ""),
+        "status":       c.get("status", ""),
+        "collected_at": c.get("collected_at"),
     }
 
 

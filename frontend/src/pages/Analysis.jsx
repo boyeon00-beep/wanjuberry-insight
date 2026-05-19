@@ -68,7 +68,7 @@ export default function Analysis() {
                   <td className="text-muted">수집</td>
                   <td>
                     {collectStep?.status === 'success'
-                      ? `${collectStep.result?.naver_commerce?.total}개 상품`
+                      ? `상품 ${collectStep.result?.naver_commerce?.total}개 · 광고소재 ${collectStep.result?.naver_ad?.total_ad_copies ?? 0}개`
                       : collectStep?.status}
                   </td>
                 </tr>

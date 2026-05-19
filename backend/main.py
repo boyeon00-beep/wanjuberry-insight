@@ -73,6 +73,13 @@ def reject_suggestion(suggestion_id: str):
     return {"suggestion_id": suggestion_id, "status": "rejected"}
 
 
+# --- 광고 소재 ---
+
+@app.get("/ads")
+def get_ads():
+    return store.get_latest_ads()
+
+
 # --- 실행 로그 ---
 
 @app.get("/action-logs")

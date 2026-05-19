@@ -39,6 +39,50 @@
       }
     }
   ],
+  "adgroups": [
+    {
+      "nccAdgroupId": "ag-mock-001",
+      "nccCampaignId": "cmp-mock-001",
+      "name": "냉동복분자_일반"
+    },
+    {
+      "nccAdgroupId": "ag-mock-002",
+      "nccCampaignId": "cmp-mock-002",
+      "name": "복분자즙_선물세트"
+    }
+  ],
+  "ads": [
+    {
+      "nccAdId": "ad-mock-001",
+      "nccAdgroupId": "ag-mock-001",
+      "nccCampaignId": "cmp-mock-001",
+      "type": "TEXT_45",
+      "headline": "완주 냉동복분자 산지직송",
+      "description": "완주군 직접 재배 냉동복분자. 당일 수확 급속냉동으로 신선도 보장.",
+      "description2": "무료배송 · 산지직송 · 당일출고",
+      "status": "ELIGIBLE"
+    },
+    {
+      "nccAdId": "ad-mock-002",
+      "nccAdgroupId": "ag-mock-001",
+      "nccCampaignId": "cmp-mock-001",
+      "type": "TEXT_45",
+      "headline": "국산 냉동복분자 1kg",
+      "description": "완주 농가 직영. 무농약 재배 복분자 냉동 판매.",
+      "description2": "건강한 선택 · 무농약 인증",
+      "status": "ELIGIBLE"
+    },
+    {
+      "nccAdId": "ad-mock-003",
+      "nccAdgroupId": "ag-mock-002",
+      "nccCampaignId": "cmp-mock-002",
+      "type": "TEXT_45",
+      "headline": "복분자즙 선물세트 추천",
+      "description": "명절 선물로 인기있는 복분자즙 선물세트. 완주 농가 직송.",
+      "description2": "포장 완료 · 당일발송",
+      "status": "ELIGIBLE"
+    }
+  ],
   "keywords": [
     {
       "nccKeywordId": "kwd-mock-001",

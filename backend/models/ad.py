@@ -9,6 +9,17 @@ class KeywordItem(BaseModel):
     score: float
 
 
+class AdCopyItem(BaseModel):
+    ad_id: str
+    adgroup_id: str
+    campaign_id: str
+    headline: str
+    description1: str
+    description2: str
+    ad_type: str
+    status: str
+
+
 class AdDomain(BaseModel):
     season_flag: Literal["성수기", "비수기", "전환기"]
     season_adjusted_roas: float
@@ -29,5 +40,6 @@ class AdModel(BaseModel):
     conversions: int
     roas: float
     keywords: list[KeywordItem] = []
+    ad_copies: list["AdCopyItem"] = []
     domain: AdDomain
     collected_at: str

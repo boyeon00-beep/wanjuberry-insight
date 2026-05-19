@@ -21,4 +21,5 @@ export const api = {
   approveSuggestion: (id) => request('POST', `/suggestions/${id}/approve`),
   rejectSuggestion:  (id) => request('POST', `/suggestions/${id}/reject`),
   getActionLogs:   ()   => request('GET',  '/action-logs'),
+  getAds:          ()   => request('GET',  '/ads'),
 }

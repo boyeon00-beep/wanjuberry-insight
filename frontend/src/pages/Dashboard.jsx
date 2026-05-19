@@ -3,10 +3,14 @@ import { api } from '../api'
 
 export default function Dashboard() {
   const [lastRun, setLastRun] = useState(null)
+  const [adCopies, setAdCopies] = useState([])
 
   useEffect(() => {
     api.getRuns()
       .then(runs => setLastRun(runs.at(-1) ?? null))
+      .catch(() => {})
+    api.getAds()
+      .then(setAdCopies)
       .catch(() => {})
   }, [])
 
@@ -82,6 +86,36 @@ export default function Dashboard() {
                   </tr>
                 )
               })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {adCopies.length > 0 && (
+        <div className="card">
+          <div className="card-title">광고 소재 현황 (네이버 검색광고)</div>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>제목</th>
+                <th>설명1</th>
+                <th>설명2</th>
+                <th>상태</th>
+              </tr>
+            </thead>
+            <tbody>
+              {adCopies.map(c => (
+                <tr key={c.ad_id}>
+                  <td>{c.headline}</td>
+                  <td className="text-muted">{c.description1}</td>
+                  <td className="text-muted">{c.description2}</td>
+                  <td>
+                    <span className={`badge ${c.status === '운영중' ? 'priority-low' : 'tier-operator'}`}>
+                      {c.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

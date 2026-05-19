@@ -69,6 +69,10 @@ class Orchestrator:
         ad_result = await naver_ad.collect(context)
         context["collected_campaigns"] = ad_result.get("campaigns", [])
 
+        ad_copies = ad_result.get("ad_copies", [])
+        if ad_copies:
+            store.save_ads(context["task_id"], ad_copies)
+
         return {
             "sources":        ["naver_commerce", "naver_ad"],
             "naver_commerce": naver_result,

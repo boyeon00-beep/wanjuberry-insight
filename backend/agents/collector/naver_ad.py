@@ -3,7 +3,7 @@ import os
 from datetime import datetime, date, timedelta, timezone
 from pathlib import Path
 
-from models.ad import AdDomain, AdModel, KeywordItem
+from models.ad import AdCopyItem, AdDomain, AdModel, KeywordItem
 
 _SAMPLE_PATH = Path(__file__).parent / "sample_data" / "naver_ad_sample.json"
 
@@ -43,8 +43,9 @@ async def _collect_real(context: dict) -> dict:
         for s in stats_list:
             stats_by_id[s["id"]] = s.get("stat", {})
 
-    # 키워드 수집 (캠페인별 광고그룹 → 키워드)
+    # 키워드·광고소재 수집 (캠페인 → 광고그룹 → 키워드/소재)
     keywords_by_campaign: dict[str, list[dict]] = {cid: [] for cid in campaign_ids}
+    ad_copies_by_campaign: dict[str, list[dict]] = {cid: [] for cid in campaign_ids}
     all_keyword_ids: list[str] = []
     keyword_to_campaign: dict[str, str] = {}
 
@@ -52,12 +53,17 @@ async def _collect_real(context: dict) -> dict:
         cid = campaign["nccCampaignId"]
         adgroups = client.get_adgroups(cid)
         for ag in adgroups:
-            kws = client.get_keywords(ag["nccAdgroupId"])
+            ag_id = ag["nccAdgroupId"]
+            kws = client.get_keywords(ag_id)
             for kw in kws:
                 kid = kw["nccKeywordId"]
                 all_keyword_ids.append(kid)
                 keyword_to_campaign[kid] = cid
                 keywords_by_campaign[cid].append(kw)
+
+            copies = client.get_ads(ag_id)
+            for copy in copies:
+                ad_copies_by_campaign[cid].append({**copy, "nccAdgroupId": ag_id, "nccCampaignId": cid})
 
     # 키워드 성과 통계
     if all_keyword_ids:
@@ -68,17 +74,26 @@ async def _collect_real(context: dict) -> dict:
                 kw["stats"] = kw_stats_by_id.get(kw["nccKeywordId"], {})
 
     models = [
-        _raw_to_ad_model(c, stats_by_id.get(c["nccCampaignId"], {}),
-                         keywords_by_campaign.get(c["nccCampaignId"], []),
-                         season_flag, collected_at)
+        _raw_to_ad_model(
+            c,
+            stats_by_id.get(c["nccCampaignId"], {}),
+            keywords_by_campaign.get(c["nccCampaignId"], []),
+            ad_copies_by_campaign.get(c["nccCampaignId"], []),
+            season_flag,
+            collected_at,
+        )
         for c in raw_campaigns
     ]
+
+    all_copies = _flatten_ad_copies(models)
 
     return {
         "source":    "naver_ad",
         "mode":      "real",
         "total":     len(models),
         "campaigns": [m.model_dump() for m in models],
+        "total_ad_copies": len(all_copies),
+        "ad_copies": [c.model_dump() for c in all_copies],
     }
 
 
@@ -86,13 +101,14 @@ def _raw_to_ad_model(
     campaign: dict,
     stats: dict,
     keywords: list[dict],
+    raw_copies: list[dict],
     season_flag: str,
     collected_at: str,
 ) -> AdModel:
     imp   = int(stats.get("impCnt", 0))
     clk   = int(stats.get("clkCnt", 0))
     spend = float(stats.get("salesAmt", 0))
-    conv  = 0  # 캠페인 레벨에서는 rvsCnt 미지원
+    conv  = 0
     rev   = float(stats.get("convAmt", 0))
 
     ctr  = round(clk / imp * 100, 2) if imp > 0 else 0.0
@@ -109,6 +125,20 @@ def _raw_to_ad_model(
         for kw in keywords
     ]
 
+    copy_items = [
+        AdCopyItem(
+            ad_id=c.get("nccAdId", ""),
+            adgroup_id=c.get("nccAdgroupId", ""),
+            campaign_id=campaign["nccCampaignId"],
+            headline=c.get("headline", ""),
+            description1=c.get("description", ""),
+            description2=c.get("description2", ""),
+            ad_type=c.get("type", ""),
+            status=_STATUS_MAP.get(c.get("status", ""), c.get("status", "")),
+        )
+        for c in raw_copies
+    ]
+
     return AdModel(
         campaign_id=campaign["nccCampaignId"],
         campaign_name=campaign.get("name", ""),
@@ -123,6 +153,7 @@ def _raw_to_ad_model(
         conversions=conv,
         roas=roas,
         keywords=kw_items,
+        ad_copies=copy_items,
         domain=AdDomain(
             season_flag=season_flag,
             season_adjusted_roas=roas,
@@ -130,6 +161,13 @@ def _raw_to_ad_model(
         ),
         collected_at=collected_at,
     )
+
+
+def _flatten_ad_copies(models: list[AdModel]) -> list[AdCopyItem]:
+    result = []
+    for m in models:
+        result.extend(m.ad_copies)
+    return result
 
 
 # --- Mock ---
@@ -144,22 +182,32 @@ def _collect_mock(context: dict) -> dict:
         cid = kw["nccCampaignId"]
         kws_by_campaign.setdefault(cid, []).append(kw)
 
+    ads_by_campaign: dict[str, list[dict]] = {}
+    for ad in raw.get("ads", []):
+        cid = ad["nccCampaignId"]
+        ads_by_campaign.setdefault(cid, []).append(ad)
+
     models = [
         _raw_to_ad_model(
             c,
             c.get("stats", {}),
             kws_by_campaign.get(c["nccCampaignId"], []),
+            ads_by_campaign.get(c["nccCampaignId"], []),
             season_flag,
             collected_at,
         )
         for c in raw["campaigns"]
     ]
 
+    all_copies = _flatten_ad_copies(models)
+
     return {
         "source":    "naver_ad",
         "mode":      "mock",
         "total":     len(models),
         "campaigns": [m.model_dump() for m in models],
+        "total_ad_copies": len(all_copies),
+        "ad_copies": [c.model_dump() for c in all_copies],
     }
 
 
