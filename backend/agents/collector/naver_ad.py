@@ -138,14 +138,21 @@ def _raw_to_ad_model(
         for kw in keywords
     ]
 
+    if raw_copies:
+        import json as _json
+        print("[DEBUG naver_ad copy keys]", list(raw_copies[0].keys()))
+        ad_attr_sample = raw_copies[0].get("adAttr", {})
+        if ad_attr_sample:
+            print("[DEBUG naver_ad adAttr]", _json.dumps(ad_attr_sample, ensure_ascii=False))
+
     copy_items = [
         AdCopyItem(
             ad_id=c.get("nccAdId", ""),
             adgroup_id=c.get("nccAdgroupId", ""),
             campaign_id=campaign["nccCampaignId"],
-            headline=c.get("headline", ""),
-            description1=c.get("description", ""),
-            description2=c.get("description2", ""),
+            headline=_extract_ad_text(c, "headline"),
+            description1=_extract_ad_text(c, "description"),
+            description2=_extract_ad_text(c, "description2"),
             ad_type=c.get("type", ""),
             status=_STATUS_MAP.get(c.get("status", ""), c.get("status", "")),
         )
@@ -174,6 +181,17 @@ def _raw_to_ad_model(
         ),
         collected_at=collected_at,
     )
+
+
+def _extract_ad_text(c: dict, field: str) -> str:
+    """Naver /ncc/ads 응답에서 텍스트 추출 — top-level 또는 adAttr 중첩 처리"""
+    top = c.get(field, "")
+    if top:
+        return top
+    ad_attr = c.get("adAttr", {})
+    if isinstance(ad_attr, dict):
+        return ad_attr.get(field, "")
+    return ""
 
 
 def _flatten_ad_copies(models: list[AdModel]) -> list[AdCopyItem]:
