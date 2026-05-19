@@ -186,7 +186,12 @@ def get_farm_profile() -> str:
 
 
 def save_farm_profile(content: str) -> None:
-    get_client().table("farm_profile").upsert({"id": 1, "content": content, "updated_at": "now()"}).execute()
+    from datetime import datetime, timezone
+    get_client().table("farm_profile").upsert({
+        "id":         1,
+        "content":    content,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }).execute()
 
 
 # --- KeywordVolume ---
