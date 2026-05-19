@@ -45,7 +45,14 @@ export default function Suggestions() {
 
   async function reject(id) {
     setBusy(id)
-    try { await api.rejectSuggestion(id); load() }
+    try { await api.rejectSuggestion(id, { is_factual: false, reason: '' }); load() }
+    catch (e) { alert(e.message) }
+    finally { setBusy(null) }
+  }
+
+  async function rejectFactual(id, reason) {
+    setBusy(id)
+    try { await api.rejectSuggestion(id, { is_factual: true, reason }); load() }
     catch (e) { alert(e.message) }
     finally { setBusy(null) }
   }
@@ -116,6 +123,7 @@ export default function Suggestions() {
                 busy={busy}
                 onApprove={approve}
                 onReject={reject}
+                onRejectFactual={rejectFactual}
                 platform={PLATFORM[s.agent]}
               />
             ))}
@@ -148,6 +156,7 @@ export default function Suggestions() {
                     busy={busy}
                     onApprove={approve}
                     onReject={reject}
+                    onRejectFactual={rejectFactual}
                     platform={PLATFORM[s.agent]}
                     isRepeat
                   />
@@ -190,7 +199,21 @@ export default function Suggestions() {
   )
 }
 
-function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat }) {
+function SuggestionCard({ s, busy, onApprove, onReject, onRejectFactual, platform, isRepeat }) {
+  const [rejectPhase, setRejectPhase] = useState(null) // null | 'choose' | 'factual'
+  const [factualReason, setFactualReason] = useState('')
+  const isBusy = busy === s.suggestion_id
+
+  function handleRejectClick() { setRejectPhase('choose') }
+  function handleNow()         { setRejectPhase(null); onReject(s.suggestion_id) }
+  function handleFactualConfirm() {
+    if (!factualReason.trim()) return
+    setRejectPhase(null)
+    setFactualReason('')
+    onRejectFactual(s.suggestion_id, factualReason.trim())
+  }
+  function handleCancel()      { setRejectPhase(null); setFactualReason('') }
+
   return (
     <div className="card" style={isRepeat ? { borderLeft: '3px solid #f59e0b' } : {}}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -216,19 +239,50 @@ function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat }) {
           <div className="text-muted mt-8">만료: {new Date(s.expires_at).toLocaleString('ko-KR')}</div>
         </div>
 
-        <div style={{ marginLeft: 16, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ marginLeft: 16, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 80 }}>
           <button
             className="btn btn-success"
-            disabled={busy === s.suggestion_id}
+            disabled={isBusy || rejectPhase !== null}
             onClick={() => onApprove(s.suggestion_id)}
           >승인</button>
-          <button
-            className="btn btn-danger"
-            disabled={busy === s.suggestion_id}
-            onClick={() => onReject(s.suggestion_id)}
-          >거절</button>
+
+          {rejectPhase === null && (
+            <button
+              className="btn btn-danger"
+              disabled={isBusy}
+              onClick={handleRejectClick}
+            >거절</button>
+          )}
+
+          {rejectPhase === 'choose' && (
+            <>
+              <button className="btn btn-ghost" style={{ fontSize: 12 }} onClick={handleNow}>지금은 아님</button>
+              <button className="btn btn-danger" style={{ fontSize: 12 }} onClick={() => setRejectPhase('factual')}>사실과 다름</button>
+              <button className="btn btn-ghost" style={{ fontSize: 11, color: '#999' }} onClick={handleCancel}>취소</button>
+            </>
+          )}
         </div>
       </div>
+
+      {rejectPhase === 'factual' && (
+        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #f0f0f0' }}>
+          <div style={{ fontSize: 13, marginBottom: 8, color: '#555' }}>
+            어떤 사실과 다른가요? 농장 팩트로 저장됩니다.
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              style={{ flex: 1, padding: '6px 10px', border: '1px solid #ddd', borderRadius: 6, fontSize: 13 }}
+              placeholder="예: 화학비료 쓰고 있음"
+              value={factualReason}
+              onChange={e => setFactualReason(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleFactualConfirm()}
+              autoFocus
+            />
+            <button className="btn btn-danger" style={{ fontSize: 13 }} onClick={handleFactualConfirm} disabled={!factualReason.trim()}>저장 후 거절</button>
+            <button className="btn btn-ghost" style={{ fontSize: 13 }} onClick={handleCancel}>취소</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

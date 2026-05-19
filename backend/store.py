@@ -178,6 +178,44 @@ def get_latest_ads() -> list[dict]:
     return res.data
 
 
+# --- Constraints (농장 팩트) ---
+
+def get_constraints() -> list[dict]:
+    res = get_client().table("constraints").select("*").order("created_at", desc=True).execute()
+    return res.data
+
+
+def add_constraint(content: str, source: str = "manual") -> dict:
+    res = get_client().table("constraints").insert({"content": content, "source": source}).execute()
+    return res.data[0]
+
+
+def delete_constraint(constraint_id: str) -> None:
+    get_client().table("constraints").delete().eq("id", constraint_id).execute()
+
+
+def update_constraint(constraint_id: str, content: str) -> dict | None:
+    res = (
+        get_client()
+        .table("constraints")
+        .update({"content": content})
+        .eq("id", constraint_id)
+        .execute()
+    )
+    return res.data[0] if res.data else None
+
+
+def expire_pending_suggestions() -> int:
+    res = (
+        get_client()
+        .table("suggestions")
+        .update({"status": "expired"})
+        .eq("status", "pending")
+        .execute()
+    )
+    return len(res.data)
+
+
 # --- 내부 변환 ---
 
 def _suggestion_to_row(s: Suggestion) -> dict:

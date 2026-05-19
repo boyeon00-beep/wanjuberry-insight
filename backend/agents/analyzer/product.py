@@ -40,6 +40,13 @@ _USER_TEMPLATE = """현재 시즌: {season_flag}
 ]"""
 
 
+def _constraints_block(constraints: list[dict]) -> str:
+    if not constraints:
+        return ""
+    lines = "\n".join(f"- {c['content']}" for c in constraints)
+    return f"[운영자 확인 팩트 — 절대 위반 금지]\n{lines}\n\n"
+
+
 async def analyze(context: dict) -> dict:
     products = context.get("collected_products", [])
     if not products:
@@ -51,7 +58,7 @@ async def analyze(context: dict) -> dict:
 
     products_summary = _summarize_products(products)
 
-    user_msg = _USER_TEMPLATE.format(
+    user_msg = _constraints_block(context.get("farm_constraints", [])) + _USER_TEMPLATE.format(
         season_flag=season_flag,
         season_note=season_note,
         products_json=json.dumps(products_summary, ensure_ascii=False, indent=2),

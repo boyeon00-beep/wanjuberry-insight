@@ -3,6 +3,7 @@ load_dotenv()
 
 import os
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 import store
@@ -61,8 +62,13 @@ async def approve_suggestion(suggestion_id: str):
     return {"suggestion": row, "action_log": log}
 
 
+class RejectBody(BaseModel):
+    is_factual: bool = False
+    reason: str = ""
+
+
 @app.post("/suggestions/{suggestion_id}/reject")
-def reject_suggestion(suggestion_id: str):
+def reject_suggestion(suggestion_id: str, body: RejectBody = RejectBody()):
     row = store.get_suggestion(suggestion_id)
     if not row:
         raise HTTPException(status_code=404, detail="제안을 찾을 수 없습니다")
@@ -70,6 +76,10 @@ def reject_suggestion(suggestion_id: str):
         raise HTTPException(status_code=400, detail=f"이미 처리된 제안입니다: {row['status']}")
 
     store.update_suggestion_status(suggestion_id, "rejected")
+
+    if body.is_factual and body.reason.strip():
+        store.add_constraint(body.reason.strip(), source="rejection")
+
     return {"suggestion_id": suggestion_id, "status": "rejected"}
 
 
@@ -85,6 +95,36 @@ def get_ads():
 @app.get("/coupang/products")
 def get_coupang_products():
     return store.get_latest_coupang_products()
+
+
+# --- 농장 팩트 (Constraints) ---
+
+class ConstraintBody(BaseModel):
+    content: str
+
+
+@app.get("/constraints")
+def get_constraints():
+    return store.get_constraints()
+
+
+@app.post("/constraints")
+def add_constraint(body: ConstraintBody):
+    return store.add_constraint(body.content, source="manual")
+
+
+@app.delete("/constraints/{constraint_id}")
+def delete_constraint(constraint_id: str):
+    store.delete_constraint(constraint_id)
+    return {"id": constraint_id, "deleted": True}
+
+
+@app.patch("/constraints/{constraint_id}")
+def update_constraint(constraint_id: str, body: ConstraintBody):
+    result = store.update_constraint(constraint_id, body.content)
+    if not result:
+        raise HTTPException(status_code=404, detail="제약 조건을 찾을 수 없습니다")
+    return result
 
 
 # --- 실행 로그 ---
