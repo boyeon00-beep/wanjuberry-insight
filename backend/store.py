@@ -178,6 +178,43 @@ def get_latest_ads() -> list[dict]:
     return res.data
 
 
+# --- KeywordVolume ---
+
+def save_keyword_volume(task_id: str, volumes: list[dict]) -> None:
+    if not volumes:
+        return
+    rows = [
+        {
+            "task_id":        task_id,
+            "keyword":        v["keyword"],
+            "monthly_pc":     v["monthly_pc"],
+            "monthly_mobile": v["monthly_mobile"],
+            "monthly_total":  v["monthly_total"],
+            "competition":    v["competition"],
+            "is_bidding":     v["is_bidding"],
+        }
+        for v in volumes
+        if v.get("keyword")
+    ]
+    get_client().table("keyword_volume").insert(rows).execute()
+
+
+def get_latest_keyword_volume() -> list[dict]:
+    runs = get_runs()
+    if not runs:
+        return []
+    latest_task_id = runs[0]["task_id"]
+    res = (
+        get_client()
+        .table("keyword_volume")
+        .select("*")
+        .eq("task_id", latest_task_id)
+        .order("monthly_total", desc=True)
+        .execute()
+    )
+    return res.data
+
+
 # --- Constraints (농장 팩트) ---
 
 def get_constraints() -> list[dict]:

@@ -110,6 +110,11 @@ def get_ads():
     return store.get_latest_ads()
 
 
+@app.get("/ads/keyword-volume")
+def get_keyword_volume():
+    return store.get_latest_keyword_volume()
+
+
 # --- 쿠팡 ---
 
 @app.get("/coupang/products")

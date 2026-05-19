@@ -73,7 +73,10 @@ class Orchestrator:
         if ad_copies:
             store.save_ads(context["task_id"], ad_copies)
         context["collected_ad_copies"] = ad_copies
-        context["keyword_volume"] = ad_result.get("keyword_volume", [])
+        kw_volume = ad_result.get("keyword_volume", [])
+        context["keyword_volume"] = kw_volume
+        if kw_volume:
+            store.save_keyword_volume(context["task_id"], kw_volume)
 
         coupang_result   = await coupang.collect(context)
         coupang_products = coupang_result.get("products", [])

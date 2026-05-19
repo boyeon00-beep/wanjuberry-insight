@@ -3,6 +3,7 @@ import Dashboard from './pages/Dashboard'
 import Analysis from './pages/Analysis'
 import Suggestions from './pages/Suggestions'
 import ActionLogs from './pages/ActionLogs'
+import AdReport from './pages/AdReport'
 import Settings from './pages/Settings'
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
         <NavLink to="/analysis">분석</NavLink>
         <NavLink to="/suggestions">제안함</NavLink>
         <NavLink to="/action-logs">실행 로그</NavLink>
+        <NavLink to="/ad-report">검색광고 보고서</NavLink>
         <NavLink to="/settings">설정</NavLink>
       </div>
       <div className="main">
@@ -22,6 +24,7 @@ export default function App() {
           <Route path="/analysis"     element={<Analysis />} />
           <Route path="/suggestions"  element={<Suggestions />} />
           <Route path="/action-logs"  element={<ActionLogs />} />
+          <Route path="/ad-report"    element={<AdReport />} />
           <Route path="/settings"     element={<Settings />} />
         </Routes>
       </div>

@@ -26,5 +26,6 @@ export const api = {
   updateConstraint:  (id, content) => request('PATCH', `/constraints/${id}`, { content }),
   getActionLogs:   ()   => request('GET',  '/action-logs'),
   getAds:              ()   => request('GET',  '/ads'),
+  getKeywordVolume:    ()   => request('GET',  '/ads/keyword-volume'),
   getCoupangProducts:  ()   => request('GET',  '/coupang/products'),
 }
