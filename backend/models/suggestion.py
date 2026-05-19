@@ -38,6 +38,7 @@ class Suggestion(BaseModel):
     priority: Literal["high", "medium", "low"]
     execution_tier: ExecutionTier
     status: SuggestionStatus = "pending"
+    is_repeat: bool = False
     created_at: str = Field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )

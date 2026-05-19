@@ -32,6 +32,34 @@ def get_suggestion(suggestion_id: str) -> dict | None:
     return res.data
 
 
+def get_recent_rejections(agent: str | None = None, limit: int = 10) -> list[dict]:
+    q = (
+        get_client()
+        .table("suggestions")
+        .select("target_id, target_name, action_type, proposed_value, reason, status, created_at")
+        .in_("status", ["rejected", "expired"])
+        .order("created_at", desc=True)
+        .limit(limit)
+    )
+    if agent:
+        q = q.eq("agent", agent)
+    return q.execute().data
+
+
+def check_has_rejection(target_id: str, action_type: str) -> bool:
+    res = (
+        get_client()
+        .table("suggestions")
+        .select("suggestion_id")
+        .eq("target_id", target_id)
+        .eq("action_type", action_type)
+        .in_("status", ["rejected", "expired"])
+        .limit(1)
+        .execute()
+    )
+    return len(res.data) > 0
+
+
 def update_suggestion_status(suggestion_id: str, status: SuggestionStatus) -> dict | None:
     res = (
         get_client()
@@ -150,6 +178,7 @@ def _suggestion_to_row(s: Suggestion) -> dict:
         "priority":       s.priority,
         "execution_tier": s.execution_tier,
         "status":         s.status,
+        "is_repeat":      s.is_repeat,
         "created_at":     s.created_at,
         "expires_at":     s.expires_at,
     }

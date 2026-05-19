@@ -17,6 +17,9 @@ const PLATFORM = {
   ad_analyzer:      { label: '검색광고',     color: '#1a73e8', bg: '#e8f0fe' },
 }
 
+const PRIORITIES = ['high', 'medium', 'low']
+const PRIORITY_LABEL = { high: '높음', medium: '보통', low: '낮음' }
+
 export default function Suggestions() {
   const [items, setItems]   = useState([])
   const [loading, setLoading] = useState(true)
@@ -49,13 +52,11 @@ export default function Suggestions() {
   const pending = items.filter(s => s.status === 'pending')
   const done    = items.filter(s => s.status !== 'pending')
 
-  const PRIORITIES = ['high', 'medium', 'low']
-  const PRIORITY_LABEL = { high: '높음', medium: '보통', low: '낮음' }
-
   const byAgent = agent => pending.filter(s => s.agent === agent)
-  const byAgentAndPriority = (agent, priority) =>
-    pending.filter(s => s.agent === agent && s.priority === priority)
   const doneByAgent = agent => done.filter(s => s.agent === agent)
+
+  const newItems    = agent => byAgent(agent).filter(s => !s.is_repeat)
+  const repeatItems = agent => byAgent(agent).filter(s => s.is_repeat)
 
   const tabs = [
     { key: 'product_analyzer', ...PLATFORM.product_analyzer },
@@ -93,13 +94,12 @@ export default function Suggestions() {
 
       {loading && <div className="empty">불러오는 중…</div>}
 
-      {/* 대기 제안 */}
-      {!loading && byAgent(tab).length === 0 && (
-        <div className="empty">대기 중인 제안이 없습니다.</div>
+      {/* 새 제안 섹션 */}
+      {!loading && newItems(tab).length > 0 && (
+        <div className="section-header">새 제안</div>
       )}
-
       {!loading && PRIORITIES.map(priority => {
-        const group = byAgentAndPriority(tab, priority)
+        const group = newItems(tab).filter(s => s.priority === priority)
         if (group.length === 0) return null
         return (
           <div key={priority} className="priority-group">
@@ -120,6 +120,45 @@ export default function Suggestions() {
           </div>
         )
       })}
+
+      {/* 재제안 섹션 */}
+      {!loading && repeatItems(tab).length > 0 && (
+        <>
+          <div className="section-header" style={{ marginTop: 24 }}>
+            재제안
+            <span className="text-muted" style={{ fontSize: 12, fontWeight: 400, marginLeft: 8 }}>
+              이전에 거절/만료된 항목의 재시도
+            </span>
+          </div>
+          {PRIORITIES.map(priority => {
+            const group = repeatItems(tab).filter(s => s.priority === priority)
+            if (group.length === 0) return null
+            return (
+              <div key={priority} className="priority-group">
+                <div className={`priority-group-header priority-header-${priority}`}>
+                  <span className={`badge badge-${priority}`}>{PRIORITY_LABEL[priority]}</span>
+                  <span className="priority-group-count">{group.length}개</span>
+                </div>
+                {group.map(s => (
+                  <SuggestionCard
+                    key={s.suggestion_id}
+                    s={s}
+                    busy={busy}
+                    onApprove={approve}
+                    onReject={reject}
+                    platform={PLATFORM[s.agent]}
+                    isRepeat
+                  />
+                ))}
+              </div>
+            )
+          })}
+        </>
+      )}
+
+      {!loading && byAgent(tab).length === 0 && (
+        <div className="empty">대기 중인 제안이 없습니다.</div>
+      )}
 
       {/* 처리 완료 */}
       {doneByAgent(tab).length > 0 && (
@@ -149,9 +188,9 @@ export default function Suggestions() {
   )
 }
 
-function SuggestionCard({ s, busy, onApprove, onReject, platform }) {
+function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat }) {
   return (
-    <div className="card">
+    <div className="card" style={isRepeat ? { borderLeft: '3px solid #f59e0b' } : {}}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
@@ -159,6 +198,7 @@ function SuggestionCard({ s, busy, onApprove, onReject, platform }) {
             <span className={`badge ${TIER_BADGE[s.execution_tier]}`}>
               {TIER_LABEL[s.execution_tier]}
             </span>
+            {isRepeat && <span className="badge tier-operator">재제안</span>}
             <strong style={{ fontSize: 13 }}>{s.action_type}</strong>
           </div>
 

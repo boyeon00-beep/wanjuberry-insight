@@ -154,6 +154,16 @@ body {
   color: #fff;
 }
 
+/* 섹션 헤더 (새 제안 / 재제안 구분) */
+.section-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  padding: 6px 0;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
 /* 우선순위 그룹 */
 .priority-group { margin-bottom: 24px; }
 .priority-group-header {

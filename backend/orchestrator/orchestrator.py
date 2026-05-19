@@ -72,6 +72,7 @@ class Orchestrator:
         ad_copies = ad_result.get("ad_copies", [])
         if ad_copies:
             store.save_ads(context["task_id"], ad_copies)
+        context["collected_ad_copies"] = ad_copies
 
         return {
             "sources":        ["naver_commerce", "naver_ad"],
@@ -83,6 +84,10 @@ class Orchestrator:
         from agents.analyzer import product, ad
         from models.suggestion import Suggestion
 
+        context["ad_rejection_history"] = store.get_recent_rejections(
+            agent="ad_analyzer", limit=10
+        )
+
         product_result = await product.analyze(context)
         ad_result      = await ad.analyze(context)
 
@@ -91,6 +96,11 @@ class Orchestrator:
             ad_result.get("suggestions", [])
         )
         suggestions = [Suggestion(**s) for s in all_suggestions]
+
+        for s in suggestions:
+            if store.check_has_rejection(s.target_id, s.action_type):
+                s.is_repeat = True
+
         store.add_suggestions(suggestions)
 
         return {
