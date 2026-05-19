@@ -173,26 +173,11 @@ export default function Suggestions() {
 
       {/* 처리 완료 */}
       {doneByAgent(tab).length > 0 && (
-        <div className="card" style={{ marginTop: 24 }}>
-          <div className="card-title">처리 완료</div>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>대상</th>
-                <th>유형</th>
-                <th>상태</th>
-              </tr>
-            </thead>
-            <tbody>
-              {doneByAgent(tab).map(s => (
-                <tr key={s.suggestion_id}>
-                  <td>{s.target_name}</td>
-                  <td>{s.action_type}</td>
-                  <td><span className={`badge badge-${s.status}`}>{s.status}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div style={{ marginTop: 24 }}>
+          <div className="section-header">처리 완료</div>
+          {doneByAgent(tab).map(s => (
+            <DoneCard key={s.suggestion_id} s={s} />
+          ))}
         </div>
       )}
     </>
@@ -283,6 +268,34 @@ function SuggestionCard({ s, busy, onApprove, onReject, onRejectFactual, platfor
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+const STATUS_LABEL = { approved: '승인', rejected: '거절', expired: '만료' }
+
+function DoneCard({ s }) {
+  return (
+    <div className="card" style={{ padding: '12px 16px', marginBottom: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>
+            <span className={`badge badge-${s.status}`}>{STATUS_LABEL[s.status] ?? s.status}</span>
+            <span className={`badge badge-${s.priority}`}>{s.priority}</span>
+            <strong style={{ fontSize: 13 }}>{s.action_type}</strong>
+            <span style={{ fontSize: 13, color: '#555' }}>{s.target_name}</span>
+          </div>
+          <div className="suggest-change" style={{ marginBottom: 4 }}>
+            <span className="suggest-current">{s.current_value}</span>
+            <span className="suggest-arrow">→</span>
+            <span className="suggest-proposed">{s.proposed_value}</span>
+          </div>
+          <div className="text-muted" style={{ fontSize: 12 }}>{s.reason}</div>
+        </div>
+        <div className="text-muted" style={{ fontSize: 11, marginLeft: 12, whiteSpace: 'nowrap', flexShrink: 0 }}>
+          {new Date(s.created_at).toLocaleDateString('ko-KR')}
+        </div>
+      </div>
     </div>
   )
 }
