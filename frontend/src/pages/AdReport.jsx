@@ -13,9 +13,13 @@ export default function AdReport() {
   const [loading, setLoading]     = useState(true)
   const [tab, setTab]             = useState('keyword')
   const [onlyUnbid, setOnlyUnbid] = useState(false)
+  const [error, setError]         = useState(null)
 
   useEffect(() => {
-    Promise.all([api.getKeywordVolume(), api.getAds()])
+    Promise.all([
+      api.getKeywordVolume().catch(e => { setError(e.message); return [] }),
+      api.getAds().catch(e => { setError(e.message); return [] }),
+    ])
       .then(([kv, ads]) => { setKwVolume(kv); setAdCopies(ads) })
       .finally(() => setLoading(false))
   }, [])
@@ -55,6 +59,7 @@ export default function AdReport() {
       </div>
 
       {loading && <div className="empty">불러오는 중…</div>}
+      {error && <div className="card" style={{ color: '#e4371c', fontSize: 13 }}>API 오류: {error}</div>}
 
       {/* 키워드 검색량 탭 */}
       {!loading && tab === 'keyword' && (
