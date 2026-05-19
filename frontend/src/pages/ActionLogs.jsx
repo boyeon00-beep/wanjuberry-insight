@@ -7,6 +7,13 @@ const TIER_LABEL = {
   operator_manual:   '운영자 직접',
 }
 
+const STATUS_LABEL = {
+  success:  '승인·실행',
+  skipped:  '승인 (직접실행)',
+  rejected: '거절',
+  failed:   '실패',
+}
+
 export default function ActionLogs() {
   const [logs, setLogs]       = useState([])
   const [loading, setLoading] = useState(true)
@@ -47,7 +54,7 @@ export default function ActionLogs() {
                   <td>{log.target_name}</td>
                   <td>{log.action_type}</td>
                   <td>{TIER_LABEL[log.execution_tier]}</td>
-                  <td><span className={`badge badge-${log.status}`}>{log.status}</span></td>
+                  <td><span className={`badge badge-${log.status}`}>{STATUS_LABEL[log.status] ?? log.status}</span></td>
                   <td className="text-muted" style={{ maxWidth: 300, wordBreak: 'break-all' }}>
                     {log.detail}
                   </td>

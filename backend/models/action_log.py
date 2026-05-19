@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from models.suggestion import ActionType, ExecutionTier
 
 
-ActionLogStatus = Literal["success", "skipped", "failed"]
+ActionLogStatus = Literal["success", "skipped", "failed", "rejected"]
 
 
 class ActionLog(BaseModel):

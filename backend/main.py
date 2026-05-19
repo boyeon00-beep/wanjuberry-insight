@@ -69,6 +69,9 @@ class RejectBody(BaseModel):
 
 @app.post("/suggestions/{suggestion_id}/reject")
 def reject_suggestion(suggestion_id: str, body: RejectBody = RejectBody()):
+    from models.action_log import ActionLog
+    from models.suggestion import Suggestion
+
     row = store.get_suggestion(suggestion_id)
     if not row:
         raise HTTPException(status_code=404, detail="제안을 찾을 수 없습니다")
@@ -79,6 +82,23 @@ def reject_suggestion(suggestion_id: str, body: RejectBody = RejectBody()):
 
     if body.is_factual and body.reason.strip():
         store.add_constraint(body.reason.strip(), source="rejection")
+        detail = f"사실과 다름으로 거절 — {body.reason.strip()}"
+    else:
+        detail = "지금은 아님으로 거절"
+
+    suggestion = Suggestion(**row)
+    log = ActionLog(
+        suggestion_id=suggestion_id,
+        task_id=suggestion.task_id,
+        agent=suggestion.agent,
+        action_type=suggestion.action_type,
+        target_id=suggestion.target_id,
+        target_name=suggestion.target_name,
+        execution_tier=suggestion.execution_tier,
+        status="rejected",
+        detail=detail,
+    )
+    store.add_action_log(log)
 
     return {"suggestion_id": suggestion_id, "status": "rejected"}
 
