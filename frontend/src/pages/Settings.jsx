@@ -59,8 +59,58 @@ export default function Settings() {
         <p className="text-muted mt-16">Phase 3에서 실제 연결 테스트가 추가됩니다.</p>
       </div>
 
+      <FarmProfileSection />
       <FarmConstraints />
     </>
+  )
+}
+
+function FarmProfileSection() {
+  const [content, setContent] = useState('')
+  const [saved, setSaved]     = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.getFarmProfile()
+      .then(r => setContent(r.content || ''))
+      .finally(() => setLoading(false))
+  }, [])
+
+  async function save() {
+    await api.saveFarmProfile(content).catch(() => {})
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  return (
+    <div className="card">
+      <div className="card-title">농장 프로필</div>
+      <p className="text-muted" style={{ marginBottom: 16 }}>
+        AI가 분석 시 가장 먼저 읽는 농장 기본 정보입니다.
+        재배 방식, 주요 고객층, 차별점, 현재 목표 등을 자유롭게 작성하세요.
+      </p>
+      {loading ? (
+        <div className="text-muted">불러오는 중…</div>
+      ) : (
+        <>
+          <textarea
+            style={{
+              width: '100%', minHeight: 140, padding: '10px 12px',
+              border: '1px solid #ddd', borderRadius: 8, fontSize: 13,
+              lineHeight: 1.6, resize: 'vertical', boxSizing: 'border-box',
+              fontFamily: 'inherit',
+            }}
+            placeholder={`예:\n완주군 소재 베리 농가. GAP 인증 취득.\n주력: 복분자 생과(6월 중순~7월 초), 냉동 복분자(연중), 블랙베리(7~8월).\n고객층: 건강 관심 40-60대, 명절 선물 수요 큼.\n차별점: 직거래, 무방부제, 당일 수확 당일 출고.\n현재 목표: 냉동 복분자 연중 매출 안정화.`}
+            value={content}
+            onChange={e => setContent(e.target.value)}
+          />
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10, gap: 8, alignItems: 'center' }}>
+            {saved && <span className="text-muted" style={{ fontSize: 13 }}>저장됐습니다</span>}
+            <button className="btn btn-primary" onClick={save}>저장</button>
+          </div>
+        </>
+      )}
+    </div>
   )
 }
 

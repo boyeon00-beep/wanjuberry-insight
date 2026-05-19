@@ -178,6 +178,17 @@ def get_latest_ads() -> list[dict]:
     return res.data
 
 
+# --- FarmProfile ---
+
+def get_farm_profile() -> str:
+    res = get_client().table("farm_profile").select("content").eq("id", 1).maybe_single().execute()
+    return res.data["content"] if res.data else ""
+
+
+def save_farm_profile(content: str) -> None:
+    get_client().table("farm_profile").upsert({"id": 1, "content": content, "updated_at": "now()"}).execute()
+
+
 # --- KeywordVolume ---
 
 def save_keyword_volume(task_id: str, volumes: list[dict]) -> None:

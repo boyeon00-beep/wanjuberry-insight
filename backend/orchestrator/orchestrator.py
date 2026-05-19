@@ -98,6 +98,7 @@ class Orchestrator:
         # 이전 pending 제안 만료 — 새 분석 결과만 유효
         store.expire_pending_suggestions()
 
+        context["farm_profile"]     = store.get_farm_profile()
         context["farm_constraints"] = store.get_constraints()
         context["ad_rejection_history"] = store.get_recent_rejections(
             agent="ad_analyzer", limit=10

@@ -56,6 +56,12 @@ _USER_TEMPLATE = """현재 시즌: {season_flag}
 ]"""
 
 
+def _profile_block(profile: str) -> str:
+    if not profile or not profile.strip():
+        return ""
+    return f"[농장 프로필]\n{profile.strip()}\n\n"
+
+
 def _constraints_block(constraints: list[dict]) -> str:
     if not constraints:
         return ""
@@ -80,13 +86,17 @@ async def analyze(context: dict) -> dict:
     rejection_summary    = _summarize_rejections(rejection_history)
     kw_volume_summary    = _summarize_keyword_volume(keyword_volume, campaigns)
 
-    user_msg = _constraints_block(context.get("farm_constraints", [])) + _USER_TEMPLATE.format(
-        season_flag=season_flag,
-        season_note=season_note,
-        campaigns_json=json.dumps(campaigns_summary, ensure_ascii=False, indent=2),
-        ad_copies_json=json.dumps(ad_copies_summary, ensure_ascii=False, indent=2),
-        keyword_volume_json=json.dumps(kw_volume_summary, ensure_ascii=False, indent=2),
-        rejection_history_json=json.dumps(rejection_summary, ensure_ascii=False, indent=2),
+    user_msg = (
+        _profile_block(context.get("farm_profile", ""))
+        + _constraints_block(context.get("farm_constraints", []))
+        + _USER_TEMPLATE.format(
+            season_flag=season_flag,
+            season_note=season_note,
+            campaigns_json=json.dumps(campaigns_summary, ensure_ascii=False, indent=2),
+            ad_copies_json=json.dumps(ad_copies_summary, ensure_ascii=False, indent=2),
+            keyword_volume_json=json.dumps(kw_volume_summary, ensure_ascii=False, indent=2),
+            rejection_history_json=json.dumps(rejection_summary, ensure_ascii=False, indent=2),
+        )
     )
 
     response = await _client.messages.create(

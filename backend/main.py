@@ -122,6 +122,23 @@ def get_coupang_products():
     return store.get_latest_coupang_products()
 
 
+# --- 농장 프로필 ---
+
+class FarmProfileBody(BaseModel):
+    content: str
+
+
+@app.get("/farm-profile")
+def get_farm_profile():
+    return {"content": store.get_farm_profile()}
+
+
+@app.put("/farm-profile")
+def save_farm_profile(body: FarmProfileBody):
+    store.save_farm_profile(body.content)
+    return {"content": body.content}
+
+
 # --- 농장 팩트 (Constraints) ---
 
 class ConstraintBody(BaseModel):

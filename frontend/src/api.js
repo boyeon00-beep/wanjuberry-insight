@@ -20,6 +20,8 @@ export const api = {
   getSuggestions:  (status) => request('GET', `/suggestions${status ? `?status=${status}` : ''}`),
   approveSuggestion: (id)       => request('POST', `/suggestions/${id}/approve`),
   rejectSuggestion:  (id, body) => request('POST', `/suggestions/${id}/reject`, body ?? {}),
+  getFarmProfile:    ()         => request('GET',  '/farm-profile'),
+  saveFarmProfile:   (content)  => request('PUT',  '/farm-profile', { content }),
   getConstraints:    ()         => request('GET',  '/constraints'),
   addConstraint:     (content)  => request('POST', '/constraints', { content }),
   deleteConstraint:  (id)       => request('DELETE', `/constraints/${id}`),
