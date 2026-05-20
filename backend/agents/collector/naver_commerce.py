@@ -54,12 +54,13 @@ def _real_to_product_model(
     channel_id = str(raw.get("channelProductNo", ""))
     stats      = (order_stats or {}).get(channel_id, {})
 
+    origin_no    = str(raw.get("originProductNo", "") or raw.get("channelProductNo", ""))
     product_type = _infer_product_type(name)
     weight_kg    = _infer_weight_kg(name, [])
     tags         = [t.get("text", "") for t in raw.get("sellerTags", [])]
 
     return ProductModel(
-        product_id=str(raw.get("channelProductNo", "")),
+        product_id=origin_no,
         platform="naver",
         name=name,
         price=sale_price,
