@@ -43,16 +43,9 @@ export default function Suggestions() {
     finally { setBusy(null) }
   }
 
-  async function reject(id) {
+  async function reject(id, rejectionTag) {
     setBusy(id)
-    try { await api.rejectSuggestion(id, { is_factual: false, reason: '' }); load() }
-    catch (e) { alert(e.message) }
-    finally { setBusy(null) }
-  }
-
-  async function rejectFactual(id, reason) {
-    setBusy(id)
-    try { await api.rejectSuggestion(id, { is_factual: true, reason }); load() }
+    try { await api.rejectSuggestion(id, { rejection_tag: rejectionTag ?? null }); load() }
     catch (e) { alert(e.message) }
     finally { setBusy(null) }
   }
@@ -123,7 +116,6 @@ export default function Suggestions() {
                 busy={busy}
                 onApprove={approve}
                 onReject={reject}
-                onRejectFactual={rejectFactual}
                 platform={PLATFORM[s.agent]}
               />
             ))}
@@ -156,7 +148,6 @@ export default function Suggestions() {
                     busy={busy}
                     onApprove={approve}
                     onReject={reject}
-                    onRejectFactual={rejectFactual}
                     platform={PLATFORM[s.agent]}
                     isRepeat
                   />
@@ -184,20 +175,22 @@ export default function Suggestions() {
   )
 }
 
-function SuggestionCard({ s, busy, onApprove, onReject, onRejectFactual, platform, isRepeat }) {
-  const [rejectPhase, setRejectPhase] = useState(null) // null | 'choose' | 'factual'
-  const [factualReason, setFactualReason] = useState('')
+const REJECTION_TAGS = [
+  { tag: '시즌맞지않음', label: '시즌 안 맞음' },
+  { tag: '이미시도해봤음', label: '이미 해봤음' },
+  { tag: '방향이다름',    label: '방향이 다름' },
+  { tag: '여력없음',      label: '지금 여력 없음' },
+  { tag: '기타',          label: '기타' },
+]
+
+function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat }) {
+  const [showTags, setShowTags] = useState(false)
   const isBusy = busy === s.suggestion_id
 
-  function handleRejectClick() { setRejectPhase('choose') }
-  function handleNow()         { setRejectPhase(null); onReject(s.suggestion_id) }
-  function handleFactualConfirm() {
-    if (!factualReason.trim()) return
-    setRejectPhase(null)
-    setFactualReason('')
-    onRejectFactual(s.suggestion_id, factualReason.trim())
+  function handleTagSelect(tag) {
+    setShowTags(false)
+    onReject(s.suggestion_id, tag)
   }
-  function handleCancel()      { setRejectPhase(null); setFactualReason('') }
 
   return (
     <div className="card" style={isRepeat ? { borderLeft: '3px solid #f59e0b' } : {}}>
@@ -227,44 +220,48 @@ function SuggestionCard({ s, busy, onApprove, onReject, onRejectFactual, platfor
         <div style={{ marginLeft: 16, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 80 }}>
           <button
             className="btn btn-success"
-            disabled={isBusy || rejectPhase !== null}
+            disabled={isBusy || showTags}
             onClick={() => onApprove(s.suggestion_id)}
           >승인</button>
 
-          {rejectPhase === null && (
+          {!showTags && (
             <button
               className="btn btn-danger"
               disabled={isBusy}
-              onClick={handleRejectClick}
+              onClick={() => setShowTags(true)}
             >거절</button>
           )}
 
-          {rejectPhase === 'choose' && (
-            <>
-              <button className="btn btn-ghost" style={{ fontSize: 12 }} onClick={handleNow}>지금은 아님</button>
-              <button className="btn btn-danger" style={{ fontSize: 12 }} onClick={() => setRejectPhase('factual')}>사실과 다름</button>
-              <button className="btn btn-ghost" style={{ fontSize: 11, color: '#999' }} onClick={handleCancel}>취소</button>
-            </>
+          {showTags && (
+            <button
+              className="btn btn-ghost"
+              style={{ fontSize: 11, color: '#999' }}
+              onClick={() => setShowTags(false)}
+            >취소</button>
           )}
         </div>
       </div>
 
-      {rejectPhase === 'factual' && (
+      {showTags && (
         <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #f0f0f0' }}>
-          <div style={{ fontSize: 13, marginBottom: 8, color: '#555' }}>
-            어떤 사실과 다른가요? 농장 팩트로 저장됩니다.
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input
-              style={{ flex: 1, padding: '6px 10px', border: '1px solid #ddd', borderRadius: 6, fontSize: 13 }}
-              placeholder="예: 화학비료 쓰고 있음"
-              value={factualReason}
-              onChange={e => setFactualReason(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleFactualConfirm()}
-              autoFocus
-            />
-            <button className="btn btn-danger" style={{ fontSize: 13 }} onClick={handleFactualConfirm} disabled={!factualReason.trim()}>저장 후 거절</button>
-            <button className="btn btn-ghost" style={{ fontSize: 13 }} onClick={handleCancel}>취소</button>
+          <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>거절 이유를 선택하세요</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {REJECTION_TAGS.map(({ tag, label }) => (
+              <button
+                key={tag}
+                onClick={() => handleTagSelect(tag)}
+                disabled={isBusy}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: 20,
+                  border: '1px solid #ddd',
+                  background: '#f7f7f7',
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  color: '#444',
+                }}
+              >{label}</button>
+            ))}
           </div>
         </div>
       )}
@@ -291,6 +288,18 @@ function DoneCard({ s }) {
             <span className="suggest-proposed">{s.proposed_value}</span>
           </div>
           <div className="text-muted" style={{ fontSize: 12 }}>{s.reason}</div>
+          {s.status === 'rejected' && s.rejection_tag && (
+            <div style={{ marginTop: 4 }}>
+              <span style={{
+                display: 'inline-block',
+                padding: '2px 8px',
+                borderRadius: 12,
+                background: '#f0f0f0',
+                fontSize: 11,
+                color: '#666',
+              }}>{s.rejection_tag}</span>
+            </div>
+          )}
         </div>
         <div className="text-muted" style={{ fontSize: 11, marginLeft: 12, whiteSpace: 'nowrap', flexShrink: 0 }}>
           {new Date(s.created_at).toLocaleDateString('ko-KR')}

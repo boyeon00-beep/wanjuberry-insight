@@ -1,0 +1,2956 @@
+﻿{
+    "meta":  {
+                 "generated_at":  "2026-05-19",
+                 "updated_at":  "2026-05-19",
+                 "source":  "normalized-api.json, endpoints.csv, warnings.md",
+                 "total_operations":  119,
+                 "schema_version":  "2.0",
+                 "changes":  [
+                                 "added response_schema_status field",
+                                 "BusinessChannel.business_domain: ad -\u003e channel",
+                                 "added creates_ad_data:false for all report operations"
+                             ]
+             },
+    "operations":  [
+                       {
+                           "operation_id":  "MasterReport-spec",
+                           "group":  "",
+                           "method":  "",
+                           "path":  "",
+                           "action_type":  "spec",
+                           "business_domain":  "etc",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+                                         "스펙 참조 문서"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "StatReport-spec",
+                           "group":  "",
+                           "method":  "",
+                           "path":  "",
+                           "action_type":  "spec",
+                           "business_domain":  "etc",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+                                         "스펙 참조 문서"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Ad-copy",
+                           "group":  "Ad",
+                           "method":  "PUT",
+                           "path":  "/ncc/ads{?ids,targetAdgroupId,userLock}",
+                           "action_type":  "update",
+                           "business_domain":  "ad",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+                                                    "userLock"
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Ad-create",
+                           "group":  "Ad",
+                           "method":  "POST",
+                           "path":  "/ncc/ads",
+                           "action_type":  "create",
+                           "business_domain":  "ad",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "ad",
+                                                   "nccAdgroupId",
+                                                   "type"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "userLock"
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Ad-delete",
+                           "group":  "Ad",
+                           "method":  "DELETE",
+                           "path":  "/ncc/ads/{adId}",
+                           "action_type":  "delete",
+                           "business_domain":  "ad",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+                                                   "adId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Ad-get",
+                           "group":  "Ad",
+                           "method":  "GET",
+                           "path":  "/ncc/ads/{adId}",
+                           "action_type":  "read",
+                           "business_domain":  "ad",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "adId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Ad-list",
+                           "group":  "Ad",
+                           "method":  "GET",
+                           "path":  "/ncc/ads{?ids}",
+                           "action_type":  "read",
+                           "business_domain":  "ad",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Ad-list-by-adgroup-id",
+                           "group":  "Ad",
+                           "method":  "GET",
+                           "path":  "/ncc/ads{?nccAdgroupId}",
+                           "action_type":  "read",
+                           "business_domain":  "ad",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Ad-update",
+                           "group":  "Ad",
+                           "method":  "PUT",
+                           "path":  "/ncc/ads/{adId}{?fields}",
+                           "action_type":  "update",
+                           "business_domain":  "ad",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "adId",
+                                                   "adAttr",
+                                                   "nccAdId"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "userLock"
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdAccounts-list",
+                           "group":  "AdAccounts",
+                           "method":  "GET",
+                           "path":  "/ad-accounts",
+                           "action_type":  "read",
+                           "business_domain":  "account",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdAccounts-retrieve-member-list",
+                           "group":  "AdAccounts",
+                           "method":  "GET",
+                           "path":  "/ad-accounts/{adAccountNo}/members",
+                           "action_type":  "read",
+                           "business_domain":  "account",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "adAccountNo"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdExtension-create",
+                           "group":  "AdExtension",
+                           "method":  "POST",
+                           "path":  "/ncc/ad-extensions",
+                           "action_type":  "create",
+                           "business_domain":  "extension",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "mobileChannelId",
+                                                   "ownerId",
+                                                   "pcChannelId",
+                                                   "schedule",
+                                                   "type",
+                                                   "userLock"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "enable",
+                                                    "userLock"
+                                                ],
+                           "warnings":  [
+                                            "W001",
+                                            "W002",
+                                            "W003",
+                                            "W004",
+                                            "W005"
+                                        ],
+                           "notes":  [
+                                         "warnings: W001, W002, W003, W004, W005"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdExtension-delete",
+                           "group":  "AdExtension",
+                           "method":  "DELETE",
+                           "path":  "/ncc/ad-extensions/{adExtensionId}",
+                           "action_type":  "delete",
+                           "business_domain":  "extension",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+                                                   "adExtensionId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W005"
+                                        ],
+                           "notes":  [
+                                         "warnings: W005"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdExtension-get",
+                           "group":  "AdExtension",
+                           "method":  "GET",
+                           "path":  "/ncc/ad-extensions/{adExtensionId}",
+                           "action_type":  "read",
+                           "business_domain":  "extension",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "adExtensionId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W004",
+                                            "W005"
+                                        ],
+                           "notes":  [
+                                         "warnings: W004, W005"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdExtension-list-by-ids",
+                           "group":  "AdExtension",
+                           "method":  "GET",
+                           "path":  "/ncc/ad-extensions{?ids}",
+                           "action_type":  "read",
+                           "business_domain":  "extension",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W004",
+                                            "W005"
+                                        ],
+                           "notes":  [
+                                         "warnings: W004, W005"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdExtension-list-by-label-id",
+                           "group":  "AdExtension",
+                           "method":  "GET",
+                           "path":  "/ncc/ad-extensions{?nccLabelId}",
+                           "action_type":  "read",
+                           "business_domain":  "extension",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W005"
+                                        ],
+                           "notes":  [
+                                         "warnings: W005"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdExtension-list-by-owner-id",
+                           "group":  "AdExtension",
+                           "method":  "GET",
+                           "path":  "/ncc/ad-extensions{?ownerId}",
+                           "action_type":  "read",
+                           "business_domain":  "extension",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W005"
+                                        ],
+                           "notes":  [
+                                         "warnings: W005"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdExtension-update",
+                           "group":  "AdExtension",
+                           "method":  "PUT",
+                           "path":  "/ncc/ad-extensions/{adExtensionId}{?fields}",
+                           "action_type":  "update",
+                           "business_domain":  "extension",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "adExtensionId",
+                                                   "nccAdExtensionId"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "enable"
+                                                ],
+                           "warnings":  [
+                                            "W005"
+                                        ],
+                           "notes":  [
+                                         "warnings: W005"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdExtension-update-items",
+                           "group":  "AdExtension",
+                           "method":  "PUT",
+                           "path":  "/ncc/ad-extensions{?fields}",
+                           "action_type":  "update",
+                           "business_domain":  "extension",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W005",
+                                            "W007"
+                                        ],
+                           "notes":  [
+                                         "warnings: W005, W007"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdKeyword-create",
+                           "group":  "AdKeyword",
+                           "method":  "POST",
+                           "path":  "/ncc/keywords{?nccAdgroupId}",
+                           "action_type":  "create",
+                           "business_domain":  "keyword",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "kwdRequests[]"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdKeyword-delete",
+                           "group":  "AdKeyword",
+                           "method":  "DELETE",
+                           "path":  "/ncc/keywords/{nccKeywordId}",
+                           "action_type":  "delete",
+                           "business_domain":  "keyword",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+                                                   "nccKeywordId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdKeyword-delete-items",
+                           "group":  "AdKeyword",
+                           "method":  "DELETE",
+                           "path":  "/ncc/keywords{?ids}",
+                           "action_type":  "delete",
+                           "business_domain":  "keyword",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdKeyword-get",
+                           "group":  "AdKeyword",
+                           "method":  "GET",
+                           "path":  "/ncc/keywords/{nccKeywordId}",
+                           "action_type":  "read",
+                           "business_domain":  "keyword",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "nccKeywordId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdKeyword-list",
+                           "group":  "AdKeyword",
+                           "method":  "GET",
+                           "path":  "/ncc/keywords{?ids}",
+                           "action_type":  "read",
+                           "business_domain":  "keyword",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdKeyword-list-by-adgroup-id",
+                           "group":  "AdKeyword",
+                           "method":  "GET",
+                           "path":  "/ncc/keywords{?nccAdgroupId,baseSearchId,recordSize,selector}",
+                           "action_type":  "read",
+                           "business_domain":  "keyword",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdKeyword-list-by-label-id",
+                           "group":  "AdKeyword",
+                           "method":  "GET",
+                           "path":  "/ncc/keywords{?nccLabelId}",
+                           "action_type":  "read",
+                           "business_domain":  "keyword",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdKeyword-update",
+                           "group":  "AdKeyword",
+                           "method":  "PUT",
+                           "path":  "/ncc/keywords/{nccKeywordId}{?fields}",
+                           "action_type":  "update",
+                           "business_domain":  "keyword",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "nccKeywordId",
+                                                   "nccAdgroupId",
+                                                   "attr"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "bidAmt",
+                                                    "userLock"
+                                                ],
+                           "warnings":  [
+                                            "W011"
+                                        ],
+                           "notes":  [
+                                         "warnings: W011"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "AdKeyword-update-items",
+                           "group":  "AdKeyword",
+                           "method":  "PUT",
+                           "path":  "/ncc/keywords{?fields}",
+                           "action_type":  "update",
+                           "business_domain":  "keyword",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "nccKeywords[]"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W011"
+                                        ],
+                           "notes":  [
+                                         "warnings: W011"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-create",
+                           "group":  "Adgroup",
+                           "method":  "POST",
+                           "path":  "/ncc/adgroups",
+                           "action_type":  "create",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "mobileChannelId",
+                                                   "name",
+                                                   "nccCampaignId",
+                                                   "pcChannelId"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "bidAmt",
+                                                    "userLock"
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-create-negative-search-terms",
+                           "group":  "Adgroup",
+                           "method":  "POST",
+                           "path":  "/ncc/adgroups/{adgroupId}/restricted-keywords",
+                           "action_type":  "create",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+                                                   "adgroupId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-delete",
+                           "group":  "Adgroup",
+                           "method":  "DELETE",
+                           "path":  "/ncc/adgroups/{adgroupId}",
+                           "action_type":  "delete",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+                                                   "adgroupId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-delete-negative-search-terms",
+                           "group":  "Adgroup",
+                           "method":  "DELETE",
+                           "path":  "/ncc/adgroups/{adgroupId}/restricted-keywords{?ids}",
+                           "action_type":  "delete",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+                                                   "adgroupId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-get",
+                           "group":  "Adgroup",
+                           "method":  "GET",
+                           "path":  "/ncc/adgroups/{adgroupId}",
+                           "action_type":  "read",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "adgroupId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-list-by-campaign-id",
+                           "group":  "Adgroup",
+                           "method":  "GET",
+                           "path":  "/ncc/adgroups{?nccCampaignId,baseSearchId,recordSize,selector}",
+                           "action_type":  "read",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-list-by-ids",
+                           "group":  "Adgroup",
+                           "method":  "GET",
+                           "path":  "/ncc/adgroups{?ids}",
+                           "action_type":  "read",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-list-by-label-id",
+                           "group":  "Adgroup",
+                           "method":  "GET",
+                           "path":  "/ncc/adgroups{?nccLabelId}",
+                           "action_type":  "read",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-list-by-shared-budget-id",
+                           "group":  "Adgroup",
+                           "method":  "GET",
+                           "path":  "/ncc/adgroups/shared-budgets/{sharedBudgetId}",
+                           "action_type":  "read",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "sharedBudgetId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+                                         "민감 데이터 조회 가능"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-list-negative-search-terms",
+                           "group":  "Adgroup",
+                           "method":  "GET",
+                           "path":  "/ncc/adgroups/{adgroupId}/restricted-keywords?type=KEYWORD_PLUS_RESTRICT",
+                           "action_type":  "read",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "adgroupId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-update",
+                           "group":  "Adgroup",
+                           "method":  "PUT",
+                           "path":  "/ncc/adgroups/{adgroupId}",
+                           "action_type":  "update",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "adgroupId",
+                                                   "bidAmt",
+                                                   "contentsNetworkBidAmt",
+                                                   "contentsNetworkBidWeight",
+                                                   "dailyBudget",
+                                                   "mobileNetworkBidWeight",
+                                                   "nccAdgroupId",
+                                                   "pcNetworkBidWeight",
+                                                   "useCntsNetworkBidAmt",
+                                                   "useCntsNetworkBidWeight",
+                                                   "useDailyBudget",
+                                                   "userLock"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "bidAmt",
+                                                    "userLock"
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Adgroup-update-by-fields",
+                           "group":  "Adgroup",
+                           "method":  "PUT",
+                           "path":  "/ncc/adgroups/{adgroupId}{?fields}",
+                           "action_type":  "update",
+                           "business_domain":  "adgroup",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "adgroupId"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "bidAmt",
+                                                    "userLock"
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Bizmoney-get",
+                           "group":  "Bizmoney",
+                           "method":  "GET",
+                           "path":  "/billing/bizmoney",
+                           "action_type":  "report",
+                           "business_domain":  "budget",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Bizmoney-get-charge",
+                           "group":  "Bizmoney",
+                           "method":  "GET",
+                           "path":  "/billing/bizmoney/histories/charge{?searchStartDt,searchEndDt}",
+                           "action_type":  "report",
+                           "business_domain":  "budget",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Bizmoney-get-exhaust",
+                           "group":  "Bizmoney",
+                           "method":  "GET",
+                           "path":  "/billing/bizmoney/histories/exhaust{?searchStartDt,searchEndDt}",
+                           "action_type":  "report",
+                           "business_domain":  "budget",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Bizmoney-get-period",
+                           "group":  "Bizmoney",
+                           "method":  "GET",
+                           "path":  "/billing/bizmoney/histories/period{?searchStartDt,searchEndDt}",
+                           "action_type":  "report",
+                           "business_domain":  "budget",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "BrandNewContract-list",
+                           "group":  "BrandNewContract",
+                           "method":  "GET",
+                           "path":  "/ncc/brand-new/contracts",
+                           "action_type":  "read",
+                           "business_domain":  "account",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "BrandNewContract-list-by-adgroup-id",
+                           "group":  "BrandNewContract",
+                           "method":  "GET",
+                           "path":  "/ncc/brand-new/contracts{?adgroupId}",
+                           "action_type":  "read",
+                           "business_domain":  "account",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "BusinessChannel-create",
+                           "group":  "BusinessChannel",
+                           "method":  "POST",
+                           "path":  "/ncc/channels",
+                           "action_type":  "create",
+                           "business_domain":  "channel",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "businessInfo",
+                                                   "channelTp",
+                                                   "name"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W010"
+                                        ],
+                           "notes":  [
+                                         "warnings: W010"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "BusinessChannel-delete",
+                           "group":  "BusinessChannel",
+                           "method":  "DELETE",
+                           "path":  "/ncc/channels/{businessChannelId}",
+                           "action_type":  "delete",
+                           "business_domain":  "channel",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+                                                   "businessChannelId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "BusinessChannel-delete-items",
+                           "group":  "BusinessChannel",
+                           "method":  "DELETE",
+                           "path":  "/ncc/channels{?ids}",
+                           "action_type":  "delete",
+                           "business_domain":  "channel",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "BusinessChannel-get",
+                           "group":  "BusinessChannel",
+                           "method":  "GET",
+                           "path":  "/ncc/channels/{businessChannelId}",
+                           "action_type":  "read",
+                           "business_domain":  "channel",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "businessChannelId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "BusinessChannel-list",
+                           "group":  "BusinessChannel",
+                           "method":  "GET",
+                           "path":  "/ncc/channels",
+                           "action_type":  "read",
+                           "business_domain":  "channel",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "BusinessChannel-list-by-channelTp",
+                           "group":  "BusinessChannel",
+                           "method":  "GET",
+                           "path":  "/ncc/channels{?channelTp}",
+                           "action_type":  "read",
+                           "business_domain":  "channel",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "BusinessChannel-list-by-ids",
+                           "group":  "BusinessChannel",
+                           "method":  "GET",
+                           "path":  "/ncc/channels{?ids}",
+                           "action_type":  "read",
+                           "business_domain":  "channel",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "BusinessChannel-list-purchasable-place-channels",
+                           "group":  "BusinessChannel",
+                           "method":  "GET",
+                           "path":  "/ncc/purchasable-place-channels{?type}",
+                           "action_type":  "read",
+                           "business_domain":  "channel",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "BusinessChannel-request-inspect",
+                           "group":  "BusinessChannel",
+                           "method":  "PUT",
+                           "path":  "/ncc/channels/{businessChannelId}/inspect",
+                           "action_type":  "update",
+                           "business_domain":  "channel",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "businessChannelId",
+                                                   "nccBusinessChannelId"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "status",
+                                                    "statusReason"
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+                                         "스펙 참조 문서"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "BusinessChannel-update",
+                           "group":  "BusinessChannel",
+                           "method":  "PUT",
+                           "path":  "/ncc/channels/{businessChannelId}{?fields}",
+                           "action_type":  "update",
+                           "business_domain":  "channel",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "businessChannelId",
+                                                   "nccBusinessChannelId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Campaign-create",
+                           "group":  "Campaign",
+                           "method":  "POST",
+                           "path":  "/ncc/campaigns",
+                           "action_type":  "create",
+                           "business_domain":  "campaign",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "campaignTp",
+                                                   "name"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "userLock"
+                                                ],
+                           "warnings":  [
+                                            "W009"
+                                        ],
+                           "notes":  [
+                                         "warnings: W009"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Campaign-delete",
+                           "group":  "Campaign",
+                           "method":  "DELETE",
+                           "path":  "/ncc/campaigns/{campaignId}",
+                           "action_type":  "delete",
+                           "business_domain":  "campaign",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+                                                   "campaignId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Campaign-delete-items",
+                           "group":  "Campaign",
+                           "method":  "DELETE",
+                           "path":  "/ncc/campaigns{?ids}",
+                           "action_type":  "delete",
+                           "business_domain":  "campaign",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Campaign-get",
+                           "group":  "Campaign",
+                           "method":  "GET",
+                           "path":  "/ncc/campaigns/{campaignId}",
+                           "action_type":  "read",
+                           "business_domain":  "campaign",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "campaignId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W009"
+                                        ],
+                           "notes":  [
+                                         "warnings: W009"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Campaign-list-by-customer-id",
+                           "group":  "Campaign",
+                           "method":  "GET",
+                           "path":  "/ncc/campaigns{?campaignType,baseSearchId,recordSize,selector}",
+                           "action_type":  "read",
+                           "business_domain":  "campaign",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Campaign-list-by-ids",
+                           "group":  "Campaign",
+                           "method":  "GET",
+                           "path":  "/ncc/campaigns{?ids}",
+                           "action_type":  "read",
+                           "business_domain":  "campaign",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Campaign-list-by-shared-budget-id",
+                           "group":  "Campaign",
+                           "method":  "GET",
+                           "path":  "/ncc/campaigns/shared-budgets/{sharedBudgetId}",
+                           "action_type":  "read",
+                           "business_domain":  "campaign",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "sharedBudgetId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+                                         "민감 데이터 조회 가능"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Campaign-update",
+                           "group":  "Campaign",
+                           "method":  "PUT",
+                           "path":  "/ncc/campaigns/{campaignId}{?fields}",
+                           "action_type":  "update",
+                           "business_domain":  "campaign",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "campaignId",
+                                                   "nccCampaignId",
+                                                   "userLock"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "userLock"
+                                                ],
+                           "warnings":  [
+                                            "W009"
+                                        ],
+                           "notes":  [
+                                         "warnings: W009"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Criterion-get-dictionary-code",
+                           "group":  "Criterion",
+                           "method":  "GET",
+                           "path":  "/ncc/criterion-dictionary/{type}",
+                           "action_type":  "read",
+                           "business_domain":  "target",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "type"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Criterion-list-by-id",
+                           "group":  "Criterion",
+                           "method":  "GET",
+                           "path":  "/ncc/criterion/{ownerId}{?type}",
+                           "action_type":  "read",
+                           "business_domain":  "target",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "ownerId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Criterion-update-Criterion",
+                           "group":  "Criterion",
+                           "method":  "PUT",
+                           "path":  "/ncc/criterion/{ownerId}/{type}",
+                           "action_type":  "update",
+                           "business_domain":  "target",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "ownerId",
+                                                   "type",
+                                                   "requests[]"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Criterion-update-bidWeight",
+                           "group":  "Criterion",
+                           "method":  "PUT",
+                           "path":  "/ncc/criterion/{ownerId}/bidWeight{?codes,bidWeight}",
+                           "action_type":  "update",
+                           "business_domain":  "target",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+                                                   "ownerId"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "bidWeight"
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Estimate-get-average-position-bid",
+                           "group":  "Estimate",
+                           "method":  "POST",
+                           "path":  "/estimate/average-position-bid/{type}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "type"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W015"
+                                        ],
+                           "notes":  [
+                                         "warnings: W015"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Estimate-get-average-position-bid-npc",
+                           "group":  "Estimate",
+                           "method":  "POST",
+                           "path":  "/npc-estimate/average-position-bid/{type}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "type"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W015"
+                                        ],
+                           "notes":  [
+                                         "warnings: W015"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Estimate-get-average-position-bid-npla",
+                           "group":  "Estimate",
+                           "method":  "POST",
+                           "path":  "/npla-estimate/average-position-bid/{type}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "type"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W015"
+                                        ],
+                           "notes":  [
+                                         "warnings: W015"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Estimate-get-exposure-minimum-bid",
+                           "group":  "Estimate",
+                           "method":  "POST",
+                           "path":  "/estimate/exposure-minimum-bid/{type}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "type"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W015"
+                                        ],
+                           "notes":  [
+                                         "warnings: W015"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Estimate-get-exposure-minimum-bid-npc",
+                           "group":  "Estimate",
+                           "method":  "POST",
+                           "path":  "/npc-estimate/exposure-minimum-bid/{type}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "type"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W015"
+                                        ],
+                           "notes":  [
+                                         "warnings: W015"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Estimate-get-exposure-minimum-bid-npla",
+                           "group":  "Estimate",
+                           "method":  "POST",
+                           "path":  "/npla-estimate/exposure-minimum-bid/{type}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "type"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W015"
+                                        ],
+                           "notes":  [
+                                         "warnings: W015"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Estimate-get-median-bid",
+                           "group":  "Estimate",
+                           "method":  "POST",
+                           "path":  "/estimate/median-bid/{type}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "type"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W015"
+                                        ],
+                           "notes":  [
+                                         "warnings: W015"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Estimate-get-performance",
+                           "group":  "Estimate",
+                           "method":  "POST",
+                           "path":  "/estimate/performance/{type}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "type"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "bids[]"
+                                                ],
+                           "warnings":  [
+                                            "W015"
+                                        ],
+                           "notes":  [
+                                         "warnings: W015"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Estimate-get-performance-bulk",
+                           "group":  "Estimate",
+                           "method":  "POST",
+                           "path":  "/estimate/performance-bulk",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W015"
+                                        ],
+                           "notes":  [
+                                         "warnings: W015"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Estimate-get-performance-npc",
+                           "group":  "Estimate",
+                           "method":  "POST",
+                           "path":  "/npc-estimate/performance",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W015"
+                                        ],
+                           "notes":  [
+                                         "warnings: W015"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "InspectHistory-inquiry",
+                           "group":  "InspectHistory",
+                           "method":  "POST",
+                           "path":  "/ncc/inspect-history",
+                           "action_type":  "report",
+                           "business_domain":  "ad",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W012",
+                                            "W013"
+                                        ],
+                           "notes":  [
+                                         "스펙 참조 문서",
+                                         "warnings: W012, W013"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "InspectHistory-single-inquiry",
+                           "group":  "InspectHistory",
+                           "method":  "GET",
+                           "path":  "/ncc/inspect-history/{id}",
+                           "action_type":  "report",
+                           "business_domain":  "ad",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "id"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W013"
+                                        ],
+                           "notes":  [
+                                         "스펙 참조 문서",
+                                         "warnings: W013"
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "IpExclusion-create",
+                           "group":  "IpExclusion",
+                           "method":  "POST",
+                           "path":  "/tool/ip-exclusions",
+                           "action_type":  "create",
+                           "business_domain":  "account",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "IpExclusion-delete",
+                           "group":  "IpExclusion",
+                           "method":  "DELETE",
+                           "path":  "/tool/ip-exclusions/{id}",
+                           "action_type":  "delete",
+                           "business_domain":  "account",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "id"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "IpExclusion-delete-by-ids",
+                           "group":  "IpExclusion",
+                           "method":  "DELETE",
+                           "path":  "/tool/ip-exclusions{?ids}",
+                           "action_type":  "delete",
+                           "business_domain":  "account",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "IpExclusion-get",
+                           "group":  "IpExclusion",
+                           "method":  "GET",
+                           "path":  "/tool/ip-exclusions",
+                           "action_type":  "read",
+                           "business_domain":  "account",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "IpExclusion-update",
+                           "group":  "IpExclusion",
+                           "method":  "PUT",
+                           "path":  "/tool/ip-exclusions",
+                           "action_type":  "update",
+                           "business_domain":  "account",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Label-list",
+                           "group":  "Label",
+                           "method":  "GET",
+                           "path":  "/ncc/labels",
+                           "action_type":  "read",
+                           "business_domain":  "account",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Label-update",
+                           "group":  "Label",
+                           "method":  "PUT",
+                           "path":  "/ncc/labels",
+                           "action_type":  "update",
+                           "business_domain":  "account",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "color",
+                                                   "name",
+                                                   "nccLabelId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "LabelRef-update",
+                           "group":  "LabelRef",
+                           "method":  "PUT",
+                           "path":  "/ncc/label-refs",
+                           "action_type":  "update",
+                           "business_domain":  "account",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "labelRefs[]"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "ManagedKeyword-list-by-keywords",
+                           "group":  "ManagedKeyword",
+                           "method":  "GET",
+                           "path":  "/ncc/managedKeyword{?keywords}",
+                           "action_type":  "read",
+                           "business_domain":  "keyword",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "ManagerAccounts-list",
+                           "group":  "ManagerAccounts",
+                           "method":  "GET",
+                           "path":  "/manager-accounts",
+                           "action_type":  "read",
+                           "business_domain":  "account",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "ManagerAccounts-retrieve-child-ad-account-list",
+                           "group":  "ManagerAccounts",
+                           "method":  "GET",
+                           "path":  "/manager-accounts/{managerAccountNo}/child-ad-accounts",
+                           "action_type":  "read",
+                           "business_domain":  "account",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "managerAccountNo"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "MasterReport-create",
+                           "group":  "MasterReport",
+                           "method":  "POST",
+                           "path":  "/master-reports",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "item"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "MasterReport-delete",
+                           "group":  "MasterReport",
+                           "method":  "DELETE",
+                           "path":  "/master-reports/{id}",
+                           "action_type":  "delete",
+                           "business_domain":  "report",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+                                                   "id"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "MasterReport-delete-all",
+                           "group":  "MasterReport",
+                           "method":  "DELETE",
+                           "path":  "/master-reports",
+                           "action_type":  "delete",
+                           "business_domain":  "report",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "MasterReport-get",
+                           "group":  "MasterReport",
+                           "method":  "GET",
+                           "path":  "/master-reports/{id}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "id"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "MasterReport-list",
+                           "group":  "MasterReport",
+                           "method":  "GET",
+                           "path":  "/master-reports",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "ProductGroup-get",
+                           "group":  "ProductGroup",
+                           "method":  "GET",
+                           "path":  "/ncc/product-groups",
+                           "action_type":  "read",
+                           "business_domain":  "ad",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "RelKwdStat-list",
+                           "group":  "RelKwdStat",
+                           "method":  "GET",
+                           "path":  "/keywordstool",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "SharedBudget-create",
+                           "group":  "SharedBudget",
+                           "method":  "POST",
+                           "path":  "/ncc/shared-budgets",
+                           "action_type":  "create",
+                           "business_domain":  "budget",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "name",
+                                                   "ownerType"
+                                               ],
+                           "dangerous_fields":  [
+                                                    "budgetLock"
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "SharedBudget-delete",
+                           "group":  "SharedBudget",
+                           "method":  "DELETE",
+                           "path":  "/ncc/shared-budgets{?ids}",
+                           "action_type":  "delete",
+                           "business_domain":  "budget",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "SharedBudget-exclude-adgroups",
+                           "group":  "SharedBudget",
+                           "method":  "PUT",
+                           "path":  "/ncc/shared-budgets/adgroups{?ids}",
+                           "action_type":  "update",
+                           "business_domain":  "budget",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "SharedBudget-exclude-campaigns",
+                           "group":  "SharedBudget",
+                           "method":  "PUT",
+                           "path":  "/ncc/shared-budgets/campaigns{?ids}",
+                           "action_type":  "update",
+                           "business_domain":  "budget",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "SharedBudget-get",
+                           "group":  "SharedBudget",
+                           "method":  "GET",
+                           "path":  "/ncc/shared-budgets",
+                           "action_type":  "read",
+                           "business_domain":  "budget",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+                                         "민감 데이터 조회 가능"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "SharedBudget-get-by-id",
+                           "group":  "SharedBudget",
+                           "method":  "GET",
+                           "path":  "/ncc/shared-budgets/{sharedBudgetId}",
+                           "action_type":  "read",
+                           "business_domain":  "budget",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "sharedBudgetId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+                                         "민감 데이터 조회 가능"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "SharedBudget-update",
+                           "group":  "SharedBudget",
+                           "method":  "PUT",
+                           "path":  "/ncc/shared-budgets/{sharedBudgetId}",
+                           "action_type":  "update",
+                           "business_domain":  "budget",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "sharedBudgetId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "SharedBudget-update-budget",
+                           "group":  "SharedBudget",
+                           "method":  "PUT",
+                           "path":  "/ncc/shared-budgets{?fields}",
+                           "action_type":  "update",
+                           "business_domain":  "budget",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "sharedBudgets[]"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Stat-get-by-id",
+                           "group":  "Stat",
+                           "method":  "GET",
+                           "path":  "/stats{?id,fields,timeRange,datePreset,timeIncrement,breakdown}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Stat-get-by-ids",
+                           "group":  "Stat",
+                           "method":  "GET",
+                           "path":  "/stats{?ids,fields,timeRange,datePreset,timeIncrement,breakdown}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Stat-get-by-stattype",
+                           "group":  "Stat",
+                           "method":  "GET",
+                           "path":  "/stats{?id,statType}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "StatReport-create",
+                           "group":  "StatReport",
+                           "method":  "POST",
+                           "path":  "/stat-reports",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "MEDIUM",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "StatReport-delete",
+                           "group":  "StatReport",
+                           "method":  "DELETE",
+                           "path":  "/stat-reports/{reportJobId}",
+                           "action_type":  "delete",
+                           "business_domain":  "report",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+                                                   "reportJobId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W014"
+                                        ],
+                           "notes":  [
+                                         "warnings: W014"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "StatReport-delete-all",
+                           "group":  "StatReport",
+                           "method":  "DELETE",
+                           "path":  "/stat-reports",
+                           "action_type":  "delete",
+                           "business_domain":  "report",
+                           "risk_level":  "CRITICAL",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "unknown",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+                                            "W014"
+                                        ],
+                           "notes":  [
+                                         "warnings: W014"
+                                     ]
+                       },
+                       {
+                           "operation_id":  "StatReport-get",
+                           "group":  "StatReport",
+                           "method":  "GET",
+                           "path":  "/stat-reports/{reportJobId}",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "reportJobId"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "StatReport-list",
+                           "group":  "StatReport",
+                           "method":  "GET",
+                           "path":  "/stat-reports",
+                           "action_type":  "report",
+                           "business_domain":  "report",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ],
+                           "creates_ad_data":  false
+                       },
+                       {
+                           "operation_id":  "Target-list-by-owner-id",
+                           "group":  "Target",
+                           "method":  "GET",
+                           "path":  "/ncc/targets{?ownerId,types}",
+                           "action_type":  "read",
+                           "business_domain":  "target",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Target-list-by-owner-id-list",
+                           "group":  "Target",
+                           "method":  "GET",
+                           "path":  "/ncc/targets{?ownerIds}",
+                           "action_type":  "read",
+                           "business_domain":  "target",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "Target-update",
+                           "group":  "Target",
+                           "method":  "PUT",
+                           "path":  "/ncc/targets/{targetId}",
+                           "action_type":  "update",
+                           "business_domain":  "target",
+                           "risk_level":  "HIGH",
+                           "requires_manual_review":  true,
+                           "safe_for_direct_execution":  false,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+                                                   "targetId",
+                                                   "nccTargetId",
+                                                   "ownerId",
+                                                   "target",
+                                                   "targetTp"
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "TimeContract-list",
+                           "group":  "TimeContract",
+                           "method":  "GET",
+                           "path":  "/ncc/time-contracts",
+                           "action_type":  "read",
+                           "business_domain":  "target",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       },
+                       {
+                           "operation_id":  "TimeContract-list-by-adgroup-id",
+                           "group":  "TimeContract",
+                           "method":  "GET",
+                           "path":  "/ncc/time-contracts{?adgroupId}",
+                           "action_type":  "read",
+                           "business_domain":  "target",
+                           "risk_level":  "LOW",
+                           "requires_manual_review":  false,
+                           "safe_for_direct_execution":  true,
+                           "response_schema_status":  "complete",
+                           "required_inputs":  [
+
+                                               ],
+                           "dangerous_fields":  [
+
+                                                ],
+                           "warnings":  [
+
+                                        ],
+                           "notes":  [
+
+                                     ]
+                       }
+                   ]
+}

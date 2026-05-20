@@ -18,12 +18,24 @@ _SYSTEM = """당신은 완주베리 농가(네이버 스마트스토어) AI 운�
 _USER_TEMPLATE = """현재 시즌: {season_flag}
 {season_note}
 
+현재 운영 모드: {ad_strategy_mode}
+(PREPARE=준비정비 / TEST=소폭변경테스트 / SCALE=적극개선 / DEFEND=현상유지 / REVIEW=회고)
+
 완주베리 스마트스토어 상품 현황:
 
 {products_json}
 
-위 상품들을 분석하고 운영 개선 제안을 JSON 배열로 반환하세요.
+최근 거절/만료된 제안 이력 (rejection_tag 포함):
+
+{rejection_history_json}
+
+최근 성과 측정 이력:
+
+{effect_history_json}
+
+위 상품들을 분석하고 현재 운영 모드({ad_strategy_mode})에 맞는 개선 제안을 JSON 배열로 반환하세요.
 제약: 최대 5개 / 비수기 광고 성과 최적화 제안 금지 / 품절 상품은 시즌 재입고 안내만
+거절 이력의 rejection_tag를 반드시 참고하세요: '여력없음'은 재제안 가능, '이미시도해봤음'은 재제안 금지.
 
 반환 형식 (JSON 배열만, 다른 텍스트 없이):
 [
@@ -33,7 +45,7 @@ _USER_TEMPLATE = """현재 시즌: {season_flag}
     "action_type": "상품명_수정|태그_추가|태그_수정|재입고_제안|가격_검토|이미지_교체",
     "current_value": "현재 값",
     "proposed_value": "제안 값",
-    "reason": "제안 이유 (시즌 컨텍스트 포함)",
+    "reason": "제안 이유 (시즌 + 운영모드 포함)",
     "priority": "high|medium|low",
     "execution_tier": "ai_auto|operator_manual|ai_after_approval"
   }}
@@ -62,7 +74,13 @@ async def analyze(context: dict) -> dict:
     season_note = context.get("season_note", "")
     task_id = context.get("task_id", "unknown")
 
-    products_summary = _summarize_products(products)
+    ad_strategy_mode  = context.get("ad_strategy_mode", "PREPARE")
+    rejection_history = context.get("product_rejection_history", [])
+    effect_history    = context.get("product_effect_history", [])
+
+    products_summary   = _summarize_products(products)
+    rejection_summary  = _summarize_rejections(rejection_history)
+    effect_summary     = _summarize_effect_history(effect_history)
 
     user_msg = (
         _profile_block(context.get("farm_profile", ""))
@@ -70,7 +88,10 @@ async def analyze(context: dict) -> dict:
         + _USER_TEMPLATE.format(
             season_flag=season_flag,
             season_note=season_note,
+            ad_strategy_mode=ad_strategy_mode,
             products_json=json.dumps(products_summary, ensure_ascii=False, indent=2),
+            rejection_history_json=json.dumps(rejection_summary, ensure_ascii=False, indent=2),
+            effect_history_json=json.dumps(effect_summary, ensure_ascii=False, indent=2),
         )
     )
 
@@ -104,6 +125,34 @@ async def analyze(context: dict) -> dict:
         "input_tokens": response.usage.input_tokens,
         "output_tokens": response.usage.output_tokens,
     }
+
+
+def _summarize_rejections(history: list[dict]) -> list[dict]:
+    if not history:
+        return []
+    return [
+        {
+            "target_name":    r.get("target_name", ""),
+            "action_type":    r.get("action_type", ""),
+            "proposed_value": r.get("proposed_value", ""),
+            "rejection_tag":  r.get("rejection_tag") or "태그없음",
+            "status":         r.get("status", ""),
+        }
+        for r in history
+    ]
+
+
+def _summarize_effect_history(history: list[dict]) -> list[dict]:
+    if not history:
+        return []
+    return [
+        {
+            "action_type":    h.get("action_type", ""),
+            "target_name":    h.get("target_name", ""),
+            "effect_verdict": h.get("effect_verdict", ""),
+        }
+        for h in history
+    ]
 
 
 def _summarize_products(products: list[dict]) -> list[dict]:

@@ -58,13 +58,16 @@ async def approve_suggestion(suggestion_id: str):
 
     store.update_suggestion_status(suggestion_id, "approved")
     suggestion = Suggestion(**row)
-    log = await execute(suggestion)
+    baseline = store.get_baseline_metrics(row["agent"], row["target_id"], row["target_name"])
+    from domain.seasonality import get_season_context
+    from orchestrator.orchestrator import _get_strategy_mode
+    ad_strategy_mode = _get_strategy_mode(get_season_context()["season_flag"])
+    log = await execute(suggestion, baseline_metrics=baseline or None, ad_strategy_mode=ad_strategy_mode)
     return {"suggestion": row, "action_log": log}
 
 
 class RejectBody(BaseModel):
-    is_factual: bool = False
-    reason: str = ""
+    rejection_tag: str | None = None
 
 
 @app.post("/suggestions/{suggestion_id}/reject")
@@ -78,13 +81,9 @@ def reject_suggestion(suggestion_id: str, body: RejectBody = RejectBody()):
     if row["status"] != "pending":
         raise HTTPException(status_code=400, detail=f"이미 처리된 제안입니다: {row['status']}")
 
-    store.update_suggestion_status(suggestion_id, "rejected")
+    store.update_suggestion_status(suggestion_id, "rejected", rejection_tag=body.rejection_tag)
 
-    if body.is_factual and body.reason.strip():
-        store.add_constraint(body.reason.strip(), source="rejection")
-        detail = f"사실과 다름으로 거절 — {body.reason.strip()}"
-    else:
-        detail = "지금은 아님으로 거절"
+    detail = f"거절 — {body.rejection_tag}" if body.rejection_tag else "거절"
 
     suggestion = Suggestion(**row)
     log = ActionLog(
@@ -100,7 +99,7 @@ def reject_suggestion(suggestion_id: str, body: RejectBody = RejectBody()):
     )
     store.add_action_log(log)
 
-    return {"suggestion_id": suggestion_id, "status": "rejected"}
+    return {"suggestion_id": suggestion_id, "status": "rejected", "rejection_tag": body.rejection_tag}
 
 
 # --- 광고 소재 ---

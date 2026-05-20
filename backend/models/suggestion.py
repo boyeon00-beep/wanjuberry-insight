@@ -1,9 +1,17 @@
 from datetime import datetime, timedelta, timezone
-from typing import Literal
+from typing import Literal, Optional
 import uuid
 
 from pydantic import BaseModel, Field
 
+
+RejectionTag = Literal[
+    "시즌맞지않음",
+    "이미시도해봤음",
+    "방향이다름",
+    "여력없음",
+    "기타",
+]
 
 ActionType = Literal[
     "상품명_수정",
@@ -39,6 +47,7 @@ class Suggestion(BaseModel):
     execution_tier: ExecutionTier
     status: SuggestionStatus = "pending"
     is_repeat: bool = False
+    rejection_tag: Optional[RejectionTag] = None
     created_at: str = Field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )

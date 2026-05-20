@@ -33,8 +33,9 @@ class Orchestrator:
         store.save_run(run)
 
         try:
-            await self._step(run, "collect", self._collect, context)
-            await self._step(run, "analyze", self._analyze, context)
+            await self._step(run, "collect",          self._collect,          context)
+            await self._step(run, "measure_effects",  self._measure_effects,  context)
+            await self._step(run, "analyze",          self._analyze,          context)
             run["status"] = "success"
         except Exception as e:
             run["status"] = "error"
@@ -100,12 +101,19 @@ class Orchestrator:
 
         context["farm_profile"]     = store.get_farm_profile()
         context["farm_constraints"] = store.get_constraints()
+        context["ad_strategy_mode"] = _get_strategy_mode(context["season_flag"])
         context["ad_rejection_history"] = store.get_recent_rejections(
             agent="ad_analyzer", limit=10
         )
         context["coupang_rejection_history"] = store.get_recent_rejections(
             agent="coupang_analyzer", limit=10
         )
+        context["product_rejection_history"] = store.get_recent_rejections(
+            agent="product_analyzer", limit=10
+        )
+        context["ad_effect_history"]      = store.get_effect_history(agent="ad_analyzer",      limit=8)
+        context["product_effect_history"] = store.get_effect_history(agent="product_analyzer", limit=8)
+        context["coupang_effect_history"] = store.get_effect_history(agent="coupang_analyzer", limit=8)
 
         product_result  = await product.analyze(context)
         ad_result       = await ad.analyze(context)
@@ -132,8 +140,68 @@ class Orchestrator:
             "saved_to_store":    len(suggestions),
         }
 
+    async def _measure_effects(self, context: dict) -> dict:
+        logs = store.get_approved_logs_pending_measurement(min_days=7)
+        if not logs:
+            return {"measured": 0}
+
+        product_map = {p["product_id"]: p for p in context.get("collected_products", [])}
+        coupang_map = {p["product_id"]: p for p in context.get("coupang_products", [])}
+        kw_map      = {k["keyword"]: k   for k in context.get("keyword_volume", [])}
+
+        measured = 0
+        for log in logs:
+            agent       = log["agent"]
+            target_id   = log["target_id"]
+            target_name = log["target_name"]
+            baseline    = log.get("baseline_metrics") or {}
+
+            result: dict = {}
+            if agent == "product_analyzer" and target_id in product_map:
+                p = product_map[target_id]
+                result = {"sales_count": p.get("sales_count", 0), "sales_revenue": p.get("sales_revenue", 0)}
+            elif agent == "coupang_analyzer" and target_id in coupang_map:
+                p = coupang_map[target_id]
+                result = {"sales_count": p.get("sales_count", 0), "sales_revenue": p.get("sales_revenue", 0)}
+            elif agent == "ad_analyzer" and target_name in kw_map:
+                k = kw_map[target_name]
+                result = {"monthly_total": k.get("monthly_total", 0)}
+
+            verdict = _calculate_verdict(baseline, result, agent)
+            store.update_action_log_effect(log["log_id"], verdict, result)
+            measured += 1
+
+        return {"measured": measured}
+
     def get_runs(self) -> list[dict]:
         return store.get_runs()
+
+
+def _get_strategy_mode(season_flag: str) -> str:
+    if season_flag == "성수기":
+        return "SCALE"
+    if season_flag == "전환기":
+        return "TEST"
+    return "PREPARE"
+
+
+def _calculate_verdict(baseline: dict, result: dict, agent: str) -> str:
+    if not baseline or not result:
+        return "unmeasurable"
+
+    key = "sales_count" if agent in ("product_analyzer", "coupang_analyzer") else "monthly_total"
+    b = baseline.get(key)
+    r = result.get(key)
+
+    if b is None or r is None or b == 0:
+        return "unmeasurable"
+
+    change = (r - b) / b
+    if change > 0.05:
+        return "positive"
+    if change < -0.05:
+        return "negative"
+    return "neutral"
 
 
 orchestrator = Orchestrator()

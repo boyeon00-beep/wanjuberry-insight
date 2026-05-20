@@ -1,0 +1,7 @@
+-- Phase 6-2: Effect Tracker 컬럼 추가
+ALTER TABLE action_logs
+ADD COLUMN IF NOT EXISTS effect_verdict    VARCHAR(20)  DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS effect_measured_at TIMESTAMPTZ DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS baseline_metrics  JSONB        DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS result_metrics    JSONB        DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS ad_strategy_mode  VARCHAR(20)  DEFAULT NULL;

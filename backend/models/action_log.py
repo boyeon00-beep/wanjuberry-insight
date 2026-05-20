@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Literal
+from typing import Literal, Optional
 import uuid
 
 from pydantic import BaseModel, Field
@@ -8,6 +8,9 @@ from models.suggestion import ActionType, ExecutionTier
 
 
 ActionLogStatus = Literal["success", "skipped", "failed", "rejected"]
+
+# effect_verdict: pending → 측정 대기 / positive·neutral·negative → 측정 완료 / unmeasurable → 측정 불가
+EffectVerdict = Literal["pending", "positive", "neutral", "negative", "unmeasurable"]
 
 
 class ActionLog(BaseModel):
@@ -24,3 +27,8 @@ class ActionLog(BaseModel):
     executed_at: str = Field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
+    baseline_metrics: Optional[dict] = None
+    result_metrics: Optional[dict] = None
+    effect_verdict: Optional[EffectVerdict] = None
+    effect_measured_at: Optional[str] = None
+    ad_strategy_mode: Optional[str] = None
