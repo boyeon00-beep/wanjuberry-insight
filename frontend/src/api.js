@@ -26,8 +26,10 @@ export const api = {
   addConstraint:     (content)  => request('POST', '/constraints', { content }),
   deleteConstraint:  (id)       => request('DELETE', `/constraints/${id}`),
   updateConstraint:  (id, content) => request('PATCH', `/constraints/${id}`, { content }),
-  getActionLogs:   ()   => request('GET',  '/action-logs'),
+  getActionLogs:       ()   => request('GET',  '/action-logs'),
   getAds:              ()   => request('GET',  '/ads'),
   getKeywordVolume:    ()   => request('GET',  '/ads/keyword-volume'),
+  getCampaigns:        ()   => request('GET',  '/campaigns'),
+  getNaverProducts:    ()   => request('GET',  '/products'),
   getCoupangProducts:  ()   => request('GET',  '/coupang/products'),
 }

@@ -102,6 +102,13 @@ def reject_suggestion(suggestion_id: str, body: RejectBody = RejectBody()):
     return {"suggestion_id": suggestion_id, "status": "rejected", "rejection_tag": body.rejection_tag}
 
 
+# --- 네이버 상품 ---
+
+@app.get("/products")
+def get_naver_products():
+    return [p for p in store.get_latest_products() if p.get("platform") != "coupang"]
+
+
 # --- 광고 소재 ---
 
 @app.get("/ads")
@@ -112,6 +119,11 @@ def get_ads():
 @app.get("/ads/keyword-volume")
 def get_keyword_volume():
     return store.get_latest_keyword_volume()
+
+
+@app.get("/campaigns")
+def get_campaigns():
+    return store.get_latest_ad_summary()
 
 
 # --- 쿠팡 ---

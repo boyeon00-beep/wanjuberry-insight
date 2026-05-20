@@ -194,8 +194,24 @@ def save_run(run: dict) -> None:
         "season_note":  run.get("season_note"),
         "status":       run["status"],
         "error":        run.get("error"),
+        "ad_summary":   run.get("ad_summary"),
     }
     get_client().table("analysis_runs").upsert(row).execute()
+
+
+def get_latest_ad_summary() -> list[dict]:
+    res = (
+        get_client()
+        .table("analysis_runs")
+        .select("ad_summary")
+        .not_.is_("ad_summary", "null")
+        .order("started_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if res.data:
+        return res.data[0].get("ad_summary") or []
+    return []
 
 
 def get_runs() -> list[dict]:
@@ -379,10 +395,11 @@ def _suggestion_to_row(s: Suggestion) -> dict:
         "reason":         s.reason,
         "priority":       s.priority,
         "execution_tier": s.execution_tier,
-        "status":         s.status,
-        "is_repeat":      s.is_repeat,
-        "created_at":     s.created_at,
-        "expires_at":     s.expires_at,
+        "status":           s.status,
+        "is_repeat":        s.is_repeat,
+        "validator_verdict": s.validator_verdict,
+        "created_at":       s.created_at,
+        "expires_at":       s.expires_at,
     }
 
 

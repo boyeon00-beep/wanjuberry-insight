@@ -51,7 +51,7 @@ def _auth_headers() -> dict:
 
 
 def get_channel_products(page: int = 1, page_size: int = 100) -> list[dict]:
-    """상품 목록 조회 — channelProducts 리스트로 펼쳐 반환"""
+    """상품 목록 조회 — 판매중/품절 상품만, channelProducts 리스트로 펼쳐 반환"""
     res = httpx.post(
         f"{_BASE}/external/v1/products/search",
         json={"page": page, "size": page_size},
@@ -59,8 +59,20 @@ def get_channel_products(page: int = 1, page_size: int = 100) -> list[dict]:
         timeout=15,
     )
     res.raise_for_status()
-    contents = res.json().get("contents", [])
-    # contents[].channelProducts[] 를 flat list로
+    body = res.json()
+    contents = body.get("contents", [])
+
+    print("[DEBUG product search] status:", res.status_code, "/ contents count:", len(contents))
+    if contents:
+        first = contents[0]
+        print("[DEBUG product search] contents[0] keys:", list(first.keys()))
+        cps = first.get("channelProducts", [])
+        if cps:
+            print("[DEBUG product search] channelProducts[0] keys:", list(cps[0].keys()))
+            print("[DEBUG product search] groupProductNo:", cps[0].get("groupProductNo"))
+            print("[DEBUG product search] originProductNo:", cps[0].get("originProductNo"))
+            print("[DEBUG product search] contents[0] originProductNo:", first.get("originProductNo"))
+
     products = []
     for item in contents:
         products.extend(item.get("channelProducts", []))

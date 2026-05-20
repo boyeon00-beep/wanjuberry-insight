@@ -33,7 +33,8 @@ async def _collect_real(context: dict) -> dict:
     start_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
     end_date   = today.strftime("%Y-%m-%d")
 
-    raw_campaigns = client.get_campaigns()
+    all_campaigns = client.get_campaigns()
+    raw_campaigns = [c for c in all_campaigns if c.get("status") in ("ELIGIBLE", "PAUSED")]
     campaign_ids  = [c["nccCampaignId"] for c in raw_campaigns]
 
     # 캠페인 성과 통계

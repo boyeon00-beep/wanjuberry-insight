@@ -48,6 +48,7 @@ class Suggestion(BaseModel):
     status: SuggestionStatus = "pending"
     is_repeat: bool = False
     rejection_tag: Optional[RejectionTag] = None
+    validator_verdict: Optional[str] = None
     created_at: str = Field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )

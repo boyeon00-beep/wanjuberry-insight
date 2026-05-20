@@ -34,6 +34,10 @@ class Orchestrator:
 
         try:
             await self._step(run, "collect",          self._collect,          context)
+            # 광고 캠페인 데이터 저장 (수집 직후 run에 추가)
+            _cs = next((s for s in run["steps"] if s["name"] == "collect"), None)
+            if _cs and _cs.get("status") == "success":
+                run["ad_summary"] = _cs.get("result", {}).get("naver_ad", {}).get("campaigns", [])
             await self._step(run, "measure_effects",  self._measure_effects,  context)
             await self._step(run, "analyze",          self._analyze,          context)
             run["status"] = "success"
@@ -130,14 +134,35 @@ class Orchestrator:
             if store.check_has_rejection(s.target_id, s.action_type):
                 s.is_repeat = True
 
-        store.add_suggestions(suggestions)
+        # Validator: BLOCK 제외 후 저장
+        from agents.validator import validator as _validator
+        verdicts = await _validator.validate(
+            [s.model_dump() for s in suggestions], context
+        )
+
+        final: list[Suggestion] = []
+        blocked = 0
+        for s in suggestions:
+            v = verdicts.get(s.suggestion_id, {"verdict": "PASS", "note": ""})
+            verdict = v["verdict"]
+            note    = v.get("note", "")
+            if verdict == "BLOCK":
+                blocked += 1
+                continue
+            s.validator_verdict = verdict
+            if verdict in ("WARN", "NEEDS_DATA") and note:
+                s.reason = s.reason + f"\n[검증] {note}"
+            final.append(s)
+
+        store.add_suggestions(final)
 
         return {
             "product": product_result,
             "ad":      ad_result,
             "coupang": coupang_result,
-            "total_suggestions": len(suggestions),
-            "saved_to_store":    len(suggestions),
+            "total_suggestions":  len(suggestions),
+            "blocked_by_validator": blocked,
+            "saved_to_store":     len(final),
         }
 
     async def _measure_effects(self, context: dict) -> dict:
