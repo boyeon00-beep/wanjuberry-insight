@@ -1,0 +1,313 @@
+# 매출내역 조회
+
+## 문서 URL
+
+https://developers.coupangcorp.com/hc/ko/articles/360033922413-%EB%A7%A4%EC%B6%9C%EB%82%B4%EC%97%AD-%EC%A1%B0%ED%9A%8C
+
+## HTTP Method
+
+GET
+
+## Path
+
+/v2/providers/openapi/apis/api/v1/revenue-history
+
+**Example Endpoint**
+
+```
+https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1/revenue-history?vendorId=A00012345&recognitionDateFrom=2019-10-01&recognitionDateTo=2019-10-30&token=&maxPerPage=
+```
+
+**URL API Name**
+
+GET_REVENUE_HISTORY
+
+---
+
+## Request Parameters
+
+> API 적용 가능한 구매자 사용자 지역: **한국**
+>
+> 매출인식일(구매확정일 or 배송완료 + 7일)을 기준으로 상세한 매출 내역을 조회할 수 있습니다.
+
+### Query String Parameter
+
+| Name | Required | Type | Description |
+|------|----------|------|-------------|
+| vendorId | O | String | 판매자 ID — 쿠팡에서 업체에게 발급한 고유 코드 (예: A00012345) |
+| recognitionDateFrom | O | String | 매출인식 시작일 — 최대 31일 이내로 입력. 형식: YYYY-MM-dd |
+| recognitionDateTo | O | String | 매출인식 종료일 — 최대 31일 이내로 입력. 형식: YYYY-MM-dd |
+| token | O | String | 다음 페이지 조회를 위한 token값 — 다음 페이지를 호출하기 위한 토큰값 (첫 페이지 조회 시에는 `token=`까지만 입력) |
+| maxPerPage | | Number | 페이지당 최대 호출개수 — 기본값: 50, 최소값: 1, 최대값: 50 |
+
+## Request Body
+
+not require body
+
+---
+
+## Response Message
+
+| Name | Type | Description |
+|------|------|-------------|
+| code | Number | 서버 응답 코드 |
+| message | String | detail info |
+| data | Array | 결과리스트 — 결과가 없을 때는 빈 리스트가 리턴 |
+| &nbsp;&nbsp;orderId | Number | 주문번호 |
+| &nbsp;&nbsp;saleType | String | 항목구분 |
+| &nbsp;&nbsp;saleDate | String | 결제완료일 — 형식: YYYY-MM-dd |
+| &nbsp;&nbsp;recognitionDate | String | 매출인식일 — 형식: YYYY-MM-dd, '배송완료 + 7day' 또는 '구매확정' |
+| &nbsp;&nbsp;settlementDate | String | 지급예정일 — 형식: YYYY-MM-dd |
+| &nbsp;&nbsp;finalSettlementDate | String | 유보액지급 예정일 — 형식: YYYY-MM-dd, 주 단위 정산에만 사용 |
+| &nbsp;&nbsp;deliveryFee | Object | 배송비 관련 상세 안내 |
+| &nbsp;&nbsp;&nbsp;&nbsp;amount | Number | 총 배송비 — 총 배송비: 기본배송비 + 도서산간배송비 |
+| &nbsp;&nbsp;&nbsp;&nbsp;fee | Number | 총 배송비 수수료 |
+| &nbsp;&nbsp;&nbsp;&nbsp;feeVat | Number | 총 배송비 부가가치세 |
+| &nbsp;&nbsp;&nbsp;&nbsp;feeRatio | Number | 배송비 수수료율 (%) |
+| &nbsp;&nbsp;&nbsp;&nbsp;settlementAmount | Number | 배송비 정산 대상액 — 정산 대상액: 총 배송비 - 배송비 수수료 - 배송비 부가가치세 |
+| &nbsp;&nbsp;&nbsp;&nbsp;baseAmount | Number | 기본배송비 |
+| &nbsp;&nbsp;&nbsp;&nbsp;baseFee | Number | 기본배송비 수수료 |
+| &nbsp;&nbsp;&nbsp;&nbsp;baseFeeVat | Number | 기본배송비 부가가치세 |
+| &nbsp;&nbsp;&nbsp;&nbsp;remoteAmount | Number | 도서산간 배송비 |
+| &nbsp;&nbsp;&nbsp;&nbsp;remoteFee | Number | 도서산간 배송비 수수료 |
+| &nbsp;&nbsp;&nbsp;&nbsp;remoteFeeVat | Number | 도서산간 배송비 부가가치세 |
+| &nbsp;&nbsp;items | Array | 주문상품별 정산금액 상세 |
+| &nbsp;&nbsp;&nbsp;&nbsp;taxType | String | 과세여부 |
+| &nbsp;&nbsp;&nbsp;&nbsp;productId | Number | 노출상품 ID — 머지(결합)와 분리 등으로 언제든 변경될 수 있는 ID로서, 정산을 대사할때 key로 활용 불가 |
+| &nbsp;&nbsp;&nbsp;&nbsp;productName | String | 노출상품명 |
+| &nbsp;&nbsp;&nbsp;&nbsp;vendorItemId | Number | 옵션 ID — 쿠팡의 가장 작은 상품 단위. (상품 수정, 반품 등에서 활용 되는 단위) 변경되지 않으며, 가장 작은 단위이기 때문에 key로 사용 |
+| &nbsp;&nbsp;&nbsp;&nbsp;vendorItemName | String | 옵션명 |
+| &nbsp;&nbsp;&nbsp;&nbsp;salePrice | Number | 총 판매가 — 수량이 반영된 총 판매가 |
+| &nbsp;&nbsp;&nbsp;&nbsp;quantity | Number | 수량 |
+| &nbsp;&nbsp;&nbsp;&nbsp;coupangDiscountCoupon | Number | 쿠팡지원할인금액 |
+| &nbsp;&nbsp;&nbsp;&nbsp;discountCouponPolicyAgreement | Boolean | 쿠팡지원 할인쿠폰 동의여부 |
+| &nbsp;&nbsp;&nbsp;&nbsp;saleAmount | Number | 매출금액 — 매출금액 = 판매액 - 쿠팡지원할인 |
+| &nbsp;&nbsp;&nbsp;&nbsp;sellerDiscountCoupon | Number | 판매자할인쿠폰 |
+| &nbsp;&nbsp;&nbsp;&nbsp;downloadableCoupon | Number | 다운로드 쿠폰 |
+| &nbsp;&nbsp;&nbsp;&nbsp;serviceFee | Number | 서비스 이용료 |
+| &nbsp;&nbsp;&nbsp;&nbsp;serviceFeeVat | Number | 서비스 이용 부가가치세 |
+| &nbsp;&nbsp;&nbsp;&nbsp;serviceFeeRatio | Number | 서비스이용율(%, VAT별도) |
+| &nbsp;&nbsp;&nbsp;&nbsp;settlementAmount | Number | 정산금액 — 정산금액 = 매출금액 - (서비스이용료 + 서비스이용VAT) |
+| &nbsp;&nbsp;&nbsp;&nbsp;couranteeFeeRatio | Number | 쿠런티 이용료(%) |
+| &nbsp;&nbsp;&nbsp;&nbsp;couranteeFee | Number | 쿠런티 이용료(금액) |
+| &nbsp;&nbsp;&nbsp;&nbsp;couranteeFeeVat | Number | 쿠런티 이용 부가가치세 |
+| &nbsp;&nbsp;&nbsp;&nbsp;externalSellerSkuCode | String | 셀러 상품 관리코드 |
+| &nbsp;&nbsp;&nbsp;&nbsp;storeFeeDiscount | Number | 셀러 스토어 이용료 할인 금액 |
+| &nbsp;&nbsp;&nbsp;&nbsp;storeFeeDiscountVat | Number | 셀러 스토어 이용료 부가세 |
+| hasNext | Boolean | 다음페이지에 데이터 존재 여부 |
+| nextToken | String | 다음 페이지를 조회하기위한 토큰 값 |
+
+---
+
+## Response Example
+
+```json
+{
+  "code": 200,
+  "message": "OK",
+  "data": [
+    {
+      "orderId": 28000048862315,
+      "saleType": "REFUND",
+      "saleDate": "2019-09-06",
+      "recognitionDate": "2019-10-02",
+      "settlementDate": "2019-11-21",
+      "finalSettlementDate": "2019-11-21",
+      "deliveryFee": {
+        "amount": 0,
+        "fee": 0,
+        "feeVat": 0,
+        "feeRatio": 3,
+        "settlementAmount": 0,
+        "baseAmount": 0,
+        "baseFee": 0,
+        "baseFeeVat": 0,
+        "remoteAmount": 0,
+        "remoteFee": 0,
+        "remoteFeeVat": 0
+      },
+      "items": [
+        {
+          "taxType": "TAX",
+          "productId": 294693352,
+          "productName": "gtest 테스트 비정품잉크",
+          "vendorItemId": 5307184135,
+          "vendorItemName": "gtest 테스트 비정품잉크, 1개, 블랙",
+          "salePrice": 300,
+          "quantity": 2,
+          "coupangDiscountCoupon": 0,
+          "discountCouponPolicyAgreement": false,
+          "saleAmount": 300,
+          "sellerDiscountCoupon": 0,
+          "downloadableCoupon": 0,
+          "serviceFee": 22,
+          "serviceFeeVat": 2,
+          "serviceFeeRatio": 7.0,
+          "settlementAmount": 276,
+          "couranteeFeeRatio": 0,
+          "couranteeFee": 0,
+          "couranteeFeeVat": 0,
+          "storeFeeDiscountVat": 0,
+          "storeFeeDiscount": 0,
+          "externalSellerSkuCode": ""
+        },
+        {
+          "taxType": "TAX",
+          "productId": 294692050,
+          "productName": "gtest 테스트 훈제란",
+          "vendorItemId": 5307179471,
+          "vendorItemName": "gtest 테스트 훈제란, 1개, 500g",
+          "salePrice": 100,
+          "quantity": 1,
+          "coupangDiscountCoupon": 0,
+          "discountCouponPolicyAgreement": false,
+          "saleAmount": 100,
+          "sellerDiscountCoupon": 0,
+          "downloadableCoupon": 0,
+          "serviceFee": 10,
+          "serviceFeeVat": 1,
+          "serviceFeeRatio": 10.0,
+          "settlementAmount": 89,
+          "couranteeFeeRatio": 0,
+          "couranteeFee": 0,
+          "couranteeFeeVat": 0,
+          "storeFeeDiscountVat": 0,
+          "storeFeeDiscount": 0,
+          "externalSellerSkuCode": ""
+        }
+      ]
+    },
+    {
+      "orderId": 2000050175528,
+      "saleType": "SALE",
+      "saleDate": "2019-09-26",
+      "recognitionDate": "2019-10-03",
+      "settlementDate": "2019-11-21",
+      "finalSettlementDate": "2019-11-21",
+      "deliveryFee": {
+        "amount": 0,
+        "fee": 0,
+        "feeVat": 0,
+        "feeRatio": 3,
+        "settlementAmount": 0,
+        "baseAmount": 0,
+        "baseFee": 0,
+        "baseFeeVat": 0,
+        "remoteAmount": 0,
+        "remoteFee": 0,
+        "remoteFeeVat": 0
+      },
+      "items": [
+        {
+          "taxType": "TAX",
+          "productId": 290865426,
+          "productName": "쁘띠드엔 ㅇㅇ",
+          "vendorItemId": 5291775079,
+          "vendorItemName": "쁘띠드엔 ㅇㅇ, 남아, L(7호)",
+          "salePrice": 200,
+          "quantity": 1,
+          "coupangDiscountCoupon": 0,
+          "discountCouponPolicyAgreement": false,
+          "saleAmount": 200,
+          "sellerDiscountCoupon": 0,
+          "downloadableCoupon": 0,
+          "serviceFee": 21,
+          "serviceFeeVat": 2,
+          "serviceFeeRatio": 10.5,
+          "settlementAmount": 177,
+          "couranteeFeeRatio": 0,
+          "couranteeFee": 0,
+          "couranteeFeeVat": 0,
+          "storeFeeDiscountVat": 0,
+          "storeFeeDiscount": 0,
+          "externalSellerSkuCode": ""
+        }
+      ]
+    },
+    {
+      "orderId": 0,
+      "saleType": "SALE",
+      "saleDate": "2019-10-31",
+      "recognitionDate": "2019-10-31",
+      "settlementDate": "2019-11-21",
+      "finalSettlementDate": "2019-11-21",
+      "deliveryFee": {
+        "amount": 0,
+        "fee": 0,
+        "feeVat": 0,
+        "feeRatio": 3,
+        "settlementAmount": 0,
+        "baseAmount": 0,
+        "baseFee": 0,
+        "baseFeeVat": 0,
+        "remoteAmount": 0,
+        "remoteFee": 0,
+        "remoteFeeVat": 0
+      },
+      "items": [
+        {
+          "taxType": "",
+          "productId": 0,
+          "productName": "",
+          "vendorItemId": 0,
+          "vendorItemName": "",
+          "salePrice": 0,
+          "quantity": 0,
+          "coupangDiscountCoupon": 0,
+          "discountCouponPolicyAgreement": false,
+          "saleAmount": 0,
+          "sellerDiscountCoupon": 0,
+          "downloadableCoupon": 0,
+          "serviceFee": 0,
+          "serviceFeeVat": 0,
+          "serviceFeeRatio": null,
+          "settlementAmount": 0,
+          "couranteeFeeRatio": 0,
+          "couranteeFee": 0,
+          "couranteeFeeVat": 0,
+          "storeFeeDiscountVat": 0,
+          "storeFeeDiscount": 0,
+          "externalSellerSkuCode": ""
+        }
+      ]
+    }
+  ],
+  "hasNext": false,
+  "nextToken": ""
+}
+```
+
+---
+
+## Error Response
+
+| HTTP 상태 코드(오류 유형) | 오류 메시지 | 해결 방법 |
+|--------------------------|------------|----------|
+| 400 (요청변수확인) | The request is invalid: dateTo: 전일까지만 조회할 수 있습니다. 사용자 입력값 = 2024-08-01 | recognitionDateTo 에 전일 날짜까지만 입력했는지 확인합니다. |
+| 400 (요청변수확인) | The request is invalid: dateFrom, dateTo: 1달 이내의 범위로만 조회가능합니다. 사용자 입력값 = 2024-06-27, 2024-07-27 | 한달 이내의 날짜를 입력했는지 확인합니다. |
+| 400 (요청변수확인) | Required String parameter 'vendorId' is not present | vendorId 값을 올바르게 입력했는지 확인합니다. |
+| 400 (요청변수확인) | The request is invalid: recognitionDateFrom: Invalid format. 'yyyy-MM-dd' 형식을 사용하세요. (예시) '2011-12-03' 사용자 입력값 = **** | recognitionDateFrom 값을 올바르게 입력했는지 확인합니다. |
+| 400 (요청변수확인) | The request is invalid: recognitionDateTo: Invalid format. 'yyyy-MM-dd' 형식을 사용하세요. (예시) '2011-12-03' 사용자 입력값 = **** | recognitionDateTo 값을 올바르게 입력했는지 확인합니다. |
+| 400 (요청변수확인) | Required String parameter 'token' is not present | token 값을 올바르게 입력했는지 확인합니다. |
+| 400 (요청변수확인) | The request is invalid: token: Invalid format. 첫 페이지 호출 시에는 비워두세요. 두 번째 페이지부터는 이전 페이지 응답에 포함된 nextToken 값을 사용해주세요. 사용자 입력값 = * | token 값을 올바르게 입력했는지 확인합니다. |
+
+---
+
+## Enum / 허용값
+
+### saleType
+
+| Status | Description |
+|--------|-------------|
+| SALE | 주문 건 |
+| REFUND | 반품 건 |
+
+---
+
+## 주의사항
+
+- recognitionDateFrom ~ recognitionDateTo 범위는 최대 31일 이내
+- recognitionDateTo는 전일(오늘 이전) 날짜까지만 입력 가능
+- 첫 페이지 조회 시 `token=`까지만 입력 (빈 값)
+- 두 번째 페이지부터는 이전 응답의 `nextToken` 값을 `token` 파라미터에 사용
+- `productId`는 머지/분리로 변경될 수 있으므로 정산 대사 key로 사용 불가; `vendorItemId`를 key로 사용

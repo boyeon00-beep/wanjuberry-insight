@@ -103,9 +103,10 @@ class Orchestrator:
         # 이전 pending 제안 만료 — 새 분석 결과만 유효
         store.expire_pending_suggestions()
 
-        context["farm_profile"]     = store.get_farm_profile()
-        context["farm_constraints"] = store.get_constraints()
-        context["ad_strategy_mode"] = _get_strategy_mode(context["season_flag"])
+        context["farm_profile"]          = store.get_farm_profile()
+        context["farm_constraints"]      = store.get_constraints()
+        context["ad_strategy_mode"]      = _get_strategy_mode(context["season_flag"])
+        context["coupang_strategy_mode"] = _get_coupang_strategy_mode(context.get("coupang_products", []))
         context["ad_rejection_history"] = store.get_recent_rejections(
             agent="ad_analyzer", limit=10
         )
@@ -208,6 +209,15 @@ def _get_strategy_mode(season_flag: str) -> str:
     if season_flag == "전환기":
         return "TEST"
     return "PREPARE"
+
+
+def _get_coupang_strategy_mode(coupang_products: list[dict]) -> str:
+    total_sales = sum(p.get("sales_count", 0) for p in coupang_products)
+    if total_sales == 0:
+        return "READY_CHECK"
+    if total_sales < 10:
+        return "TEST"
+    return "SCALE"
 
 
 def _calculate_verdict(baseline: dict, result: dict, agent: str) -> str:

@@ -31,5 +31,16 @@ export const api = {
   getKeywordVolume:    ()   => request('GET',  '/ads/keyword-volume'),
   getCampaigns:        ()   => request('GET',  '/campaigns'),
   getNaverProducts:    ()   => request('GET',  '/products'),
-  getCoupangProducts:  ()   => request('GET',  '/coupang/products'),
+  getCoupangProducts:      ()   => request('GET', '/coupang/products'),
+  getCoupangAdSummary:     ()   => request('GET', '/coupang-ads/summary'),
+  uploadCoupangAdReport: (formData) => {
+    return fetch(BASE + '/coupang-ads/upload', { method: 'POST', body: formData })
+      .then(async res => {
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}))
+          throw new Error(err.detail || `HTTP ${res.status}`)
+        }
+        return res.json()
+      })
+  },
 }

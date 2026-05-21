@@ -27,15 +27,26 @@ _SYSTEM = """당신은 완주베리 AI 시스템의 Ad Strategy Validator입니�
 - BLOCK: 등록 금지
 - NEEDS_DATA: 데이터 부족 — 관찰 항목 전환
 
-전략 모드별 BLOCK 기준:
+전략 모드별 BLOCK 기준 (네이버 광고):
 - PREPARE: 예산_증액·입찰가 공격적 상승·캠페인_일시중지 → BLOCK
 - TEST: 대규모 예산 확대, SCALE 수준 확장 → BLOCK
 - SCALE: 재고 부족 상황의 무제한 확장 → WARN
 - 비수기에 성과 최적화 제안 → BLOCK
-- 거절 이력 중 '이미시도해봤음'과 동일한 action_type + target → BLOCK"""
+- 거절 이력 중 '이미시도해봤음'과 동일한 action_type + target → BLOCK
+
+쿠팡 전용 BLOCK/WARN 기준 (agent=coupang_analyzer):
+- 이미지_교체 제안 → BLOCK (이미지 URL 미수집, 현황 파악 불가)
+- 광고비·입찰가·예산 관련 제안 → BLOCK (Wing 리포트 미업로드 상태)
+- 리뷰·평점 기반 판단 포함 제안 → BLOCK (API 미지원)
+- 재고 수량 기반 판단 포함 제안 → BLOCK (stock=0 고정, 실제 재고 미수집)
+- 랭킹 조작·외부 업체 의뢰성 제안 → BLOCK
+- 클릭·전환 데이터 없이 SCALE 모드에서 공격적 확장 제안 → NEEDS_DATA
+- 단순 가격 인하만 제안하고 이유가 불충분한 경우 → WARN
+- 인지도 낮은 상품(블랙베리 등)을 READY_CHECK 단계에서 SCALE 제안 → WARN"""
 
 _USER_TEMPLATE = """현재 시즌: {season_flag}
-현재 전략 모드: {ad_strategy_mode}
+네이버 광고 전략 모드: {ad_strategy_mode}
+쿠팡 전략 모드: {coupang_strategy_mode}
 
 최근 거절 이력 요약 (rejection_tag 포함):
 {rejection_summary}
@@ -43,7 +54,7 @@ _USER_TEMPLATE = """현재 시즌: {season_flag}
 검증할 후보 제안 목록:
 {suggestions_json}
 
-각 제안에 대해 판정하세요.
+각 제안에 대해 판정하세요. agent 필드로 플랫폼을 구분해 해당 모드 기준을 적용하세요.
 PASS는 note 빈 문자열, WARN·BLOCK·NEEDS_DATA는 한 문장 이유 필수.
 
 반환 형식 (JSON 배열만, 다른 텍스트 없이):
@@ -64,8 +75,9 @@ async def validate(suggestions: list[dict], context: dict) -> dict[str, dict]:
     if not suggestions:
         return {}
 
-    season_flag      = context.get("season_flag", "비수기")
-    ad_strategy_mode = context.get("ad_strategy_mode", "PREPARE")
+    season_flag           = context.get("season_flag", "비수기")
+    ad_strategy_mode      = context.get("ad_strategy_mode", "PREPARE")
+    coupang_strategy_mode = context.get("coupang_strategy_mode", "READY_CHECK")
 
     # 거절 이력 (전체 에이전트 통합)
     all_rejections = (
@@ -94,6 +106,7 @@ async def validate(suggestions: list[dict], context: dict) -> dict[str, dict]:
     user_msg = _USER_TEMPLATE.format(
         season_flag=season_flag,
         ad_strategy_mode=ad_strategy_mode,
+        coupang_strategy_mode=coupang_strategy_mode,
         rejection_summary=json.dumps(rejection_summary, ensure_ascii=False, indent=2),
         suggestions_json=json.dumps(suggestions_compact, ensure_ascii=False, indent=2),
     )

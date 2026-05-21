@@ -1,6 +1,89 @@
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../api'
 
+function WingReportUpload() {
+  const [file, setFile]           = useState(null)
+  const [reportFrom, setFrom]     = useState('')
+  const [reportTo, setTo]         = useState('')
+  const [loading, setLoading]     = useState(false)
+  const [result, setResult]       = useState(null)
+  const [error, setError]         = useState(null)
+
+  async function upload() {
+    if (!file || !reportFrom || !reportTo) return
+    setLoading(true)
+    setResult(null)
+    setError(null)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('report_from', reportFrom)
+      fd.append('report_to', reportTo)
+      const res = await api.uploadCoupangAdReport(fd)
+      setResult(res)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="card">
+      <div className="card-title">쿠팡 Wing 광고 보고서 업로드</div>
+      <p className="text-muted" style={{ marginBottom: 16 }}>
+        쿠팡 Wing → 광고관리 → 맞춤형 보고서에서 다운로드한 Excel 파일을 업로드합니다.
+        동일 기간 데이터는 덮어씁니다.
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span style={{ fontSize: 13, width: 80, flexShrink: 0 }}>보고서 기간</span>
+          <input
+            type="date"
+            value={reportFrom}
+            onChange={e => setFrom(e.target.value)}
+            style={{ padding: '6px 10px', border: '1px solid #ddd', borderRadius: 6, fontSize: 13 }}
+          />
+          <span style={{ fontSize: 13 }}>~</span>
+          <input
+            type="date"
+            value={reportTo}
+            onChange={e => setTo(e.target.value)}
+            style={{ padding: '6px 10px', border: '1px solid #ddd', borderRadius: 6, fontSize: 13 }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span style={{ fontSize: 13, width: 80, flexShrink: 0 }}>파일 선택</span>
+          <input
+            type="file"
+            accept=".xlsx,.xls"
+            onChange={e => setFile(e.target.files[0] ?? null)}
+            style={{ fontSize: 13 }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12 }}>
+          {error  && <span style={{ fontSize: 13, color: '#e53e3e' }}>{error}</span>}
+          {result && (
+            <span style={{ fontSize: 13, color: '#38a169' }}>
+              저장 {result.saved}건 (매칭 {result.matched} / 미매칭 {result.unmatched})
+            </span>
+          )}
+          <button
+            className="btn btn-primary"
+            onClick={upload}
+            disabled={loading || !file || !reportFrom || !reportTo}
+          >
+            {loading ? '업로드 중…' : '업로드'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const API_KEYS = [
   { key: 'ANTHROPIC_API_KEY',      label: 'Claude API' },
   { key: 'NAVER_COMMERCE_API_KEY', label: '네이버 커머스 API' },
@@ -61,6 +144,7 @@ export default function Settings() {
 
       <FarmProfileSection />
       <FarmConstraints />
+      <WingReportUpload />
     </>
   )
 }

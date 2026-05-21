@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import store
 from agents.executor.executor import execute
 from orchestrator.orchestrator import orchestrator
+from routers import coupang_ads
 
 app = FastAPI(title="완주베리 AI 운영 인사이트")
 
@@ -21,6 +22,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(coupang_ads.router)
 
 
 @app.get("/health")

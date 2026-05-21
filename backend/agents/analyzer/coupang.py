@@ -7,18 +7,37 @@ _client = AsyncAnthropic()
 
 _SYSTEM = """당신은 완주베리 농가(쿠팡) AI 운영 전문가입니다.
 
-분석 원칙:
-- 쿠팡은 최저가 경쟁이 핵심 — 매출이 낮은 상품은 가격 경쟁력부터 검토한다
-- 농산물은 시즌에 따라 판매량이 자연히 변동한다 — 비수기 하락을 운영 문제로 오해하지 않는다
-- 판매 수량이 0이더라도 시즌 외 상품이면 재입고 제안만 한다
-- 쿠팡 수수료(서비스이용료)를 고려한 실질 정산금액 관점으로 가격을 분석한다
-- 비수기에는 가격 유지 또는 소폭 인하 제안만 한다 (대규모 프로모션 제안 금지)
+첫 번째 질문: "이 상품은 쿠팡에서 팔릴 준비가 됐는가?"
+
+상품 준비도 평가 기준 (현재 수집 가능한 데이터만 사용):
+- 상품명: 쿠팡 소비자가 바로 이해할 수 있는가
+- 가격: kg당 단가가 상품 유형 대비 지나치게 불리하지 않은가
+- 매출 반응: 최근 30일 실제 구매가 있는가 (sales_count, sales_revenue)
+- 시즌 적합성: 현재 시즌에 맞는 상품인가
+
+절대 언급하지 않는 항목:
+- 재고 수량 (실제 재고 미수집 — stock=0은 시스템 고정값)
+- 리뷰·평점 (쿠팡 Open API 미지원)
+- 대표이미지 상태 (이미지 URL 미수집)
+- 광고비·클릭·전환·ROAS (Wing 리포트 미업로드 상태)
+- 이미지_교체 제안 (이미지 현황 파악 불가)
+
+전략 모드별 판단 원칙:
+- READY_CHECK: 매출 없음 또는 불명확 → 상품명·가격 정비 우선, 확장 제안 금지
+- TEST: 매출 일부 있음 → 판매 반응 관찰, 소폭 개선 제안만
+- SCALE: 매출 꾸준히 확인 → 유지·강화 방향 제안 가능
+- RANK_GUARD: 랭킹 조작·외부 업체 유혹성 제안은 즉시 거부
+
+농산물 원칙:
+- 비수기 하락은 운영 문제 아님 — 자동 확장·프로모션 제안 금지
+- 단순 가격 인하만 제안하지 않는다 — 쿠팡 수수료(약 10~15%) 고려 후 제안
+- 성과 비교는 전년 동기와만 한다
 - 제안은 즉시 실행 가능한 수준으로 구체적이어야 한다"""
 
 _USER_TEMPLATE = """현재 시즌: {season_flag}
 {season_note}
 
-현재 운영 모드: {ad_strategy_mode}
+현재 쿠팡 전략 모드: {coupang_strategy_mode}
 
 완주베리 쿠팡 상품 현황 (최근 30일):
 
@@ -32,8 +51,8 @@ _USER_TEMPLATE = """현재 시즌: {season_flag}
 
 {effect_history_json}
 
-위 상품들을 분석하고 현재 운영 모드({ad_strategy_mode})에 맞는 개선 제안을 JSON 배열로 반환하세요.
-제약: 최대 5개 / 비수기 대규모 프로모션 제안 금지 / 구체적 수치 포함
+위 상품들을 분석하고 현재 쿠팡 전략 모드({coupang_strategy_mode})에 맞는 개선 제안을 JSON 배열로 반환하세요.
+제약: 최대 5개 / 비수기 대규모 프로모션 제안 금지 / 구체적 수치 포함 / 이미지·광고·재고·리뷰 관련 제안 금지
 거절 이력의 rejection_tag를 반드시 참고하세요: '여력없음'은 재제안 가능, '이미시도해봤음'은 재제안 금지.
 
 반환 형식 (JSON 배열만, 다른 텍스트 없이):
@@ -41,10 +60,10 @@ _USER_TEMPLATE = """현재 시즌: {season_flag}
   {{
     "target_id": "상품 ID (sellerProductId)",
     "target_name": "상품명",
-    "action_type": "가격_검토|재입고_제안|이미지_교체|상품명_수정|태그_추가",
+    "action_type": "가격_검토|재입고_제안|상품명_수정|태그_추가",
     "current_value": "현재 값",
     "proposed_value": "제안 값 (구체적 수치 포함)",
-    "reason": "제안 이유 (시즌 + 운영모드 + 쿠팡 특성 반영)",
+    "reason": "제안 이유 (시즌 + 쿠팡 전략 모드 + 상품 준비도 반영)",
     "priority": "high|medium|low",
     "execution_tier": "ai_auto|operator_manual|ai_after_approval"
   }}
@@ -74,8 +93,8 @@ async def analyze(context: dict) -> dict:
     task_id           = context.get("task_id", "unknown")
     rejection_history = context.get("coupang_rejection_history", [])
 
-    ad_strategy_mode  = context.get("ad_strategy_mode", "PREPARE")
-    effect_history    = context.get("coupang_effect_history", [])
+    coupang_strategy_mode = context.get("coupang_strategy_mode", "READY_CHECK")
+    effect_history        = context.get("coupang_effect_history", [])
 
     products_summary   = _summarize_products(products)
     rejection_summary  = _summarize_rejections(rejection_history)
@@ -87,7 +106,7 @@ async def analyze(context: dict) -> dict:
         + _USER_TEMPLATE.format(
             season_flag=season_flag,
             season_note=season_note,
-            ad_strategy_mode=ad_strategy_mode,
+            coupang_strategy_mode=coupang_strategy_mode,
             products_json=json.dumps(products_summary, ensure_ascii=False, indent=2),
             rejection_history_json=json.dumps(rejection_summary, ensure_ascii=False, indent=2),
             effect_history_json=json.dumps(effect_summary, ensure_ascii=False, indent=2),

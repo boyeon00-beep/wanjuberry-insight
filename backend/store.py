@@ -437,4 +437,56 @@ def _product_to_row(task_id: str, p: dict) -> dict:
         "season_flag":        p["domain"]["season_flag"],
         "options":            p.get("options", []),
         "collected_at":       p["collected_at"],
+        "vendor_item_ids":    p.get("vendor_item_ids", []),
     }
+
+
+# --- Coupang Ad Reports ---
+
+def get_vendor_item_id_map() -> dict[str, str]:
+    """vendorItemId → product_id 매핑 (쿠팡 최근 수집 기준)."""
+    res = (
+        get_client()
+        .table("collected_products")
+        .select("product_id, vendor_item_ids")
+        .eq("platform", "coupang")
+        .order("collected_at", desc=True)
+        .execute()
+    )
+    mapping: dict[str, str] = {}
+    for row in res.data:
+        for vid in (row.get("vendor_item_ids") or []):
+            if vid and str(vid) not in mapping:
+                mapping[str(vid)] = row["product_id"]
+    return mapping
+
+
+def delete_coupang_ad_report(report_from: str, report_to: str) -> None:
+    """동일 기간 기존 데이터 삭제 — 재업로드 시 중복 방지."""
+    (
+        get_client()
+        .table("coupang_ad_reports")
+        .delete()
+        .eq("report_from", report_from)
+        .eq("report_to", report_to)
+        .execute()
+    )
+
+
+def save_coupang_ad_report(records: list[dict]) -> None:
+    if not records:
+        return
+    get_client().table("coupang_ad_reports").insert(records).execute()
+
+
+def get_latest_coupang_ad_summary() -> list[dict]:
+    """가장 최근 업로드된 광고 데이터 전체 반환."""
+    res = (
+        get_client()
+        .table("coupang_ad_reports")
+        .select("*")
+        .order("uploaded_at", desc=True)
+        .limit(100)
+        .execute()
+    )
+    return res.data

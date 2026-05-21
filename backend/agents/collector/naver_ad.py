@@ -139,13 +139,6 @@ def _raw_to_ad_model(
         for kw in keywords
     ]
 
-    if raw_copies:
-        import json as _json
-        print("[DEBUG naver_ad copy keys]", list(raw_copies[0].keys()))
-        ad_attr_sample = raw_copies[0].get("adAttr", {})
-        if ad_attr_sample:
-            print("[DEBUG naver_ad adAttr]", _json.dumps(ad_attr_sample, ensure_ascii=False))
-
     copy_items = [
         AdCopyItem(
             ad_id=c.get("nccAdId", ""),

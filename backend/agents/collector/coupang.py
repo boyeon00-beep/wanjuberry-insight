@@ -42,6 +42,7 @@ def _aggregate_revenue(orders: list[dict]) -> dict[str, dict]:
     """주문 목록에서 productId 기준으로 매출 집계.
 
     REFUND는 차감 처리. productId=0인 항목(시스템 조정)은 제외.
+    vendorItemId도 함께 수집 — Wing 보고서 매칭용.
     """
     stats: dict[str, dict] = {}
 
@@ -55,17 +56,26 @@ def _aggregate_revenue(orders: list[dict]) -> dict[str, dict]:
                 continue
 
             if pid not in stats:
-                stats[pid] = {"quantity": 0, "revenue": 0, "unit_price": 0}
+                stats[pid] = {"quantity": 0, "revenue": 0, "unit_price": 0, "vendor_item_ids": set()}
 
             qty         = int(item.get("quantity", 0))
             sale_amount = int(item.get("saleAmount", 0))
             stats[pid]["quantity"] += sign * qty
             stats[pid]["revenue"]  += sign * sale_amount
 
+            # vendorItemId 수집 (Wing 보고서 매칭 key)
+            vid = str(item.get("vendorItemId", ""))
+            if vid and vid != "0":
+                stats[pid]["vendor_item_ids"].add(vid)
+
             # 단가는 SALE 기준 마지막 값으로 갱신
             if sale_type == "SALE" and qty > 0:
                 sale_price = int(item.get("salePrice", 0))
                 stats[pid]["unit_price"] = sale_price // qty
+
+    # set → list 직렬화
+    for v in stats.values():
+        v["vendor_item_ids"] = list(v["vendor_item_ids"])
 
     return stats
 
@@ -82,8 +92,9 @@ def _build_product_model(
 
     stats      = revenue_stats.get(product_id, {})
     price      = float(stats.get("unit_price", 0))
-    sales_count  = max(0, stats.get("quantity", 0))
+    sales_count   = max(0, stats.get("quantity", 0))
     sales_revenue = max(0, stats.get("revenue", 0))
+    vendor_item_ids = stats.get("vendor_item_ids", [])
 
     product_type = _infer_product_type(name)
     weight_kg    = _infer_weight_kg(name)
@@ -100,6 +111,7 @@ def _build_product_model(
         review_score=0.0,
         category="",
         tags=[],
+        vendor_item_ids=vendor_item_ids,
         domain=ProductDomain(
             product_type=product_type,
             weight_kg=weight_kg,

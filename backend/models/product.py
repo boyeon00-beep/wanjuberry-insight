@@ -29,3 +29,4 @@ class ProductModel(BaseModel):
     tags: list[str] = []
     domain: ProductDomain
     collected_at: str
+    vendor_item_ids: list[str] = []  # Wing 보고서 매칭용 vendorItemId 목록
