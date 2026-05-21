@@ -25,22 +25,28 @@ async def execute(
             baseline_metrics=baseline_metrics,
             ad_strategy_mode=ad_strategy_mode,
         )
-    else:
-        # ai_auto / ai_after_approval — Phase 2: mock 실행
-        log = ActionLog(
-            suggestion_id=suggestion.suggestion_id,
-            task_id=suggestion.task_id,
-            agent="executor",
-            action_type=suggestion.action_type,
-            target_id=suggestion.target_id,
-            target_name=suggestion.target_name,
-            execution_tier=suggestion.execution_tier,
-            status="success",
-            detail=f"[mock] {suggestion.action_type} 실행 완료. {suggestion.proposed_value}",
-            baseline_metrics=baseline_metrics,
-            effect_verdict="pending",
-            ad_strategy_mode=ad_strategy_mode,
-        )
+        store.add_action_log(log)
+        return log
 
+    # 쿠팡 에이전트 — 실제 API 실행
+    if suggestion.agent == "coupang":
+        from agents.executor.coupang_executor import execute_coupang
+        return await execute_coupang(suggestion, baseline_metrics, ad_strategy_mode)
+
+    # 네이버 — Phase 2: mock 실행
+    log = ActionLog(
+        suggestion_id=suggestion.suggestion_id,
+        task_id=suggestion.task_id,
+        agent="executor",
+        action_type=suggestion.action_type,
+        target_id=suggestion.target_id,
+        target_name=suggestion.target_name,
+        execution_tier=suggestion.execution_tier,
+        status="success",
+        detail=f"[mock] {suggestion.action_type} 실행 완료. {suggestion.proposed_value}",
+        baseline_metrics=baseline_metrics,
+        effect_verdict="pending",
+        ad_strategy_mode=ad_strategy_mode,
+    )
     store.add_action_log(log)
     return log

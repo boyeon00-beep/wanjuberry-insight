@@ -443,6 +443,23 @@ def _product_to_row(task_id: str, p: dict) -> dict:
 
 # --- Coupang Ad Reports ---
 
+def get_product_vendor_item_ids(product_id: str) -> list[str]:
+    """product_id → vendor_item_ids (최신 수집 기준). executor 가격/재판매 실행용."""
+    res = (
+        get_client()
+        .table("collected_products")
+        .select("vendor_item_ids")
+        .eq("product_id", product_id)
+        .eq("platform", "coupang")
+        .order("collected_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if res.data:
+        return res.data[0].get("vendor_item_ids") or []
+    return []
+
+
 def get_vendor_item_id_map() -> dict[str, str]:
     """vendorItemId → product_id 매핑 (쿠팡 최근 수집 기준)."""
     res = (

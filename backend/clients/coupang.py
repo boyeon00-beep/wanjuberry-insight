@@ -31,6 +31,15 @@ def _hmac_header(method: str, path: str, query: str = "") -> dict:
     return {"Authorization": auth}
 
 
+def _put(path: str) -> dict:
+    """body 없는 PUT (가격변경, 판매재개 등)."""
+    headers = _hmac_header("PUT", path)
+    res = httpx.put(f"{_BASE}{path}", headers=headers, timeout=20)
+    if not res.is_success:
+        raise RuntimeError(f"Coupang API {res.status_code}: {res.text[:500]}")
+    return res.json()
+
+
 def _get(path: str, params: dict) -> dict:
     # query string을 직접 조립해 서명과 실제 요청이 동일한 문자열 사용
     query = "&".join(f"{k}={v}" for k, v in params.items())
@@ -45,6 +54,24 @@ def _get(path: str, params: dict) -> dict:
             f"Coupang API {res.status_code}: {res.text[:500]}"
         )
     return res.json()
+
+
+def update_price(vendor_item_id: str, price: int) -> dict:
+    """vendorItemId 단위 판매가 변경. price는 10원 단위."""
+    path = f"/v2/providers/seller_api/apis/api/v1/marketplace/vendor-items/{vendor_item_id}/prices/{price}"
+    result = _put(path)
+    if result.get("code") == "ERROR":
+        raise RuntimeError(f"가격 변경 실패: {result.get('message')}")
+    return result
+
+
+def resume_sale(vendor_item_id: str) -> dict:
+    """vendorItemId 단위 판매 재개."""
+    path = f"/v2/providers/seller_api/apis/api/v1/marketplace/vendor-items/{vendor_item_id}/sales/resume"
+    result = _put(path)
+    if result.get("code") == "ERROR":
+        raise RuntimeError(f"판매 재개 실패: {result.get('message')}")
+    return result
 
 
 def get_products() -> list[dict]:
