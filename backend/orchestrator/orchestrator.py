@@ -106,7 +106,11 @@ class Orchestrator:
         context["farm_profile"]          = store.get_farm_profile()
         context["farm_constraints"]      = store.get_constraints()
         context["ad_strategy_mode"]      = _get_strategy_mode(context["season_flag"])
-        context["coupang_strategy_mode"] = _get_coupang_strategy_mode(context.get("coupang_products", []))
+        context["coupang_ad_summary"]    = store.get_latest_coupang_ad_summary()
+        context["coupang_strategy_mode"] = _get_coupang_strategy_mode(
+            context.get("coupang_products", []),
+            context["coupang_ad_summary"],
+        )
         context["ad_rejection_history"] = store.get_recent_rejections(
             agent="ad_analyzer", limit=10
         )
@@ -211,13 +215,27 @@ def _get_strategy_mode(season_flag: str) -> str:
     return "PREPARE"
 
 
-def _get_coupang_strategy_mode(coupang_products: list[dict]) -> str:
+def _get_coupang_strategy_mode(coupang_products: list[dict], wing_data: list[dict]) -> str:
     total_sales = sum(p.get("sales_count", 0) for p in coupang_products)
     if total_sales == 0:
-        return "READY_CHECK"
-    if total_sales < 10:
-        return "TEST"
-    return "SCALE"
+        base = "READY_CHECK"
+    elif total_sales < 10:
+        base = "TEST"
+    else:
+        base = "SCALE"
+
+    # DEFEND: 광고비·클릭 있는데 14일 전환 0 → 클릭 유입이 전환으로 이어지지 않는 상태
+    if base != "READY_CHECK" and wing_data:
+        defend = any(
+            r.get("ad_cost", 0) > 0
+            and r.get("clicks", 0) > 0
+            and r.get("orders_14d", 0) == 0
+            for r in wing_data
+        )
+        if defend:
+            return "DEFEND"
+
+    return base
 
 
 def _calculate_verdict(baseline: dict, result: dict, agent: str) -> str:

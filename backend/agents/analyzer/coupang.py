@@ -19,13 +19,17 @@ _SYSTEM = """당신은 완주베리 농가(쿠팡) AI 운영 전문가입니다.
 - 재고 수량 (실제 재고 미수집 — stock=0은 시스템 고정값)
 - 리뷰·평점 (쿠팡 Open API 미지원)
 - 대표이미지 상태 (이미지 URL 미수집)
-- 광고비·클릭·전환·ROAS (Wing 리포트 미업로드 상태)
 - 이미지_교체 제안 (이미지 현황 파악 불가)
+- Wing 데이터 없을 때 광고비·클릭·전환·ROAS 언급
 
 전략 모드별 판단 원칙:
 - READY_CHECK: 매출 없음 또는 불명확 → 상품명·가격 정비 우선, 확장 제안 금지
 - TEST: 매출 일부 있음 → 판매 반응 관찰, 소폭 개선 제안만
 - SCALE: 매출 꾸준히 확인 → 유지·강화 방향 제안 가능
+- DEFEND: 광고 클릭은 있으나 14일 전환 0 → 상품 페이지·가격·구성 문제 의심
+  · 가격 인하 / 상품명 개선 / 상품 구성 변경 제안 우선
+  · 광고 끄기·예산 조정 제안 금지 (그건 Wing에서 운영자가 직접)
+  · Wing 데이터(clicks, orders_14d, ad_cost, roas_14d)를 근거로 구체적으로 설명
 - RANK_GUARD: 랭킹 조작·외부 업체 유혹성 제안은 즉시 거부
 
 농산물 원칙:
@@ -43,6 +47,10 @@ _USER_TEMPLATE = """현재 시즌: {season_flag}
 
 {products_json}
 
+Wing 광고 보고서 데이터 (업로드된 경우):
+
+{wing_json}
+
 최근 거절/만료된 제안 이력 (rejection_tag 포함):
 
 {rejection_history_json}
@@ -52,7 +60,8 @@ _USER_TEMPLATE = """현재 시즌: {season_flag}
 {effect_history_json}
 
 위 상품들을 분석하고 현재 쿠팡 전략 모드({coupang_strategy_mode})에 맞는 개선 제안을 JSON 배열로 반환하세요.
-제약: 최대 5개 / 비수기 대규모 프로모션 제안 금지 / 구체적 수치 포함 / 이미지·광고·재고·리뷰 관련 제안 금지
+제약: 최대 5개 / 비수기 대규모 프로모션 제안 금지 / 구체적 수치 포함 / 이미지·광고 끄기·재고·리뷰 관련 제안 금지
+DEFEND 모드: Wing 데이터의 클릭·전환 수치를 reason에 명시하고 상품 페이지 개선 위주로 제안하세요.
 거절 이력의 rejection_tag를 반드시 참고하세요: '여력없음'은 재제안 가능, '이미시도해봤음'은 재제안 금지.
 
 반환 형식 (JSON 배열만, 다른 텍스트 없이):
@@ -95,10 +104,12 @@ async def analyze(context: dict) -> dict:
 
     coupang_strategy_mode = context.get("coupang_strategy_mode", "READY_CHECK")
     effect_history        = context.get("coupang_effect_history", [])
+    wing_data             = context.get("coupang_ad_summary", [])
 
     products_summary   = _summarize_products(products)
     rejection_summary  = _summarize_rejections(rejection_history)
     effect_summary     = _summarize_effect_history(effect_history)
+    wing_summary       = _summarize_wing_data(wing_data)
 
     user_msg = (
         _profile_block(context.get("farm_profile", ""))
@@ -108,6 +119,7 @@ async def analyze(context: dict) -> dict:
             season_note=season_note,
             coupang_strategy_mode=coupang_strategy_mode,
             products_json=json.dumps(products_summary, ensure_ascii=False, indent=2),
+            wing_json=json.dumps(wing_summary, ensure_ascii=False, indent=2) if wing_summary else "없음",
             rejection_history_json=json.dumps(rejection_summary, ensure_ascii=False, indent=2),
             effect_history_json=json.dumps(effect_summary, ensure_ascii=False, indent=2),
         )
@@ -173,6 +185,24 @@ def _summarize_rejections(history: list[dict]) -> list[dict]:
             "status":         r.get("status", ""),
         }
         for r in history
+    ]
+
+
+def _summarize_wing_data(wing_data: list[dict]) -> list[dict]:
+    if not wing_data:
+        return []
+    return [
+        {
+            "product_name":           r.get("product_name", ""),
+            "report_period":          f"{r.get('report_from','')} ~ {r.get('report_to','')}",
+            "impressions":            r.get("impressions", 0),
+            "clicks":                 r.get("clicks", 0),
+            "ad_cost":                r.get("ad_cost", 0),
+            "orders_14d":             r.get("orders_14d", 0),
+            "conversion_revenue_14d": r.get("conversion_revenue_14d", 0),
+            "roas_14d":               r.get("roas_14d"),
+        }
+        for r in wing_data
     ]
 
 
