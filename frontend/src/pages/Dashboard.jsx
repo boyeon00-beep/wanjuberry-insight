@@ -30,6 +30,7 @@ export default function Dashboard() {
   const [lastRun, setLastRun]               = useState(null)
   const [naverProducts, setNaverProducts]   = useState([])
   const [coupangProducts, setCoupangProducts] = useState([])
+  const [wingAds, setWingAds]               = useState([])
   const [suggestions, setSuggestions]       = useState([])
   const [loading, setLoading]               = useState(true)
 
@@ -38,11 +39,13 @@ export default function Dashboard() {
       api.getRuns().catch(() => []),
       api.getNaverProducts().catch(() => []),
       api.getCoupangProducts().catch(() => []),
+      api.getCoupangAdSummary().catch(() => []),
       api.getSuggestions().catch(() => []),
-    ]).then(([runs, naver, coupang, suggs]) => {
+    ]).then(([runs, naver, coupang, wing, suggs]) => {
       setLastRun(runs[0] ?? null)
       setNaverProducts(naver)
       setCoupangProducts(coupang)
+      setWingAds(wing)
       setSuggestions(suggs)
     }).finally(() => setLoading(false))
   }, [])
@@ -197,6 +200,9 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* 쿠팡 Wing 광고 현황 */}
+      {wingAds.length > 0 && <WingAdTable wingAds={wingAds} />}
+
       {/* 제안 현황 */}
       {suggestions.length > 0 && (
         <div className="card">
@@ -205,6 +211,83 @@ export default function Dashboard() {
         </div>
       )}
     </>
+  )
+}
+
+function WingAdTable({ wingAds }) {
+  // 가장 최근 업로드 기간 표시
+  const period = wingAds.length > 0
+    ? `${wingAds[0].report_from} ~ ${wingAds[0].report_to}`
+    : ''
+
+  const totalCost    = wingAds.reduce((s, r) => s + (r.ad_cost ?? 0), 0)
+  const totalClicks  = wingAds.reduce((s, r) => s + (r.clicks ?? 0), 0)
+  const totalOrders  = wingAds.reduce((s, r) => s + (r.orders_14d ?? 0), 0)
+  const totalRevenue = wingAds.reduce((s, r) => s + (r.conversion_revenue_14d ?? 0), 0)
+  const totalRoas    = totalCost > 0 ? Math.round(totalRevenue / totalCost * 100) : null
+
+  return (
+    <div className="card">
+      <div className="card-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span>쿠팡 Wing 광고 현황</span>
+        <span className="text-muted" style={{ fontSize: 12, fontWeight: 400 }}>{period}</span>
+      </div>
+
+      {/* 합계 KPI */}
+      <div style={{ display: 'flex', gap: 24, marginBottom: 16, flexWrap: 'wrap' }}>
+        {[
+          { label: '총 광고비',   value: totalCost.toLocaleString() + '원' },
+          { label: '총 클릭',     value: totalClicks.toLocaleString() },
+          { label: '총 전환수',   value: totalOrders.toLocaleString(), alert: totalOrders === 0 && totalClicks > 0 },
+          { label: '전환 매출',   value: totalRevenue ? totalRevenue.toLocaleString() + '원' : '-' },
+          { label: '전체 ROAS',   value: totalRoas != null ? totalRoas + '%' : '-', alert: totalRoas != null && totalRoas < 100 },
+        ].map(({ label, value, alert }) => (
+          <div key={label}>
+            <div className="text-muted" style={{ fontSize: 11, marginBottom: 2 }}>{label}</div>
+            <div style={{ fontWeight: 700, fontSize: 15, color: alert ? '#b91c1c' : 'inherit' }}>{value}</div>
+          </div>
+        ))}
+      </div>
+
+      <table className="table">
+        <thead>
+          <tr>
+            <th>상품명</th>
+            <th style={{ textAlign: 'right' }}>노출</th>
+            <th style={{ textAlign: 'right' }}>클릭</th>
+            <th style={{ textAlign: 'right' }}>광고비</th>
+            <th style={{ textAlign: 'right' }}>전환수</th>
+            <th style={{ textAlign: 'right' }}>전환매출</th>
+            <th style={{ textAlign: 'right' }}>ROAS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {wingAds.map((r, i) => {
+            const defend = r.clicks > 0 && r.orders_14d === 0 && r.ad_cost > 0
+            return (
+              <tr key={i} style={defend ? { background: '#fff5f5' } : {}}>
+                <td style={{ fontWeight: 500, maxWidth: 200 }}>{r.product_name}</td>
+                <td style={{ textAlign: 'right', color: '#6b7280' }}>{(r.impressions ?? 0).toLocaleString()}</td>
+                <td style={{ textAlign: 'right' }}>{(r.clicks ?? 0).toLocaleString()}</td>
+                <td style={{ textAlign: 'right' }}>{(r.ad_cost ?? 0).toLocaleString()}원</td>
+                <td style={{ textAlign: 'right', fontWeight: 600, color: defend ? '#b91c1c' : 'inherit' }}>
+                  {r.orders_14d ?? 0}
+                </td>
+                <td style={{ textAlign: 'right', color: '#166534' }}>
+                  {r.conversion_revenue_14d ? r.conversion_revenue_14d.toLocaleString() + '원' : '-'}
+                </td>
+                <td style={{ textAlign: 'right', fontWeight: 700, color: r.roas_14d != null && r.roas_14d < 100 ? '#b91c1c' : '#166534' }}>
+                  {r.roas_14d != null ? r.roas_14d + '%' : '-'}
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+      <p className="text-muted" style={{ marginTop: 8, fontSize: 11 }}>
+        빨간 행: 클릭 있으나 전환 0 (DEFEND 모드 트리거 조건)
+      </p>
+    </div>
   )
 }
 
