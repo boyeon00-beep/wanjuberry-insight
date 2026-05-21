@@ -20,14 +20,13 @@ async def execute_coupang(
     if suggestion.action_type == "재입고_제안":
         return _execute_sale_resume(suggestion, vendor_item_ids, baseline_metrics, ad_strategy_mode)
 
-    # 상품명_수정 / 태그_추가 / 태그_수정: 쿠팡 전체 상품 수정은 API 승인 필요 → Wing 수동 안내
-    return _make_log(
-        suggestion,
-        "skipped",
-        f"쿠팡 Wing에서 직접 수정 필요 — {suggestion.proposed_value}",
-        baseline_metrics,
-        ad_strategy_mode,
-    )
+    if suggestion.action_type == "상품명_수정":
+        return _execute_name_update(suggestion, baseline_metrics, ad_strategy_mode)
+
+    if suggestion.action_type in ("태그_추가", "태그_수정"):
+        return _execute_tag_update(suggestion, baseline_metrics, ad_strategy_mode)
+
+    return _make_log(suggestion, "skipped", f"미구현 action_type: {suggestion.action_type}", baseline_metrics, ad_strategy_mode)
 
 
 def _execute_price_update(suggestion, vendor_item_ids, baseline_metrics, ad_strategy_mode):
@@ -80,6 +79,63 @@ def _execute_sale_resume(suggestion, vendor_item_ids, baseline_metrics, ad_strat
     detail = f"판매 재개 완료 — vendorItemId {ok}"
     if fail:
         detail += f" / 일부 실패: {fail}"
+    return _make_log(suggestion, "success", detail, baseline_metrics, ad_strategy_mode, effect_verdict="pending")
+
+
+def _execute_name_update(suggestion, baseline_metrics, ad_strategy_mode):
+    from clients import coupang as client
+
+    seller_product_id = suggestion.target_id
+    new_name = suggestion.proposed_value.strip()
+
+    try:
+        product = client.get_product_detail(seller_product_id)
+    except Exception as e:
+        return _make_log(suggestion, "failed", f"상품 조회 실패: {e}", baseline_metrics, ad_strategy_mode)
+
+    old_name = product.get("sellerProductName", "")
+    product["sellerProductName"] = new_name
+
+    try:
+        client.update_product(seller_product_id, product)
+    except Exception as e:
+        return _make_log(suggestion, "failed", f"상품명 변경 신청 실패: {e}", baseline_metrics, ad_strategy_mode)
+
+    detail = f"상품명 변경 신청 완료 (쿠팡 승인 대기) — '{old_name}' → '{new_name}'"
+    return _make_log(suggestion, "success", detail, baseline_metrics, ad_strategy_mode, effect_verdict="pending")
+
+
+def _execute_tag_update(suggestion, baseline_metrics, ad_strategy_mode):
+    from clients import coupang as client
+
+    seller_product_id = suggestion.target_id
+    # proposed_value: "복분자, 냉동복분자, 건강과일" 형태 파싱
+    new_tags = [t.strip() for t in suggestion.proposed_value.replace("'", "").replace('"', "").split(",") if t.strip()]
+
+    if not new_tags:
+        return _make_log(suggestion, "failed", f"태그 파싱 실패: {suggestion.proposed_value}", baseline_metrics, ad_strategy_mode)
+
+    try:
+        product = client.get_product_detail(seller_product_id)
+    except Exception as e:
+        return _make_log(suggestion, "failed", f"상품 조회 실패: {e}", baseline_metrics, ad_strategy_mode)
+
+    items = product.get("items", [])
+    for item in items:
+        if suggestion.action_type == "태그_추가":
+            existing = item.get("searchTags") or []
+            merged = list(dict.fromkeys(existing + new_tags))  # 중복 제거, 순서 유지
+            item["searchTags"] = merged
+        else:  # 태그_수정 — 전체 교체
+            item["searchTags"] = new_tags
+
+    try:
+        client.update_product(seller_product_id, product)
+    except Exception as e:
+        return _make_log(suggestion, "failed", f"태그 변경 신청 실패: {e}", baseline_metrics, ad_strategy_mode)
+
+    action_label = "추가" if suggestion.action_type == "태그_추가" else "교체"
+    detail = f"검색태그 {action_label} 신청 완료 (쿠팡 승인 대기) — {new_tags}"
     return _make_log(suggestion, "success", detail, baseline_metrics, ad_strategy_mode, effect_verdict="pending")
 
 

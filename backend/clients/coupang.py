@@ -40,15 +40,23 @@ def _put(path: str) -> dict:
     return res.json()
 
 
+def _put_json(path: str, body: dict) -> dict:
+    """JSON body PUT (상품 전체 수정 등)."""
+    import json as _json
+    headers = _hmac_header("PUT", path)
+    headers["Content-Type"] = "application/json"
+    res = httpx.put(f"{_BASE}{path}", headers=headers, content=_json.dumps(body), timeout=30)
+    if not res.is_success:
+        raise RuntimeError(f"Coupang API {res.status_code}: {res.text[:500]}")
+    return res.json()
+
+
 def _get(path: str, params: dict) -> dict:
     # query string을 직접 조립해 서명과 실제 요청이 동일한 문자열 사용
     query = "&".join(f"{k}={v}" for k, v in params.items())
     headers = _hmac_header("GET", path, query)
-    res = httpx.get(
-        f"{_BASE}{path}?{query}",
-        headers=headers,
-        timeout=20,
-    )
+    url = f"{_BASE}{path}?{query}" if query else f"{_BASE}{path}"
+    res = httpx.get(url, headers=headers, timeout=20)
     if not res.is_success:
         raise RuntimeError(
             f"Coupang API {res.status_code}: {res.text[:500]}"
@@ -71,6 +79,24 @@ def resume_sale(vendor_item_id: str) -> dict:
     result = _put(path)
     if result.get("code") == "ERROR":
         raise RuntimeError(f"판매 재개 실패: {result.get('message')}")
+    return result
+
+
+def get_product_detail(seller_product_id: str) -> dict:
+    """전체 상품 JSON 조회 — 수정 전 현재값 확보용."""
+    path = f"/v2/providers/seller_api/apis/api/v1/marketplace/seller-products/{seller_product_id}"
+    result = _get(path, {})
+    if result.get("code") == "ERROR":
+        raise RuntimeError(f"상품 조회 실패: {result.get('message')}")
+    return result.get("data", {})
+
+
+def update_product(seller_product_id: str, product_data: dict) -> dict:
+    """전체 상품 JSON PUT — 쿠팡 승인 대기 상태로 변경 신청."""
+    path = f"/v2/providers/seller_api/apis/api/v1/marketplace/seller-products/{seller_product_id}"
+    result = _put_json(path, product_data)
+    if result.get("code") == "ERROR":
+        raise RuntimeError(f"상품 수정 실패: {result.get('message')}")
     return result
 
 
