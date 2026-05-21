@@ -77,16 +77,20 @@ AI가 먼저 제안하고, 운영자가 생각해서 먼저 입력하는 구조�
 ## 전체 Phase 구조
 
 ```
-Phase 1: API Knowledge Base 구축               ← 완료 (구조/템플릿) / 3종 세트는 Cowork 관리
+Phase 1: API Knowledge Base 구축               ← ✅ 완료 (구조/템플릿) / 3종 세트는 Cowork 관리
 Phase 2: 에이전트 구조 + Internal Model 설계   ← ✅ 완료
 Phase 3: 실제 API 호출 + 오류 발견 + KB 수정  ← ✅ 완료 (네이버 커머스 + 네이버 광고)
 Phase 4: 네이버 고도화 + 에이전트 구조 정비   ← 진행 중
   4-1: Railway + Vercel 배포                   ← ✅ 완료 (2026-05-18)
-  4-2: 리뷰 API 연결                           ← ❌ 건너뜀 (네이버 커머스 API 공식 미지원 확인)
+  4-2: 리뷰 API 연결                           ← ❌ 건너뜀 (네이버 커머스 API 공식 미지원)
   4-3: 광고 소재/카피 연동                     ← KB 완성 대기 중 (Cowork)
   4-4: 에이전트 폴더 구조 리팩터링             ← 4-3 완료 후
-Phase 5: 쿠팡 에이전트 구현                    ← Phase 4 완료 후
-Phase 6: 자동화 루프 고도화 (Learning Loop)   ← 기획 예정
+Phase 5: 쿠팡 에이전트 구현                    ← ✅ 완료 (2026-05-22)
+  수집 / Brain / Validator / Wing 업로드 / Executor / 대시보드 전부 완료
+Phase 6: 자동화 루프 고도화 (Learning Loop)   ← ✅ 완료 (2026-05-22)
+  6-1: 거절 태그 UI ✅ / 6-2: Effect Tracker ✅ / 6-4: Brain 주입 ✅ / 6-5: Validator ✅
+  6-C: Coupang Brain ✅ (전략모드/DEFEND/Executor/Wing UI 전부)
+  6-3: Domain KB 빌더 ← 데이터 축적 후 구현 예정
 ```
 
 ---
