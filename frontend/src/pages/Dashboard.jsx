@@ -2,18 +2,33 @@ import { useEffect, useState } from 'react'
 import { api } from '../api'
 
 const STRATEGY_LABEL = {
-  PREPARE: { label: 'PREPARE — 준비', color: '#075985', bg: '#e0f2fe' },
-  TEST:    { label: 'TEST — 테스트',  color: '#854d0e', bg: '#fef9c3' },
-  SCALE:   { label: 'SCALE — 확장',  color: '#166534', bg: '#dcfce7' },
-  DEFEND:  { label: 'DEFEND — 방어', color: '#991b1b', bg: '#fee2e2' },
-  LEARN:   { label: 'LEARN — 학습',  color: '#5b21b6', bg: '#ede9fe' },
-  REVIEW:  { label: 'REVIEW — 회고', color: '#374151', bg: '#f3f4f6' },
+  PREPARE:     { label: 'PREPARE — 준비',       color: '#075985', bg: '#e0f2fe' },
+  TEST:        { label: 'TEST — 테스트',         color: '#854d0e', bg: '#fef9c3' },
+  SCALE:       { label: 'SCALE — 확장',          color: '#166534', bg: '#dcfce7' },
+  DEFEND:      { label: 'DEFEND — 방어',         color: '#991b1b', bg: '#fee2e2' },
+  READY_CHECK: { label: 'READY CHECK — 준비중',  color: '#6b7280', bg: '#f3f4f6' },
+  LEARN:       { label: 'LEARN — 학습',          color: '#5b21b6', bg: '#ede9fe' },
+  REVIEW:      { label: 'REVIEW — 회고',         color: '#374151', bg: '#f3f4f6' },
 }
 
 function strategyMode(seasonFlag) {
   if (seasonFlag === '성수기') return 'SCALE'
   if (seasonFlag === '전환기') return 'TEST'
   return 'PREPARE'
+}
+
+function coupangStrategyMode(coupangProducts, wingAds) {
+  const totalSales = coupangProducts.reduce((s, p) => s + (p.sales_count ?? 0), 0)
+  let base
+  if (totalSales === 0) base = 'READY_CHECK'
+  else if (totalSales < 10) base = 'TEST'
+  else base = 'SCALE'
+
+  if (base !== 'READY_CHECK' && wingAds.length > 0) {
+    const defend = wingAds.some(r => r.ad_cost > 0 && r.clicks > 0 && r.orders_14d === 0)
+    if (defend) return 'DEFEND'
+  }
+  return base
 }
 
 function KpiCard({ label, value, sub, accent }) {
@@ -69,6 +84,8 @@ export default function Dashboard() {
 
   const mode = strategyMode(lastRun.season_flag)
   const modeStyle = STRATEGY_LABEL[mode] ?? STRATEGY_LABEL.PREPARE
+  const coupangMode = coupangStrategyMode(coupangProducts, wingAds)
+  const coupangModeStyle = STRATEGY_LABEL[coupangMode] ?? STRATEGY_LABEL.READY_CHECK
 
   return (
     <>
@@ -94,11 +111,21 @@ export default function Dashboard() {
         />
         <div className="kpi-card">
           <div className="kpi-label">현재 전략 모드</div>
-          <div style={{ marginTop: 8 }}>
-            <span style={{
-              padding: '4px 12px', borderRadius: 20, fontSize: 14, fontWeight: 700,
-              color: modeStyle.color, background: modeStyle.bg,
-            }}>{modeStyle.label}</span>
+          <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, color: '#6b7280', width: 40 }}>네이버</span>
+              <span style={{
+                padding: '3px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700,
+                color: modeStyle.color, background: modeStyle.bg,
+              }}>{modeStyle.label}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 11, color: '#6b7280', width: 40 }}>쿠팡</span>
+              <span style={{
+                padding: '3px 10px', borderRadius: 20, fontSize: 13, fontWeight: 700,
+                color: coupangModeStyle.color, background: coupangModeStyle.bg,
+              }}>{coupangModeStyle.label}</span>
+            </div>
           </div>
           <div className="kpi-sub" style={{ marginTop: 6 }}>
             {lastRun.season_flag} · {lastRun.season_note}
