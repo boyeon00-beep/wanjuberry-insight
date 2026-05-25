@@ -1,5 +1,4 @@
 # 단일 실행 에이전트 — 승인된 Suggestion을 받아 실행 후 ActionLog 기록
-# Phase 2: 실제 API 호출 없이 mock 실행 (Phase 3에서 플랫폼 API 연결)
 
 import store
 from models.action_log import ActionLog
@@ -29,11 +28,16 @@ async def execute(
         return log
 
     # 쿠팡 에이전트 — 실제 API 실행
-    if suggestion.agent == "coupang":
+    if suggestion.agent in ("coupang", "coupang_analyzer"):
         from agents.executor.coupang_executor import execute_coupang
         return await execute_coupang(suggestion, baseline_metrics, ad_strategy_mode)
 
-    # 네이버 — Phase 2: mock 실행
+    # 네이버 에이전트 — 실제 API 실행
+    if suggestion.agent in ("ad_analyzer", "product_analyzer", "naver"):
+        from agents.executor.naver_executor import execute_naver
+        return await execute_naver(suggestion, baseline_metrics, ad_strategy_mode)
+
+    # 미지원 에이전트
     log = ActionLog(
         suggestion_id=suggestion.suggestion_id,
         task_id=suggestion.task_id,
@@ -42,10 +46,9 @@ async def execute(
         target_id=suggestion.target_id,
         target_name=suggestion.target_name,
         execution_tier=suggestion.execution_tier,
-        status="success",
-        detail=f"[mock] {suggestion.action_type} 실행 완료. {suggestion.proposed_value}",
+        status="skipped",
+        detail=f"미지원 에이전트: {suggestion.agent}",
         baseline_metrics=baseline_metrics,
-        effect_verdict="pending",
         ad_strategy_mode=ad_strategy_mode,
     )
     store.add_action_log(log)

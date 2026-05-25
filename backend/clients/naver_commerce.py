@@ -139,3 +139,28 @@ def get_channel_product_detail(channel_product_no: str) -> dict:
     )
     res.raise_for_status()
     return res.json()
+
+
+def update_channel_product(channel_product_no: str, body: dict) -> dict:
+    """채널 상품 수정 (PUT /v2/products/channel-products/{no}) — 전체 본문 필요"""
+    res = httpx.put(
+        f"{_BASE}/external/v2/products/channel-products/{channel_product_no}",
+        json=body,
+        headers={**_auth_headers(), "Content-Type": "application/json;charset=UTF-8"},
+        timeout=30,
+    )
+    res.raise_for_status()
+    return res.json()
+
+
+def find_channel_product_no(product_id: str) -> str | None:
+    """originProductNo(또는 channelProductNo) 기준으로 channelProductNo 반환.
+    목록을 스캔해 매칭 — 소규모 스토어(상품 수십 개) 기준으로 설계.
+    """
+    products = get_channel_products(page=1, page_size=100)
+    for p in products:
+        if str(p.get("channelProductNo", "")) == product_id:
+            return product_id
+        if str(p.get("originProductNo", "")) == product_id:
+            return str(p.get("channelProductNo", ""))
+    return None
