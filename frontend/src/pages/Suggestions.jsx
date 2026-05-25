@@ -13,9 +13,15 @@ const TIER_BADGE = {
 }
 
 const PLATFORM = {
-  product_analyzer:  { label: '스마트스토어', color: '#03c75a', bg: '#e6f9ee' },
-  ad_analyzer:       { label: '검색광고',     color: '#1a73e8', bg: '#e8f0fe' },
-  coupang_analyzer:  { label: '쿠팡',         color: '#e4371c', bg: '#fdecea' },
+  product_analyzer:  { key: 'smartstore', label: '스마트스토어', color: '#03c75a', bg: '#e6f9ee' },
+  ad_analyzer:       { key: 'ad',         label: '검색광고',     color: '#1a73e8', bg: '#e8f0fe' },
+  coupang_analyzer:  { key: 'coupang',    label: '쿠팡',         color: '#e4371c', bg: '#fdecea' },
+}
+
+const AGENT_BY_TAB = {
+  smartstore: 'product_analyzer',
+  ad:         'ad_analyzer',
+  coupang:    'coupang_analyzer',
 }
 
 const PRIORITIES = ['high', 'medium', 'low']
@@ -35,7 +41,7 @@ export default function Suggestions() {
   const [items, setItems]     = useState([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy]       = useState(null)
-  const [tab, setTab]         = useState('pending')
+  const [tab, setTab]         = useState('smartstore')
 
   function load() {
     setLoading(true)
@@ -60,14 +66,15 @@ export default function Suggestions() {
     finally { setBusy(null) }
   }
 
-  const pendingItems   = items.filter(s => s.status === 'pending' && s.validator_verdict !== 'NEEDS_DATA')
-  const needsDataItems = items.filter(s => s.status === 'pending' && s.validator_verdict === 'NEEDS_DATA')
-  const doneItems      = items.filter(s => s.status !== 'pending')
+  const pendingCount = (agentKey) =>
+    items.filter(s => s.status === 'pending' && s.agent === agentKey).length
 
-  const tabs = [
-    { key: 'pending',   label: '대기 제안',      count: pendingItems.length },
-    { key: 'history',   label: '승인/거절 이력',  count: doneItems.length },
-    { key: 'needsdata', label: '관찰 필요',       count: needsDataItems.length },
+  const doneItems = items.filter(s => s.status !== 'pending')
+
+  const platformTabs = [
+    { key: 'smartstore', label: '스마트스토어', agent: 'product_analyzer', color: '#03c75a' },
+    { key: 'ad',         label: '검색광고',     agent: 'ad_analyzer',      color: '#1a73e8' },
+    { key: 'coupang',    label: '쿠팡',         agent: 'coupang_analyzer', color: '#e4371c' },
   ]
 
   return (
@@ -75,87 +82,58 @@ export default function Suggestions() {
       <div className="page-title">제안함</div>
 
       <div className="suggest-tabs">
-        {tabs.map(t => (
-          <button
-            key={t.key}
-            className={`suggest-tab${tab === t.key ? ' active' : ''}`}
-            style={tab === t.key ? { borderBottomColor: '#374151', color: '#374151' } : {}}
-            onClick={() => setTab(t.key)}
-          >
-            {t.label}
-            {t.count > 0 && (
-              <span className="tab-count" style={tab === t.key ? { background: '#374151' } : {}}>
-                {t.count}
-              </span>
-            )}
-          </button>
-        ))}
+        {platformTabs.map(t => {
+          const cnt = pendingCount(t.agent)
+          const isActive = tab === t.key
+          return (
+            <button
+              key={t.key}
+              className={`suggest-tab${isActive ? ' active' : ''}`}
+              style={isActive ? { borderBottomColor: t.color, color: t.color } : {}}
+              onClick={() => setTab(t.key)}
+            >
+              {t.label}
+              {cnt > 0 && (
+                <span className="tab-count" style={isActive ? { background: t.color } : {}}>
+                  {cnt}
+                </span>
+              )}
+            </button>
+          )
+        })}
+        <button
+          className={`suggest-tab${tab === 'history' ? ' active' : ''}`}
+          style={tab === 'history' ? { borderBottomColor: '#374151', color: '#374151' } : {}}
+          onClick={() => setTab('history')}
+        >
+          이력
+          {doneItems.length > 0 && (
+            <span className="tab-count" style={tab === 'history' ? { background: '#374151' } : {}}>
+              {doneItems.length}
+            </span>
+          )}
+        </button>
       </div>
 
       {loading && <div className="empty">불러오는 중…</div>}
 
-      {/* ── 대기 제안 탭 ── */}
-      {!loading && tab === 'pending' && (
-        pendingItems.length === 0
-          ? <div className="empty">대기 중인 제안이 없습니다.</div>
-          : <PendingList items={pendingItems} busy={busy} onApprove={approve} onReject={reject} />
-      )}
+      {/* ── 플랫폼 탭 ── */}
+      {!loading && tab !== 'history' && (() => {
+        const agentKey = AGENT_BY_TAB[tab]
+        const meta     = PLATFORM[agentKey]
+        const all      = items.filter(s => s.status === 'pending' && s.agent === agentKey)
+        const newItems     = all.filter(s => !s.is_repeat && s.validator_verdict !== 'NEEDS_DATA')
+        const repeatItems  = all.filter(s =>  s.is_repeat && s.validator_verdict !== 'NEEDS_DATA')
+        const needsData    = all.filter(s => s.validator_verdict === 'NEEDS_DATA')
 
-      {/* ── 승인/거절 이력 탭 ── */}
-      {!loading && tab === 'history' && (
-        doneItems.length === 0
-          ? <div className="empty">처리된 제안 이력이 없습니다.</div>
-          : doneItems.map(s => <DoneCard key={s.suggestion_id} s={s} />)
-      )}
-
-      {/* ── 관찰 필요 탭 ── */}
-      {!loading && tab === 'needsdata' && (
-        needsDataItems.length === 0
-          ? <div className="empty">관찰이 필요한 항목이 없습니다.</div>
-          : <>
-              <div className="card" style={{ background: '#fffbeb', border: '1px solid #fde68a', marginBottom: 16 }}>
-                <p style={{ fontSize: 13, color: '#92400e', margin: 0 }}>
-                  데이터가 부족하여 AI가 확신 있는 제안을 생성하지 못한 항목입니다.
-                  수집 횟수가 늘어나거나 시즌이 바뀌면 재평가됩니다.
-                </p>
-              </div>
-              {needsDataItems.map(s => (
-                <NeedsDataCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} />
-              ))}
-            </>
-      )}
-    </>
-  )
-}
-
-/* ── 대기 제안 목록: 플랫폼별 + 우선순위별 그룹 ── */
-function PendingList({ items, busy, onApprove, onReject }) {
-  const agents = ['product_analyzer', 'ad_analyzer', 'coupang_analyzer']
-
-  return (
-    <>
-      {agents.map(agent => {
-        const agentItems = items.filter(s => s.agent === agent)
-        if (agentItems.length === 0) return null
-        const meta = PLATFORM[agent]
-        const newItems    = agentItems.filter(s => !s.is_repeat)
-        const repeatItems = agentItems.filter(s => s.is_repeat)
+        if (all.length === 0) {
+          return <div className="empty">대기 중인 {meta.label} 제안이 없습니다.</div>
+        }
 
         return (
-          <div key={agent}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              margin: '20px 0 10px', paddingBottom: 6, borderBottom: '2px solid #f0f0f0',
-            }}>
-              <span style={{
-                padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 700,
-                color: meta.color, background: meta.bg,
-              }}>{meta.label}</span>
-              <span className="text-muted" style={{ fontSize: 13 }}>{agentItems.length}개</span>
-            </div>
-
+          <>
             {newItems.length > 0 && (
-              <>
+              <section>
                 <div className="section-header">새 제안</div>
                 {PRIORITIES.map(priority => {
                   const group = newItems.filter(s => s.priority === priority)
@@ -167,17 +145,17 @@ function PendingList({ items, busy, onApprove, onReject }) {
                         <span className="priority-group-count">{group.length}개</span>
                       </div>
                       {group.map(s => (
-                        <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={onApprove} onReject={onReject} platform={meta} />
+                        <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} />
                       ))}
                     </div>
                   )
                 })}
-              </>
+              </section>
             )}
 
             {repeatItems.length > 0 && (
-              <>
-                <div className="section-header" style={{ marginTop: 16 }}>
+              <section style={{ marginTop: newItems.length > 0 ? 20 : 0 }}>
+                <div className="section-header">
                   재제안
                   <span className="text-muted" style={{ fontSize: 12, fontWeight: 400, marginLeft: 8 }}>
                     이전에 거절/만료된 항목의 재시도
@@ -193,27 +171,55 @@ function PendingList({ items, busy, onApprove, onReject }) {
                         <span className="priority-group-count">{group.length}개</span>
                       </div>
                       {group.map(s => (
-                        <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={onApprove} onReject={onReject} platform={meta} isRepeat />
+                        <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} isRepeat />
                       ))}
                     </div>
                   )
                 })}
-              </>
+              </section>
             )}
-          </div>
+
+            {needsData.length > 0 && (
+              <section style={{ marginTop: (newItems.length + repeatItems.length) > 0 ? 20 : 0 }}>
+                <div className="section-header">관찰 필요</div>
+                <div className="card" style={{ background: '#fffbeb', border: '1px solid #fde68a', marginBottom: 12 }}>
+                  <p style={{ fontSize: 13, color: '#92400e', margin: 0 }}>
+                    데이터가 부족하여 AI가 확신 있는 제안을 생성하지 못한 항목입니다.
+                    수집 횟수가 늘어나거나 시즌이 바뀌면 재평가됩니다.
+                  </p>
+                </div>
+                {needsData.map(s => (
+                  <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} isNeedsData />
+                ))}
+              </section>
+            )}
+          </>
         )
-      })}
+      })()}
+
+      {/* ── 이력 탭 ── */}
+      {!loading && tab === 'history' && (
+        doneItems.length === 0
+          ? <div className="empty">처리된 제안 이력이 없습니다.</div>
+          : doneItems.map(s => <DoneCard key={s.suggestion_id} s={s} />)
+      )}
     </>
   )
 }
 
 /* ── 제안 카드 ── */
-function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat }) {
+function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat, isNeedsData }) {
   const [showTags, setShowTags] = useState(false)
   const isBusy = busy === s.suggestion_id
 
+  const borderStyle = isNeedsData
+    ? { borderLeft: '3px solid #d1d5db' }
+    : isRepeat
+      ? { borderLeft: '3px solid #f59e0b' }
+      : {}
+
   return (
-    <div className="card" style={isRepeat ? { borderLeft: '3px solid #f59e0b' } : {}}>
+    <div className="card" style={borderStyle}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
@@ -237,75 +243,14 @@ function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat }) {
           </div>
 
           <div className="text-muted mt-8">{s.reason}</div>
+
+          {isNeedsData && (
+            <div style={{ marginTop: 8, fontSize: 12, color: '#6b7280', background: '#f9fafb', padding: '6px 10px', borderRadius: 4 }}>
+              데이터 부족 — 분석을 더 실행하거나 시즌 변화 후 재평가됩니다
+            </div>
+          )}
+
           <div className="text-muted mt-8">만료: {new Date(s.expires_at).toLocaleString('ko-KR')}</div>
-        </div>
-
-        <div style={{ marginLeft: 16, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 80 }}>
-          <button className="btn btn-success" disabled={isBusy || showTags} onClick={() => onApprove(s.suggestion_id)}>
-            승인
-          </button>
-          {!showTags && (
-            <button className="btn btn-danger" disabled={isBusy} onClick={() => setShowTags(true)}>
-              거절
-            </button>
-          )}
-          {showTags && (
-            <button className="btn btn-ghost" style={{ fontSize: 11, color: '#999' }} onClick={() => setShowTags(false)}>
-              취소
-            </button>
-          )}
-        </div>
-      </div>
-
-      {showTags && (
-        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #f0f0f0' }}>
-          <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>거절 이유를 선택하세요</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {REJECTION_TAGS.map(({ tag, label }) => (
-              <button
-                key={tag}
-                onClick={() => { setShowTags(false); onReject(s.suggestion_id, tag) }}
-                disabled={isBusy}
-                style={{ padding: '5px 12px', borderRadius: 20, border: '1px solid #ddd', background: '#f7f7f7', fontSize: 12, cursor: 'pointer', color: '#444' }}
-              >{label}</button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-/* ── 관찰 필요 카드 (승인/거절 가능하지만 안내 포함) ── */
-function NeedsDataCard({ s, busy, onApprove, onReject }) {
-  const meta = PLATFORM[s.agent] ?? { label: s.agent, color: '#6b7280', bg: '#f3f4f6' }
-  const [showTags, setShowTags] = useState(false)
-  const isBusy = busy === s.suggestion_id
-
-  return (
-    <div className="card" style={{ borderLeft: '3px solid #d1d5db' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 6 }}>
-            <span style={{ padding: '2px 8px', borderRadius: 12, fontSize: 12, fontWeight: 700, color: meta.color, background: meta.bg }}>
-              {meta.label}
-            </span>
-            <span className={`badge badge-${s.priority}`}>{s.priority}</span>
-            <strong style={{ fontSize: 13 }}>{s.action_type}</strong>
-          </div>
-
-          <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 6 }}>{s.target_name}</div>
-
-          <div className="suggest-change">
-            <span className="suggest-current">{s.current_value}</span>
-            <span className="suggest-arrow">→</span>
-            <span className="suggest-proposed">{s.proposed_value}</span>
-          </div>
-
-          <div className="text-muted mt-8">{s.reason}</div>
-          <div style={{ marginTop: 8, fontSize: 12, color: '#6b7280', background: '#f9fafb', padding: '6px 10px', borderRadius: 4 }}>
-            데이터 부족 — 분석을 더 실행하거나 시즌 변화 후 재평가됩니다
-          </div>
         </div>
 
         <div style={{ marginLeft: 16, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 80 }}>
