@@ -91,6 +91,11 @@ Phase 6: 자동화 루프 고도화 (Learning Loop)   ← ✅ 완료 (2026-05-22
   6-1: 거절 태그 UI ✅ / 6-2: Effect Tracker ✅ / 6-4: Brain 주입 ✅ / 6-5: Validator ✅
   6-C: Coupang Brain ✅ (전략모드/DEFEND/Executor/Wing UI 전부)
   6-3: Domain KB 빌더 ← 데이터 축적 후 구현 예정
+실운영 전환 (2026-05-25):
+  네이버 Executor 실제 API 연결 ✅ / 만료 제안 재제안 허용 ✅
+  제안함 플랫폼별 탭 개편 ✅ / 상품 베리 분류(berry_type) ✅
+  테스트 데이터 173건 정리 ✅
+  → Supabase product_labels 테이블 생성 필요 (012_product_labels.sql)
 ```
 
 ---
