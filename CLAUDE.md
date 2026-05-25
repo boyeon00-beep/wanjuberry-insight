@@ -96,6 +96,9 @@ Phase 6: 자동화 루프 고도화 (Learning Loop)   ← ✅ 완료 (2026-05-22
   제안함 플랫폼별 탭 개편 ✅ / 상품 베리 분류(berry_type) ✅
   테스트 데이터 173건 정리 ✅
   → Supabase product_labels 테이블 생성 필요 (012_product_labels.sql)
+버그 수정 (2026-05-26):
+  스마트스토어 상품 수집 0건 → statusType 필드명 오류 수정 ✅
+  운영자 직접 실행 버튼 "승인" → "직접 완료" + 안내 문구 ✅
 ```
 
 ---
