@@ -151,10 +151,9 @@ export default function Settings() {
 }
 
 const BERRY_OPTIONS = [
-  { value: '복분자',       label: '복분자',        color: '#7c3aed', bg: '#ede9fe' },
-  { value: '블랙베리',     label: '블랙베리',      color: '#1d4ed8', bg: '#dbeafe' },
-  { value: '복분자+블랙베리', label: '복분자+블랙베리', color: '#059669', bg: '#d1fae5' },
-  { value: '기타',         label: '기타',          color: '#6b7280', bg: '#f3f4f6' },
+  { value: '복분자',  label: '복분자',  color: '#7c3aed', bg: '#ede9fe' },
+  { value: '블랙베리', label: '블랙베리', color: '#1d4ed8', bg: '#dbeafe' },
+  { value: '기타',    label: '기타',    color: '#6b7280', bg: '#f3f4f6' },
 ]
 const PLATFORM_LABEL = { naver: '스마트스토어', coupang: '쿠팡' }
 
