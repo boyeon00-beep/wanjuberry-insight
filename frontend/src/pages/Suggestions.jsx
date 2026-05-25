@@ -250,12 +250,18 @@ function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat, isNe
             </div>
           )}
 
+          {s.execution_tier === 'operator_manual' && (
+            <div style={{ marginTop: 8, fontSize: 12, color: '#6b7280', background: '#f0f4ff', padding: '6px 10px', borderRadius: 4, border: '1px solid #c7d2fe' }}>
+              운영자 직접 실행 항목 — 아래 버튼은 직접 완료했음을 기록합니다
+            </div>
+          )}
+
           <div className="text-muted mt-8">만료: {new Date(s.expires_at).toLocaleString('ko-KR')}</div>
         </div>
 
         <div style={{ marginLeft: 16, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 80 }}>
           <button className="btn btn-success" disabled={isBusy || showTags} onClick={() => onApprove(s.suggestion_id)}>
-            승인
+            {s.execution_tier === 'operator_manual' ? '직접 완료' : '승인'}
           </button>
           {!showTags && (
             <button className="btn btn-danger" disabled={isBusy} onClick={() => setShowTags(true)}>
