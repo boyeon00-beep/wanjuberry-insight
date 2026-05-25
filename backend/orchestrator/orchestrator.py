@@ -124,6 +124,13 @@ class Orchestrator:
         context["product_effect_history"] = store.get_effect_history(agent="product_analyzer", limit=8)
         context["coupang_effect_history"] = store.get_effect_history(agent="coupang_analyzer", limit=8)
 
+        # 운영자 지정 베리 분류 주입 — AI가 이름으로 추론하지 않도록 명시적 주입
+        label_map = store.get_product_label_map()
+        for p in context.get("collected_products", []):
+            p["berry_type"] = label_map.get(p["product_id"])
+        for p in context.get("coupang_products", []):
+            p["berry_type"] = label_map.get(p["product_id"])
+
         product_result  = await product.analyze(context)
         ad_result       = await ad.analyze(context)
         coupang_result  = await coupang_analyzer.analyze(context)

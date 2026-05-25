@@ -112,6 +112,27 @@ def get_naver_products():
     return [p for p in store.get_latest_products() if p.get("platform") != "coupang"]
 
 
+# --- 상품 분류 라벨 ---
+
+class ProductLabelBody(BaseModel):
+    berry_type: str | None = None
+
+
+@app.get("/product-labels")
+def get_product_labels():
+    return store.get_product_labels()
+
+
+@app.put("/product-labels/{product_id}")
+def set_product_label(product_id: str, body: ProductLabelBody):
+    products = store.get_latest_products() + store.get_latest_coupang_products()
+    product = next((p for p in products if p["product_id"] == product_id), None)
+    name = product["name"] if product else product_id
+    platform = product["platform"] if product else "unknown"
+    store.upsert_product_label(product_id, name, platform, body.berry_type)
+    return {"ok": True}
+
+
 # --- 광고 소재 ---
 
 @app.get("/ads")

@@ -13,7 +13,13 @@ _SYSTEM = """당신은 완주베리 농가(네이버 스마트스토어) AI 운�
 - 비수기에는 냉동 복분자 중심 운영을 권장하고, 광고 성과 최적화 제안은 보류한다
 - 성수기(복분자 생과 6/15~7/7, 블랙베리 7/15~8/31) 진입 전 전환기에 선제 제안한다
 - 품절 상품은 해당 시즌 개시 전 재입고를 안내한다
-- 제안은 즉시 실행 가능한 수준으로 구체적이어야 한다"""
+- 제안은 즉시 실행 가능한 수준으로 구체적이어야 한다
+
+베리 분류 원칙 (매우 중요):
+- 각 상품의 berry_type 필드는 운영자가 직접 지정한 공식 분류다 — 상품명으로 추론 절대 금지
+- berry_type이 "복분자"인 상품에 블랙베리 관련 제안을 하지 않는다
+- berry_type이 "블랙베리"인 상품에 복분자 관련 제안을 하지 않는다
+- berry_type이 "미분류"이면 상품명을 참고하되, 혼동 위험이 있으면 제안을 보류한다"""
 
 _USER_TEMPLATE = """현재 시즌: {season_flag}
 {season_note}
@@ -161,6 +167,7 @@ def _summarize_products(products: list[dict]) -> list[dict]:
         {
             "product_id": p["product_id"],
             "name": p["name"],
+            "berry_type": p.get("berry_type") or "미분류",
             "price": p["price"],
             "sales_count": p["sales_count"],
             "review_count": p["review_count"],

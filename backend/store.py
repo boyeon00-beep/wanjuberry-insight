@@ -507,3 +507,50 @@ def get_latest_coupang_ad_summary() -> list[dict]:
         .execute()
     )
     return res.data
+
+
+# --- Product Labels ---
+
+def get_product_label_map() -> dict[str, str | None]:
+    """product_id → berry_type 딕셔너리 반환 (오케스트레이터 주입용)."""
+    res = get_client().table("product_labels").select("product_id, berry_type").execute()
+    return {r["product_id"]: r.get("berry_type") for r in res.data}
+
+
+def get_product_labels() -> list[dict]:
+    """설정 UI용 — 최신 수집 상품 목록에 저장된 라벨을 병합해서 반환."""
+    label_map = get_product_label_map()
+
+    products = get_latest_products() + get_latest_coupang_products()
+    seen: dict[str, dict] = {}
+    for p in products:
+        pid = p["product_id"]
+        if pid not in seen:
+            seen[pid] = {
+                "product_id":   pid,
+                "product_name": p["name"],
+                "platform":     p["platform"],
+                "berry_type":   label_map.get(pid),
+            }
+
+    for pid, berry_type in label_map.items():
+        if pid not in seen:
+            res = get_client().table("product_labels").select("product_name, platform").eq("product_id", pid).limit(1).execute()
+            row = res.data[0] if res.data else {}
+            seen[pid] = {
+                "product_id":   pid,
+                "product_name": row.get("product_name", pid),
+                "platform":     row.get("platform", "unknown"),
+                "berry_type":   berry_type,
+            }
+
+    return sorted(seen.values(), key=lambda x: (x["platform"], x["product_name"]))
+
+
+def upsert_product_label(product_id: str, product_name: str, platform: str, berry_type: str | None) -> None:
+    get_client().table("product_labels").upsert({
+        "product_id":   product_id,
+        "product_name": product_name,
+        "platform":     platform,
+        "berry_type":   berry_type,
+    }).execute()

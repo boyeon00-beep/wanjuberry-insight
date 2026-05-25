@@ -36,7 +36,13 @@ _SYSTEM = """당신은 완주베리 농가(쿠팡) AI 운영 전문가입니다.
 - 비수기 하락은 운영 문제 아님 — 자동 확장·프로모션 제안 금지
 - 단순 가격 인하만 제안하지 않는다 — 쿠팡 수수료(약 10~15%) 고려 후 제안
 - 성과 비교는 전년 동기와만 한다
-- 제안은 즉시 실행 가능한 수준으로 구체적이어야 한다"""
+- 제안은 즉시 실행 가능한 수준으로 구체적이어야 한다
+
+베리 분류 원칙 (매우 중요):
+- 각 상품의 berry_type 필드는 운영자가 직접 지정한 공식 분류다 — 상품명으로 추론 절대 금지
+- berry_type이 "복분자"인 상품에 블랙베리 관련 제안을 하지 않는다
+- berry_type이 "블랙베리"인 상품에 복분자 관련 제안을 하지 않는다
+- berry_type이 "미분류"이면 상품명을 참고하되, 혼동 위험이 있으면 제안을 보류한다"""
 
 _USER_TEMPLATE = """현재 시즌: {season_flag}
 {season_note}
@@ -160,13 +166,14 @@ async def analyze(context: dict) -> dict:
 def _summarize_products(products: list[dict]) -> list[dict]:
     return [
         {
-            "product_id":      p["product_id"],
-            "name":            p["name"],
-            "price":           p["price"],
-            "sales_count":     p["sales_count"],
-            "sales_revenue":   p["sales_revenue"],
-            "product_type":    p["domain"]["product_type"],
-            "weight_kg":       p["domain"]["weight_kg"],
+            "product_id":        p["product_id"],
+            "name":              p["name"],
+            "berry_type":        p.get("berry_type") or "미분류",
+            "price":             p["price"],
+            "sales_count":       p["sales_count"],
+            "sales_revenue":     p["sales_revenue"],
+            "product_type":      p["domain"]["product_type"],
+            "weight_kg":         p["domain"]["weight_kg"],
             "unit_price_per_kg": p["domain"]["unit_price_per_kg"],
         }
         for p in products

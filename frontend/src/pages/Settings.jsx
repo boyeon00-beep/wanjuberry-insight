@@ -142,10 +142,122 @@ export default function Settings() {
         <p className="text-muted mt-16">Phase 3에서 실제 연결 테스트가 추가됩니다.</p>
       </div>
 
+      <ProductLabels />
       <FarmProfileSection />
       <FarmConstraints />
       <WingReportUpload />
     </>
+  )
+}
+
+const BERRY_OPTIONS = [
+  { value: '복분자',  label: '복분자',  color: '#7c3aed', bg: '#ede9fe' },
+  { value: '블랙베리', label: '블랙베리', color: '#1d4ed8', bg: '#dbeafe' },
+  { value: '기타',    label: '기타',    color: '#6b7280', bg: '#f3f4f6' },
+]
+const PLATFORM_LABEL = { naver: '스마트스토어', coupang: '쿠팡' }
+
+function ProductLabels() {
+  const [items, setItems]   = useState([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(null)
+
+  function load() {
+    setLoading(true)
+    api.getProductLabels()
+      .then(setItems)
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(load, [])
+
+  async function setLabel(product_id, berry_type) {
+    setSaving(product_id)
+    try {
+      await api.setProductLabel(product_id, berry_type)
+      setItems(prev => prev.map(p =>
+        p.product_id === product_id ? { ...p, berry_type } : p
+      ))
+    } catch (e) {
+      alert(e.message)
+    } finally {
+      setSaving(null)
+    }
+  }
+
+  return (
+    <div className="card">
+      <div className="card-title">상품 분류</div>
+      <p className="text-muted" style={{ marginBottom: 16 }}>
+        AI가 복분자/블랙베리 상품을 혼동하지 않도록 각 상품의 베리 종류를 지정합니다.
+        한 번 설정하면 이후 분석에 계속 반영됩니다.
+      </p>
+
+      {loading && <div className="text-muted">불러오는 중…</div>}
+
+      {!loading && items.length === 0 && (
+        <div className="text-muted" style={{ fontSize: 13 }}>
+          분석을 먼저 실행하면 상품 목록이 나타납니다.
+        </div>
+      )}
+
+      {!loading && items.length > 0 && (
+        <table className="table">
+          <thead>
+            <tr>
+              <th>상품명</th>
+              <th>플랫폼</th>
+              <th>베리 분류</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map(p => (
+              <tr key={p.product_id}>
+                <td style={{ fontSize: 13 }}>{p.product_name}</td>
+                <td style={{ fontSize: 12, color: '#6b7280' }}>
+                  {PLATFORM_LABEL[p.platform] ?? p.platform}
+                </td>
+                <td>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {BERRY_OPTIONS.map(opt => {
+                      const isSelected = p.berry_type === opt.value
+                      const isBusy = saving === p.product_id
+                      return (
+                        <button
+                          key={opt.value}
+                          disabled={isBusy}
+                          onClick={() => setLabel(p.product_id, isSelected ? null : opt.value)}
+                          style={{
+                            padding: '3px 12px',
+                            borderRadius: 20,
+                            border: `1px solid ${isSelected ? opt.color : '#ddd'}`,
+                            background: isSelected ? opt.bg : '#fff',
+                            color: isSelected ? opt.color : '#888',
+                            fontSize: 12,
+                            fontWeight: isSelected ? 700 : 400,
+                            cursor: isBusy ? 'not-allowed' : 'pointer',
+                            transition: 'all 0.15s',
+                          }}
+                        >
+                          {opt.label}
+                        </button>
+                      )
+                    })}
+                    {p.berry_type && (
+                      <span style={{ fontSize: 11, color: '#38a169', alignSelf: 'center' }}>저장됨</span>
+                    )}
+                    {!p.berry_type && (
+                      <span style={{ fontSize: 11, color: '#f59e0b', alignSelf: 'center' }}>미분류</span>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
   )
 }
 
