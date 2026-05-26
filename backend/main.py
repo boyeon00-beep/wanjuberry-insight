@@ -2,7 +2,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -24,6 +25,16 @@ app.add_middleware(
 )
 
 app.include_router(coupang_ads.router)
+
+
+@app.middleware("http")
+async def verify_api_token(request: Request, call_next):
+    if request.method == "OPTIONS" or request.url.path == "/health":
+        return await call_next(request)
+    expected = os.getenv("API_TOKEN", "")
+    if expected and request.headers.get("X-API-Token", "") != expected:
+        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+    return await call_next(request)
 
 
 @app.get("/health")

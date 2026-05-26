@@ -1,9 +1,14 @@
 const BASE = import.meta.env.VITE_API_URL ?? '/api'
+const TOKEN = import.meta.env.VITE_API_TOKEN ?? ''
 
 async function request(method, path, body) {
+  const headers = {}
+  if (body) headers['Content-Type'] = 'application/json'
+  if (TOKEN) headers['X-API-Token'] = TOKEN
+
   const res = await fetch(BASE + path, {
     method,
-    headers: body ? { 'Content-Type': 'application/json' } : {},
+    headers,
     body: body ? JSON.stringify(body) : undefined,
   })
   if (!res.ok) {
@@ -36,7 +41,8 @@ export const api = {
   getCoupangProducts:      ()   => request('GET', '/coupang/products'),
   getCoupangAdSummary:     ()   => request('GET', '/coupang-ads/summary'),
   uploadCoupangAdReport: (formData) => {
-    return fetch(BASE + '/coupang-ads/upload', { method: 'POST', body: formData })
+    const headers = TOKEN ? { 'X-API-Token': TOKEN } : {}
+    return fetch(BASE + '/coupang-ads/upload', { method: 'POST', body: formData, headers })
       .then(async res => {
         if (!res.ok) {
           const err = await res.json().catch(() => ({}))
