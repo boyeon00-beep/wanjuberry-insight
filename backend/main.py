@@ -33,7 +33,12 @@ async def verify_api_token(request: Request, call_next):
         return await call_next(request)
     expected = os.getenv("API_TOKEN", "")
     if expected and request.headers.get("X-API-Token", "") != expected:
-        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+        origin = request.headers.get("origin", "*")
+        return JSONResponse(
+            status_code=401,
+            content={"detail": "Unauthorized"},
+            headers={"Access-Control-Allow-Origin": origin},
+        )
     return await call_next(request)
 
 
