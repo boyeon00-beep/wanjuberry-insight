@@ -99,6 +99,9 @@ Phase 6: 자동화 루프 고도화 (Learning Loop)   ← ✅ 완료 (2026-05-22
 버그 수정 (2026-05-26):
   스마트스토어 상품 수집 0건 → statusType 필드명 오류 수정 ✅
   운영자 직접 실행 버튼 "승인" → "직접 완료" + 안내 문구 ✅
+운영 고도화 (2026-05-27):
+  Brain execution_tier 고정 규칙 추가 ✅ (승인 시 API 자동 실행)
+  API 토큰 인증(X-API-Token) 추가 ✅ (Railway + Vercel 환경변수 설정 완료)
 ```
 
 ---
@@ -132,11 +135,13 @@ Phase 6: 자동화 루프 고도화 (Learning Loop)   ← ✅ 완료 (2026-05-22
 
 ### 실행 권한 3단계
 
-| 단계 | 예시 |
-|---|---|
-| AI 직접 실행 (승인 후) | 상품명 수정, 키워드 추가/제외, 광고 카피 수정, 입찰가 조정 |
-| AI 제안 → 운영자 직접 실행 | 대표이미지 교체, 상세페이지 개편 |
-| AI 제안 → 운영자 승인 → AI 실행 | 예산 증액, 캠페인 일시중지, 가격 조정 |
+| 단계 | execution_tier | 해당 action_type |
+|---|---|---|
+| AI 직접 실행 (승인 후) | `ai_auto` | 상품명_수정, 태그_추가, 태그_수정, 키워드_추가, 키워드_제외, 카피_수정, 입찰가_조정, 예산_조정, 재입고_제안(쿠팡) |
+| AI 제안 → 운영자 직접 실행 | `operator_manual` | 이미지_교체, 재입고_제안(네이버), 가격_검토(네이버) |
+| AI 제안 → 운영자 승인 → AI 실행 | `ai_after_approval` | 예산_증액, 캠페인_일시중지, 가격_검토(쿠팡) |
+
+**Brain 프롬프트에 tier 고정 규칙 명시됨** — LLM이 임의로 바꾸지 않도록 `agents/analyzer/{product,ad,coupang}.py` SYSTEM에 하드코딩
 
 ### 시즌 플래그 원칙
 ```
@@ -152,6 +157,13 @@ Phase 6: 자동화 루프 고도화 (Learning Loop)   ← ✅ 완료 (2026-05-22
 - 패키지: FastAPI 0.136.1 / Pydantic 2.13.4 / Anthropic 0.102.0 / Supabase 2.30.0 / bcrypt / httpx
 - 백엔드 실행: `cd backend && .venv\Scripts\python.exe -m uvicorn main:app --port 8000`
 - 프론트 실행: `cd frontend && npm run dev` → http://localhost:5173 (또는 5174~5175)
+
+### API 인증 (2026-05-27 추가)
+- 방식: `X-API-Token` 헤더 검증 미들웨어 (`backend/main.py`)
+- `/health` 엔드포인트와 OPTIONS(CORS preflight)는 토큰 검증 제외
+- Railway 환경변수: `API_TOKEN`
+- Vercel 환경변수: `VITE_API_TOKEN` (프론트가 모든 요청에 자동 첨부)
+- 401 응답에 CORS 헤더 포함 — 브라우저가 실제 에러를 읽을 수 있도록
 
 ---
 
