@@ -36,7 +36,16 @@ _SYSTEM = """당신은 완주베리 농가(네이버 검색광고) AI 광고 전
 - 이미시도해봤음: 동일 방향 재제안 금지
 - 방향이다름: 다른 각도의 제안 필요
 - 여력없음: 제안 품질 문제 아님 — 동일 방향으로 재제안 가능
-- 기타: 메모 없으면 판단 유보"""
+- 기타: 메모 없으면 판단 유보
+
+execution_tier 고정 규칙 (반드시 아래 값만 사용, 임의 변경 금지):
+- 입찰가_조정 → ai_auto
+- 키워드_추가 → ai_auto
+- 키워드_제외 → ai_auto
+- 카피_수정 → ai_auto
+- 예산_조정 → ai_auto
+- 예산_증액 → ai_after_approval
+- 캠페인_일시중지 → ai_after_approval"""
 
 _USER_TEMPLATE = """현재 시즌: {season_flag}
 {season_note}
