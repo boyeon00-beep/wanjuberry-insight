@@ -47,7 +47,13 @@ def _get_stats(ids: list[str], fields: list[str], start_date: str, end_date: str
     query = f"ids={ids_str}&fields={fields_str}&timeRange={time_range_str}&timeUnit=date&breakdown=noBreakdown"
     res = httpx.get(f"{_BASE}/stats?{query}", headers=_headers("GET", "/stats"), timeout=20)
     res.raise_for_status()
-    return res.json().get("data", [])
+    body = res.json()
+    data = body.get("data", [])
+    # 진단 로그 — Railway 로그에서 확인
+    print(f"[naver_ad stats] ids={ids[:3]}... total_ids={len(ids)} | response_keys={list(body.keys())} | data_count={len(data)}", flush=True)
+    if data:
+        print(f"[naver_ad stats] sample item keys={list(data[0].keys())} | sample stat keys={list(data[0].get('stat', {}).keys())}", flush=True)
+    return data
 
 
 def _put(path_with_query: str, body: dict | list) -> dict | list:

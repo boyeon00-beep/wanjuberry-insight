@@ -199,13 +199,24 @@ def debug_naver_ad():
             result["ads_in_first_3_adgroups"] = ads_total
 
         if active:
+            import httpx as _httpx
+            from urllib.parse import quote as _quote
+            import json as _json
             campaign_ids = [c["nccCampaignId"] for c in active]
-            stats_list = client.get_campaign_stats(campaign_ids, start_date, end_date)
-            result["stats_returned"] = len(stats_list)
-            if stats_list:
-                result["sample_stat"] = stats_list[0]
-            else:
-                result["stats_note"] = "stats API가 빈 배열을 반환 — 광고비 지출 없음 또는 날짜 범위 내 데이터 없음"
+            ids_str = ",".join(campaign_ids)
+            fields_str = _quote(_json.dumps(["impCnt", "clkCnt", "salesAmt", "ctr", "cpc", "convAmt"], separators=(',', ':')))
+            time_range_str = _quote(_json.dumps({"since": start_date, "until": end_date}, separators=(',', ':')))
+            query = f"ids={ids_str}&fields={fields_str}&timeRange={time_range_str}&timeUnit=date&breakdown=noBreakdown"
+            from clients.naver_ad import _headers, _BASE
+            raw_res = _httpx.get(f"{_BASE}/stats?{query}", headers=_headers("GET", "/stats"), timeout=20)
+            raw_body = raw_res.json()
+            result["stats_http_status"] = raw_res.status_code
+            result["stats_response_keys"] = list(raw_body.keys()) if isinstance(raw_body, dict) else "array"
+            result["stats_raw_preview"] = str(raw_body)[:500]
+            data = raw_body.get("data", []) if isinstance(raw_body, dict) else raw_body
+            result["stats_returned"] = len(data)
+            if data:
+                result["sample_stat"] = data[0]
     except Exception as e:
         result["error"] = str(e)
 
