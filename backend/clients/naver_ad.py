@@ -40,16 +40,18 @@ def _get_simple(path_with_query: str) -> dict | list:
 
 
 def _get_stats(ids: list[str], fields: list[str], start_date: str, end_date: str) -> list[dict]:
-    """stats 엔드포인트 — base path만 서명, quote로 직접 URL 구성"""
-    ids_str         = ",".join(ids)
-    fields_str      = quote(json.dumps(fields, separators=(',', ':')))
-    time_range_str  = quote(json.dumps({"since": start_date, "until": end_date}, separators=(',', ':')))
-    query = f"ids={ids_str}&fields={fields_str}&timeRange={time_range_str}&timeUnit=date&breakdown=noBreakdown"
+    """stats 엔드포인트 — base path만 서명, quote로 직접 URL 구성.
+    breakdown 파라미터는 생략 (noBreakdown은 유효하지 않은 값).
+    날짜별 응답이 올 경우 _aggregate_stats로 캠페인별 합산 필요.
+    """
+    ids_str        = ",".join(ids)
+    fields_str     = quote(json.dumps(fields, separators=(',', ':')))
+    time_range_str = quote(json.dumps({"since": start_date, "until": end_date}, separators=(',', ':')))
+    query = f"ids={ids_str}&fields={fields_str}&timeRange={time_range_str}"
     res = httpx.get(f"{_BASE}/stats?{query}", headers=_headers("GET", "/stats"), timeout=20)
     res.raise_for_status()
     body = res.json()
     data = body.get("data", [])
-    # 진단 로그 — Railway 로그에서 확인
     print(f"[naver_ad stats] ids={ids[:3]}... total_ids={len(ids)} | response_keys={list(body.keys())} | data_count={len(data)}", flush=True)
     if data:
         print(f"[naver_ad stats] sample item keys={list(data[0].keys())} | sample stat keys={list(data[0].get('stat', {}).keys())}", flush=True)

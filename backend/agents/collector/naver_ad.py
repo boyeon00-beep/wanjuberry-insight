@@ -37,12 +37,24 @@ async def _collect_real(context: dict) -> dict:
     raw_campaigns = [c for c in all_campaigns if c.get("status") in ("ELIGIBLE", "PAUSED")]
     campaign_ids  = [c["nccCampaignId"] for c in raw_campaigns]
 
-    # 캠페인 성과 통계
+    # 캠페인 성과 통계 (날짜별 다건 응답인 경우 캠페인ID 기준 합산)
     stats_by_id: dict[str, dict] = {}
     if campaign_ids:
         stats_list = client.get_campaign_stats(campaign_ids, start_date, end_date)
         for s in stats_list:
-            stats_by_id[s["id"]] = s.get("stat", {})
+            cid = s["id"]
+            st  = s.get("stat", {})
+            if cid not in stats_by_id:
+                stats_by_id[cid] = {"impCnt": 0, "clkCnt": 0, "salesAmt": 0.0, "convAmt": 0.0}
+            stats_by_id[cid]["impCnt"]   += int(float(st.get("impCnt", 0)))
+            stats_by_id[cid]["clkCnt"]   += int(float(st.get("clkCnt", 0)))
+            stats_by_id[cid]["salesAmt"] += float(st.get("salesAmt", 0))
+            stats_by_id[cid]["convAmt"]  += float(st.get("convAmt", 0))
+        # CTR · CPC는 합산 후 재계산
+        for cid, s in stats_by_id.items():
+            imp, clk = s["impCnt"], s["clkCnt"]
+            s["ctr"] = round(clk / imp * 100, 2) if imp > 0 else 0.0
+            s["cpc"] = round(s["salesAmt"] / clk, 0) if clk > 0 else 0.0
 
     # 키워드·광고소재 수집 (캠페인 → 광고그룹 → 키워드/소재)
     keywords_by_campaign: dict[str, list[dict]] = {cid: [] for cid in campaign_ids}
@@ -66,10 +78,26 @@ async def _collect_real(context: dict) -> dict:
             for copy in copies:
                 ad_copies_by_campaign[cid].append({**copy, "nccAdgroupId": ag_id, "nccCampaignId": cid})
 
-    # 키워드 성과 통계
+    # 키워드 성과 통계 (날짜별 다건 응답 → 키워드별 합산)
     if all_keyword_ids:
         kw_stats_list = client.get_keyword_stats(all_keyword_ids, start_date, end_date)
-        kw_stats_by_id = {s["id"]: s.get("stat", {}) for s in kw_stats_list}
+        kw_stats_by_id: dict[str, dict] = {}
+        for s in kw_stats_list:
+            kid = s["id"]
+            st  = s.get("stat", {})
+            if kid not in kw_stats_by_id:
+                kw_stats_by_id[kid] = {"impCnt": 0, "clkCnt": 0, "salesAmt": 0.0, "avgRnk": 0.0, "_cnt": 0}
+            kw_stats_by_id[kid]["impCnt"]   += int(float(st.get("impCnt", 0)))
+            kw_stats_by_id[kid]["clkCnt"]   += int(float(st.get("clkCnt", 0)))
+            kw_stats_by_id[kid]["salesAmt"] += float(st.get("salesAmt", 0))
+            kw_stats_by_id[kid]["avgRnk"]   += float(st.get("avgRnk", 0))
+            kw_stats_by_id[kid]["_cnt"]     += 1
+        # avgRnk는 평균
+        for s in kw_stats_by_id.values():
+            cnt = s.pop("_cnt", 1) or 1
+            s["avgRnk"] = round(s["avgRnk"] / cnt, 2)
+            imp, clk = s["impCnt"], s["clkCnt"]
+            s["ctr"] = round(clk / imp * 100, 2) if imp > 0 else 0.0
         for cid, kws in keywords_by_campaign.items():
             for kw in kws:
                 kw["stats"] = kw_stats_by_id.get(kw["nccKeywordId"], {})

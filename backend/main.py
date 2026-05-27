@@ -206,7 +206,7 @@ def debug_naver_ad():
             ids_str = ",".join(campaign_ids)
             fields_str = _quote(_json.dumps(["impCnt", "clkCnt", "salesAmt", "ctr", "cpc", "convAmt"], separators=(',', ':')))
             time_range_str = _quote(_json.dumps({"since": start_date, "until": end_date}, separators=(',', ':')))
-            query = f"ids={ids_str}&fields={fields_str}&timeRange={time_range_str}&timeUnit=date&breakdown=noBreakdown"
+            query = f"ids={ids_str}&fields={fields_str}&timeRange={time_range_str}"
             from clients.naver_ad import _headers, _BASE
             raw_res = _httpx.get(f"{_BASE}/stats?{query}", headers=_headers("GET", "/stats"), timeout=20)
             raw_body = raw_res.json()
