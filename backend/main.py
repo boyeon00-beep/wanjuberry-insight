@@ -156,6 +156,62 @@ def get_ads():
     return store.get_latest_ads()
 
 
+@app.get("/debug/naver-ad")
+def debug_naver_ad():
+    """Naver Ad API 원본 응답 진단 — 캠페인/소재/통계 수집 구조 확인"""
+    import os
+    if not os.environ.get("NAVER_AD_CUSTOMER_ID"):
+        return {"mode": "mock", "message": "NAVER_AD_CUSTOMER_ID 미설정 — mock 모드로 동작 중"}
+
+    from clients import naver_ad as client
+    from datetime import date, timedelta
+
+    today      = date.today()
+    start_date = (today - timedelta(days=30)).strftime("%Y-%m-%d")
+    end_date   = today.strftime("%Y-%m-%d")
+
+    result: dict = {"mode": "real", "date_range": f"{start_date} ~ {end_date}"}
+
+    try:
+        all_campaigns = client.get_campaigns()
+        active = [c for c in all_campaigns if c.get("status") in ("ELIGIBLE", "PAUSED")]
+        result["campaigns_total"]  = len(all_campaigns)
+        result["campaigns_active"] = len(active)
+        result["campaign_ids"]     = [c["nccCampaignId"] for c in active[:5]]
+
+        if active:
+            cid = active[0]["nccCampaignId"]
+            adgroups = client.get_adgroups(cid)
+            result["adgroups_in_first_campaign"] = len(adgroups)
+
+            ads_total = 0
+            for ag in adgroups[:3]:
+                ag_id = ag["nccAdgroupId"]
+                ads = client.get_ads(ag_id)
+                ads_total += len(ads)
+                if ads:
+                    result["sample_ad"] = {
+                        "keys": list(ads[0].keys()),
+                        "headline_raw": ads[0].get("headline", ""),
+                        "description_raw": ads[0].get("description", ""),
+                        "adAttr": ads[0].get("adAttr"),
+                    }
+            result["ads_in_first_3_adgroups"] = ads_total
+
+        if active:
+            campaign_ids = [c["nccCampaignId"] for c in active]
+            stats_list = client.get_campaign_stats(campaign_ids, start_date, end_date)
+            result["stats_returned"] = len(stats_list)
+            if stats_list:
+                result["sample_stat"] = stats_list[0]
+            else:
+                result["stats_note"] = "stats API가 빈 배열을 반환 — 광고비 지출 없음 또는 날짜 범위 내 데이터 없음"
+    except Exception as e:
+        result["error"] = str(e)
+
+    return result
+
+
 @app.get("/ads/keyword-volume")
 def get_keyword_volume():
     return store.get_latest_keyword_volume()

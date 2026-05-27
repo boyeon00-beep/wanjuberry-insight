@@ -275,10 +275,19 @@ def save_ads(task_id: str, ad_copies: list[dict]) -> None:
 
 
 def get_latest_ads() -> list[dict]:
-    runs = get_runs()
-    if not runs:
+    # ad_summary가 있는 최신 run과 동일한 task_id 사용 (get_latest_ad_summary와 일관성)
+    run_res = (
+        get_client()
+        .table("analysis_runs")
+        .select("task_id")
+        .not_.is_("ad_summary", "null")
+        .order("started_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not run_res.data:
         return []
-    latest_task_id = runs[0]["task_id"]
+    latest_task_id = run_res.data[0]["task_id"]
     res = (
         get_client()
         .table("collected_ads")
@@ -327,10 +336,19 @@ def save_keyword_volume(task_id: str, volumes: list[dict]) -> None:
 
 
 def get_latest_keyword_volume() -> list[dict]:
-    runs = get_runs()
-    if not runs:
+    # ad_summary가 있는 최신 run과 동일한 task_id 사용
+    run_res = (
+        get_client()
+        .table("analysis_runs")
+        .select("task_id")
+        .not_.is_("ad_summary", "null")
+        .order("started_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not run_res.data:
         return []
-    latest_task_id = runs[0]["task_id"]
+    latest_task_id = run_res.data[0]["task_id"]
     res = (
         get_client()
         .table("keyword_volume")
