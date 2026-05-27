@@ -102,6 +102,11 @@ Phase 6: 자동화 루프 고도화 (Learning Loop)   ← ✅ 완료 (2026-05-22
 운영 고도화 (2026-05-27):
   Brain execution_tier 고정 규칙 추가 ✅ (승인 시 API 자동 실행)
   API 토큰 인증(X-API-Token) 추가 ✅ (Railway + Vercel 환경변수 설정 완료)
+광고 stats 버그 수정 (2026-05-27):
+  store.get_latest_ads / get_latest_keyword_volume: 절대 최신 run → ad_summary 있는 최신 run으로 task_id 통일 ✅
+  stats API breakdown=noBreakdown 제거 ✅ (유효하지 않은 값 → data:[] 반환 원인)
+  날짜별 다건 응답 대비 캠페인/키워드 stats 합산 로직 추가 ✅
+  GET /debug/naver-ad 진단 엔드포인트 추가 ✅
 ```
 
 ---
@@ -200,6 +205,9 @@ NAVER_COMMERCE_CHANNEL_NO=
 | 키워드 | GET /ncc/keywords?nccAdgroupId={id} |
 | 성과 통계 | GET /stats — fields는 JSON 배열, timeRange는 ISO 날짜(YYYY-MM-DD) |
 | 유효 통계 필드 | impCnt, clkCnt, salesAmt, ctr, cpc, convAmt, avgRnk |
+| stats 파라미터 주의 | `breakdown=noBreakdown` 은 유효하지 않음 → `data:[]` 반환. breakdown 파라미터 **생략** 필수 |
+| stats 응답 구조 | `{"data": [...], "compTm": ..., "cycleBaseTm": ...}` — data 비어있어도 compTm/cycleBaseTm은 항상 옴 |
+| stats 다건 응답 | breakdown 생략 시 날짜별 다건 올 수 있음 → 캠페인/키워드 ID 기준 impCnt·clkCnt·salesAmt·convAmt 합산 후 CTR·CPC 재계산 |
 | URL 인코딩 | urllib.parse.quote 사용 (urlencode 금지 — quote_plus가 JSON 깨뜨림) |
 
 ```python
