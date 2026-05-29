@@ -107,6 +107,16 @@ Phase 6: 자동화 루프 고도화 (Learning Loop)   ← ✅ 완료 (2026-05-22
   stats API breakdown=noBreakdown 제거 ✅ (유효하지 않은 값 → data:[] 반환 원인)
   날짜별 다건 응답 대비 캠페인/키워드 stats 합산 로직 추가 ✅
   GET /debug/naver-ad 진단 엔드포인트 추가 ✅
+운영 고도화 (2026-05-29):
+  쿠팡 가격 오류 수정 ✅ (주문 이력 역산 → get_product_detail items[].salePrice 직접 조회)
+  급냉 상품 유형 "가공품" → "냉동" 수정 ✅ (naver_commerce + coupang 수집기 둘 다)
+  키워드 성과 Brain 주입 ✅ (clicks/impressions/sales_amt → ad analyzer 프롬프트)
+  상품명 글자수 규칙 추가 ✅ (100자 제한, 40자 권장, 글자수 표기 필수)
+  냉동생과 제약 Supabase 등록 ✅ (모든 Brain 자동 참조)
+  실행 로그 "수정 확인" 기능 추가 ✅ (ai_auto 성공 항목 → API 재조회 후 반영 여부 표시)
+  executor 상품명 파싱 버그 수정 ✅ (proposed_value에서 "(32자)" 미제거 → 상품명에 그대로 들어가던 버그)
+  verifier agent 버그 수정 ✅ (log.agent 항상 "executor" → suggestion.agent로 교체)
+  데이터 초기화 SQL 준비 완료 (미실행 — 운영자가 타이밍 결정)
 ```
 
 ---
