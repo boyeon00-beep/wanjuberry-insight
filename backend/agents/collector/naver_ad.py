@@ -163,6 +163,9 @@ def _raw_to_ad_model(
             bid=float(kw.get("bidAmt", 0)),
             rank=int(kw.get("stats", {}).get("avgRnk", 0)),
             score=float(kw.get("stats", {}).get("ctr", 0)),
+            clicks=int(kw.get("stats", {}).get("clkCnt", 0)),
+            impressions=int(kw.get("stats", {}).get("impCnt", 0)),
+            sales_amt=float(kw.get("stats", {}).get("salesAmt", 0.0)),
         )
         for kw in keywords
     ]

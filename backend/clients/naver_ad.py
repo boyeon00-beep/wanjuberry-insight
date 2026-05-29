@@ -52,9 +52,6 @@ def _get_stats(ids: list[str], fields: list[str], start_date: str, end_date: str
     res.raise_for_status()
     body = res.json()
     data = body.get("data", [])
-    print(f"[naver_ad stats] ids={ids[:3]}... total_ids={len(ids)} | response_keys={list(body.keys())} | data_count={len(data)}", flush=True)
-    if data:
-        print(f"[naver_ad stats] sample item keys={list(data[0].keys())} | sample stat keys={list(data[0].get('stat', {}).keys())}", flush=True)
     return data
 
 

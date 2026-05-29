@@ -7,6 +7,9 @@ class KeywordItem(BaseModel):
     bid: float
     rank: int
     score: float
+    clicks: int = 0
+    impressions: int = 0
+    sales_amt: float = 0.0
 
 
 class AdCopyItem(BaseModel):

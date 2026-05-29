@@ -192,10 +192,13 @@ def _summarize_campaigns(campaigns: list[dict]) -> list[dict]:
             "roas":          c["roas"],
             "keywords": [
                 {
-                    "keyword": kw["keyword"],
-                    "bid":     kw["bid"],
-                    "rank":    kw["rank"],
-                    "ctr":     kw["score"],
+                    "keyword":     kw["keyword"],
+                    "bid":         kw["bid"],
+                    "rank":        kw["rank"],
+                    "ctr":         kw["score"],
+                    "clicks":      kw["clicks"],
+                    "impressions": kw["impressions"],
+                    "sales_amt":   kw["sales_amt"],
                 }
                 for kw in c.get("keywords", [])
             ],
