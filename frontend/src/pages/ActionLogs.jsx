@@ -7,6 +7,13 @@ const TIER_LABEL = {
   operator_manual:   '운영자 직접',
 }
 
+const VERIFY_META = {
+  matched:           { label: '반영됨',        cls: 'verdict-positive',     icon: '✅' },
+  not_matched:       { label: '아직 미반영',    cls: 'verdict-pending',      icon: '⏳' },
+  coupang_reviewing: { label: '쿠팡 검토 중',   cls: 'verdict-unmeasurable', icon: '🔍' },
+  error:             { label: '확인 불가',       cls: 'verdict-negative',     icon: '❌' },
+}
+
 const STATUS_LABEL = {
   success:  '승인·실행',
   skipped:  '승인 (직접실행)',
@@ -42,12 +49,29 @@ export default function ActionLogs() {
   const [loading, setLoading]         = useState(true)
   const [tab, setTab]                 = useState('logs')
   const [agentFilter, setAgentFilter] = useState('all')
+  const [verifying, setVerifying]     = useState({})  // log_id → true
 
   useEffect(() => {
     api.getActionLogs()
       .then(data => setLogs([...data].reverse()))
       .finally(() => setLoading(false))
   }, [])
+
+  const handleVerify = async (log_id) => {
+    setVerifying(v => ({ ...v, [log_id]: true }))
+    try {
+      const res = await api.verifyActionLog(log_id)
+      setLogs(prev => prev.map(l =>
+        l.log_id === log_id
+          ? { ...l, verify_status: res.verify_status, verified_at: new Date().toISOString() }
+          : l
+      ))
+    } catch {
+      // 실패 시 상태 유지
+    } finally {
+      setVerifying(v => ({ ...v, [log_id]: false }))
+    }
+  }
 
   const filteredLogs = agentFilter === 'all' ? logs : logs.filter(l => l.agent === agentFilter)
 
@@ -117,6 +141,7 @@ export default function ActionLogs() {
                         <th>전략 모드</th>
                         <th>실행 방식</th>
                         <th>결과</th>
+                        <th>반영 확인</th>
                         <th>효과 측정</th>
                         <th>상세</th>
                       </tr>
@@ -125,6 +150,12 @@ export default function ActionLogs() {
                       {filteredLogs.map(log => {
                         const vm = log.effect_verdict ? VERDICT_META[log.effect_verdict] : null
                         const modeColor = MODE_COLOR[log.ad_strategy_mode] ?? '#6b7280'
+                        const isVerifiable = log.execution_tier === 'ai_auto' && log.status === 'success'
+                        const vStatus = log.verify_status
+                        const vMeta = vStatus ? VERIFY_META[vStatus] : null
+                        const isVerifying = verifying[log.log_id]
+                        const canRetry = vStatus && vStatus !== 'matched'
+
                         return (
                           <tr key={log.log_id}>
                             <td className="text-muted" style={{ whiteSpace: 'nowrap' }}>
@@ -143,6 +174,43 @@ export default function ActionLogs() {
                               <span className={`badge badge-${log.status}`}>
                                 {STATUS_LABEL[log.status] ?? log.status}
                               </span>
+                            </td>
+                            <td style={{ whiteSpace: 'nowrap' }}>
+                              {!isVerifiable ? (
+                                <span className="text-muted">-</span>
+                              ) : vMeta ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                  <span className={`badge ${vMeta.cls}`} style={{ fontSize: 11 }}>
+                                    {vMeta.icon} {vMeta.label}
+                                  </span>
+                                  {log.verified_at && (
+                                    <span className="text-muted" style={{ fontSize: 10 }}>
+                                      {new Date(log.verified_at).toLocaleString('ko-KR', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' })}
+                                    </span>
+                                  )}
+                                  {canRetry && (
+                                    <button
+                                      onClick={() => handleVerify(log.log_id)}
+                                      disabled={isVerifying}
+                                      style={{ fontSize: 10, color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                    >
+                                      {isVerifying ? '확인 중…' : '다시확인'}
+                                    </button>
+                                  )}
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => handleVerify(log.log_id)}
+                                  disabled={isVerifying}
+                                  style={{
+                                    fontSize: 11, padding: '2px 8px',
+                                    background: '#f3f4f6', border: '1px solid #d1d5db',
+                                    borderRadius: 4, cursor: 'pointer', color: '#374151',
+                                  }}
+                                >
+                                  {isVerifying ? '확인 중…' : '수정 확인'}
+                                </button>
+                              )}
                             </td>
                             <td>
                               {vm

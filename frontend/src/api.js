@@ -34,6 +34,7 @@ export const api = {
   getProductLabels:    ()   => request('GET',  '/product-labels'),
   setProductLabel: (id, berry_type) => request('PUT', `/product-labels/${id}`, { berry_type }),
   getActionLogs:       ()   => request('GET',  '/action-logs'),
+  verifyActionLog:     (id) => request('POST', `/action-logs/${id}/verify`),
   getAds:              ()   => request('GET',  '/ads'),
   getKeywordVolume:    ()   => request('GET',  '/ads/keyword-volume'),
   getCampaigns:        ()   => request('GET',  '/campaigns'),

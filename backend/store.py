@@ -183,6 +183,26 @@ def get_action_logs() -> list[dict]:
     return res.data
 
 
+def get_action_log(log_id: str) -> dict | None:
+    res = (
+        get_client()
+        .table("action_logs")
+        .select("*")
+        .eq("log_id", log_id)
+        .maybe_single()
+        .execute()
+    )
+    return res.data
+
+
+def update_action_log_verify(log_id: str, verify_status: str) -> None:
+    from datetime import datetime, timezone
+    get_client().table("action_logs").update({
+        "verify_status": verify_status,
+        "verified_at":   datetime.now(timezone.utc).isoformat(),
+    }).eq("log_id", log_id).execute()
+
+
 # --- AnalysisRun ---
 
 def save_run(run: dict) -> None:

@@ -292,3 +292,14 @@ def update_constraint(constraint_id: str, body: ConstraintBody):
 @app.get("/action-logs")
 def get_action_logs():
     return store.get_action_logs()
+
+
+@app.post("/action-logs/{log_id}/verify")
+async def verify_action_log(log_id: str):
+    from agents.executor.verifier import verify_action_log as _verify
+    log = store.get_action_log(log_id)
+    if not log:
+        raise HTTPException(status_code=404, detail="로그를 찾을 수 없습니다")
+    verify_status = await _verify(log_id)
+    store.update_action_log_verify(log_id, verify_status)
+    return {"log_id": log_id, "verify_status": verify_status}
