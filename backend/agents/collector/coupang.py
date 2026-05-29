@@ -139,7 +139,7 @@ def _build_product_model(
 def _infer_product_type(name: str) -> str:
     if "즙" in name:
         return "즙"
-    if "냉동" in name:
+    if "냉동" in name or "급냉" in name:
         return "냉동"
     if "생" in name or "냉장" in name:
         return "생과"

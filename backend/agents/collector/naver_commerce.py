@@ -85,7 +85,7 @@ def _infer_product_type(name: str) -> str:
     name_lower = name
     if "즙" in name_lower:
         return "즙"
-    if "냉동" in name_lower:
+    if "냉동" in name_lower or "급냉" in name_lower:
         return "냉동"
     if "생" in name_lower or "냉장" in name_lower:
         return "생과"
