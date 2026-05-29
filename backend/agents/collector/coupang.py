@@ -25,8 +25,20 @@ async def _collect_real(context: dict) -> dict:
     revenue_orders = client.get_revenue_history(days=30)
     revenue_stats  = _aggregate_revenue(revenue_orders)  # productId → {quantity, revenue, unit_price}
 
+    # 현재 실제 판매가: 상품 상세 API items[].salePrice 기준 (주문 이력 역산 가격은 변경 전 가격일 수 있음)
+    current_prices: dict[str, float] = {}
+    for p in raw_products:
+        sid = str(p.get("sellerProductId", ""))
+        try:
+            detail = client.get_product_detail(sid)
+            prices = [int(item.get("salePrice", 0)) for item in detail.get("items", []) if item.get("salePrice")]
+            if prices:
+                current_prices[sid] = float(min(prices))
+        except Exception:
+            pass  # 실패 시 revenue 역산 가격 사용
+
     products = [
-        _build_product_model(p, revenue_stats, season_flag, collected_at)
+        _build_product_model(p, revenue_stats, current_prices, season_flag, collected_at)
         for p in raw_products
     ]
 
@@ -83,6 +95,7 @@ def _aggregate_revenue(orders: list[dict]) -> dict[str, dict]:
 def _build_product_model(
     raw: dict,
     revenue_stats: dict[str, dict],
+    current_prices: dict[str, float],
     season_flag: str,
     collected_at: str,
 ) -> ProductModel:
@@ -90,8 +103,9 @@ def _build_product_model(
     product_id = str(raw.get("productId", ""))       # 매출 매핑용
     name       = raw.get("sellerProductName", "")
 
-    stats      = revenue_stats.get(product_id, {})
-    price      = float(stats.get("unit_price", 0))
+    stats = revenue_stats.get(product_id, {})
+    # 상품 상세 API의 현재 판매가 우선 사용, 없으면 주문 이력 역산 가격
+    price = current_prices.get(seller_pid) or float(stats.get("unit_price", 0))
     sales_count   = max(0, stats.get("quantity", 0))
     sales_revenue = max(0, stats.get("revenue", 0))
     vendor_item_ids = stats.get("vendor_item_ids", [])
