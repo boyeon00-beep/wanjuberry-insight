@@ -85,8 +85,11 @@ def _execute_sale_resume(suggestion, vendor_item_ids, baseline_metrics, ad_strat
 def _execute_name_update(suggestion, baseline_metrics, ad_strategy_mode):
     from clients import coupang as client
 
+    import re as _re
     seller_product_id = suggestion.target_id
-    new_name = suggestion.proposed_value.strip()
+    _raw = (suggestion.proposed_value or "").strip()
+    _raw = _re.sub(r'\s*\(\d+자\)\s*$', '', _raw)  # "(32자)" 제거
+    new_name = _raw.strip().strip("'\"").strip()
 
     try:
         product = client.get_product_detail(seller_product_id)

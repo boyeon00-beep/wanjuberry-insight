@@ -202,7 +202,10 @@ def _execute_ad_copy(suggestion, baseline_metrics, ad_strategy_mode):
 def _execute_product_name(suggestion, baseline_metrics, ad_strategy_mode):
     from clients import naver_commerce as client
 
-    new_name = suggestion.proposed_value.strip().strip("'\"")
+    import re as _re
+    _raw = (suggestion.proposed_value or "").strip()
+    _raw = _re.sub(r'\s*\(\d+자\)\s*$', '', _raw)  # "(32자)" 제거
+    new_name = _raw.strip().strip("'\"").strip()
     if not new_name:
         return _make_log(suggestion, "failed", f"상품명 파싱 실패: {suggestion.proposed_value}", baseline_metrics, ad_strategy_mode)
 

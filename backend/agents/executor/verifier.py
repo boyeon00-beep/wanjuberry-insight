@@ -23,7 +23,7 @@ async def verify_action_log(log_id: str) -> str:
         return "error"
 
     action_type    = log["action_type"]
-    agent          = log["agent"]
+    agent          = suggestion.get("agent", "")  # log.agent는 항상 "executor" — suggestion에서 조회
     target_id      = log["target_id"]
     target_name    = log.get("target_name", "")
     proposed_value = suggestion.get("proposed_value", "")
