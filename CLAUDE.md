@@ -153,6 +153,22 @@ Wing 리포트 형식 확정 (2026-05-31):
   Wing 업로드 섹션 상품명 표시 제거 ✅ (기간만 표시)
   네이버 광고 stats 파싱 버그 수정 ✅ (s.get("stat", {}) → s.get("stat") or s —
     필드가 stat 하위가 아닌 최상위에 직접 위치하여 노출/클릭 항상 0으로 집계되던 버그)
+Brain 프롬프트 품질 고도화 (2026-05-31 세션):
+  확장소재_수정 action_type 추가 ✅ (operator_manual — 네이버 광고 관리자 직접 적용)
+  제안 보류 허용 ✅ (근거 부족 시 [] 반환 허용, 3개 Brain 전체)
+  카피_수정 강제 완화 ✅ (반드시 1개 → CTR 저하/시즌 불일치 등 조건 충족 시에만)
+  하지 말아야 할 제안 블록 ✅ (무농약·혈당·최저가 등 리스크 표현 명시 금지, 3개 Brain)
+  블랙베리 태그 전략 교정 ✅ (복분자 주력→블랙베리 40~50% 주력, 복분자 30~40% 보조)
+  키워드 의도 유형 reason 명시 ✅ (키워드_추가·제외 제안 시 의도 유형 필수 표기)
+그룹상품 통합 분석 지원 (2026-05-31 세션):
+  수집: clients/naver_commerce.py — groupProductNo 추출 및 전달 ✅
+  모델: models/product.py — group_product_no 필드 추가 ✅
+  수집기: agents/collector/naver_commerce.py — group_product_no 저장 ✅
+  DB: migration 014 — collected_products.group_product_no 컬럼 ✅ (Supabase 실행 완료)
+  Brain: _summarize_products() — 그룹 묶어서 GROUP-{no} 1개 엔트리 반환 ✅
+  Brain: SYSTEM 프롬프트 — 그룹 제안 = operator_manual + 제안 1개 ✅
+  → 다음 확인: 분석 실행 후 제안함에서 "[그룹 N종]" 표기 여부 확인 필요
+    (Naver API가 groupProductNo를 실제 응답에 포함하는지 첫 실행으로 검증)
 ```
 
 ---
