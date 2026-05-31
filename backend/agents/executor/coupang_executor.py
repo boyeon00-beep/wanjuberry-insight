@@ -153,7 +153,7 @@ def _make_log(
     log = ActionLog(
         suggestion_id=suggestion.suggestion_id,
         task_id=suggestion.task_id,
-        agent="executor",
+        agent=suggestion.agent,
         action_type=suggestion.action_type,
         target_id=suggestion.target_id,
         target_name=suggestion.target_name,

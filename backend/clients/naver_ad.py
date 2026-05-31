@@ -148,16 +148,23 @@ def update_keyword_bid(keyword_id: str, bid: int) -> dict | list:
 
 
 def add_keyword(adgroup_id: str, keyword: str, bid: int | None = None) -> dict | list:
-    """키워드 추가 — POST /ncc/keywords"""
-    body: dict = {"nccAdgroupId": adgroup_id, "keyword": keyword, "useGroupBidAmt": bid is None}
+    """키워드 추가 — POST /ncc/keywords?nccAdgroupId=adgroup_id
+
+    nccAdgroupId는 query parameter (body 아님).
+    body는 kwdRequests 배열 래퍼 구조.
+    """
+    kwd_req: dict = {"keyword": keyword, "useGroupBidAmt": bid is None}
     if bid is not None:
-        body["bidAmt"] = bid
-    return _post("/ncc/keywords", [body])
+        kwd_req["bidAmt"] = bid
+    return _post(
+        f"/ncc/keywords?nccAdgroupId={adgroup_id}",
+        {"kwdRequests": [kwd_req]},
+    )
 
 
 def add_negative_keyword(adgroup_id: str, keyword: str) -> dict | list:
-    """광고그룹 제외 키워드 추가 — POST /ncc/adgroups/{id}/restrictedKeywords"""
-    return _post(f"/ncc/adgroups/{adgroup_id}/restrictedKeywords", [{"keyword": keyword}])
+    """광고그룹 제외 키워드 추가 — POST /ncc/adgroups/{id}/restricted-keywords"""
+    return _post(f"/ncc/adgroups/{adgroup_id}/restricted-keywords", [{"keyword": keyword}])
 
 
 def update_campaign(campaign_id: str, fields: dict) -> dict | list:
@@ -170,9 +177,13 @@ def pause_campaign(campaign_id: str) -> dict | list:
     return update_campaign(campaign_id, {"userLock": True})
 
 
-def update_ad(ad_id: str, adgroup_id: str, ad_body: dict) -> dict | list:
-    """광고 소재 수정 — PUT /ncc/ads?ids=ad_id&targetAdgroupId=adgroup_id"""
+def update_ad(ad_id: str, adgroup_id: str, ad_attr: dict) -> dict | list:
+    """광고 소재 수정 — PUT /ncc/ads/{adId}
+
+    ad_attr: {"headline": "...", "description": "..."} 형태 — adAttr 필드만 전달.
+    Ad-copy(?ids=) 엔드포인트는 배치 목적이라 400 반환 → 단건 수정 엔드포인트 사용.
+    """
     return _put(
-        f"/ncc/ads?ids={ad_id}&targetAdgroupId={adgroup_id}",
-        {**ad_body, "nccAdId": ad_id, "nccAdgroupId": adgroup_id},
+        f"/ncc/ads/{ad_id}",
+        {"nccAdId": ad_id, "nccAdgroupId": adgroup_id, "adAttr": ad_attr},
     )

@@ -92,8 +92,15 @@ def get_product_detail(seller_product_id: str) -> dict:
 
 
 def update_product(seller_product_id: str, product_data: dict) -> dict:
-    """전체 상품 JSON PUT — 쿠팡 승인 대기 상태로 변경 신청."""
-    path = f"/v2/providers/seller_api/apis/api/v1/marketplace/seller-products/{seller_product_id}"
+    """전체 상품 JSON PUT — 쿠팡 승인 대기 상태로 변경 신청.
+
+    PUT /seller-products (ID 없는 base path) + body에 sellerProductId 포함.
+    /seller-products/{id} 는 GET/DELETE만 지원.
+    """
+    path = "/v2/providers/seller_api/apis/api/v1/marketplace/seller-products"
+    # sellerProductId가 body에 포함되어야 함
+    if "sellerProductId" not in product_data:
+        product_data = {**product_data, "sellerProductId": int(seller_product_id)}
     result = _put_json(path, product_data)
     if result.get("code") == "ERROR":
         raise RuntimeError(f"상품 수정 실패: {result.get('message')}")

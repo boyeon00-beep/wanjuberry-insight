@@ -171,22 +171,17 @@ def _execute_ad_copy(suggestion, baseline_metrics, ad_strategy_mode):
     if not new_headline:
         return _make_log(suggestion, "failed", f"카피 파싱 실패: {suggestion.proposed_value}", baseline_metrics, ad_strategy_mode)
 
-    # 기존 ad 오브젝트에 수정 반영
-    updated = dict(ad_obj)
-    ad_attr = dict(updated.get("adAttr") or {})
+    # adAttr만 변경 — 전체 ad 오브젝트 대신 최소 필드 전달
+    ad_attr = dict(ad_obj.get("adAttr") or {})
     if new_headline:
-        updated["headline"] = new_headline
         ad_attr["headline"] = new_headline
     if new_desc1:
-        updated["description"] = new_desc1
         ad_attr["description"] = new_desc1
     if new_desc2:
-        updated["description2"] = new_desc2
         ad_attr["description2"] = new_desc2
-    updated["adAttr"] = ad_attr
 
     try:
-        client.update_ad(ad_id, adgroup_id, updated)
+        client.update_ad(ad_id, adgroup_id, ad_attr)
     except Exception as e:
         return _make_log(suggestion, "failed", f"광고 소재 수정 실패: {e}", baseline_metrics, ad_strategy_mode)
 
@@ -397,7 +392,7 @@ def _make_log(
     log = ActionLog(
         suggestion_id=suggestion.suggestion_id,
         task_id=suggestion.task_id,
-        agent="executor",
+        agent=suggestion.agent,
         action_type=suggestion.action_type,
         target_id=suggestion.target_id,
         target_name=suggestion.target_name,

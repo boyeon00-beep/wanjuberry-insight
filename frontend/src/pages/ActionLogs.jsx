@@ -29,6 +29,11 @@ const VERDICT_META = {
   pending:      { label: '측정 대기',  cls: 'verdict-pending' },
 }
 
+const PLATFORM = {
+  product_analyzer: { label: '스마트스토어', color: '#03c75a', bg: '#e6f9ee' },
+  ad_analyzer:      { label: '검색광고',     color: '#1a73e8', bg: '#e8f0fe' },
+  coupang_analyzer: { label: '쿠팡',         color: '#e4371c', bg: '#fdecea' },
+}
 const AGENT_LABEL = {
   product_analyzer: '스마트스토어',
   ad_analyzer:      '검색광고',
@@ -53,7 +58,7 @@ export default function ActionLogs() {
 
   useEffect(() => {
     api.getActionLogs()
-      .then(data => setLogs([...data].reverse()))
+      .then(data => setLogs(data))
       .finally(() => setLoading(false))
   }, [])
 
@@ -161,7 +166,14 @@ export default function ActionLogs() {
                             <td className="text-muted" style={{ whiteSpace: 'nowrap' }}>
                               {new Date(log.executed_at).toLocaleString('ko-KR')}
                             </td>
-                            <td className="text-muted">{AGENT_LABEL[log.agent] ?? log.agent ?? '-'}</td>
+                            <td>
+                              {(() => {
+                                const p = PLATFORM[log.agent]
+                                return p
+                                  ? <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700, color: p.color, background: p.bg, whiteSpace: 'nowrap' }}>{p.label}</span>
+                                  : <span className="text-muted">{log.agent ?? '-'}</span>
+                              })()}
+                            </td>
                             <td style={{ fontWeight: 500 }}>{log.target_name}</td>
                             <td>{log.action_type}</td>
                             <td>
@@ -281,7 +293,14 @@ export default function ActionLogs() {
                                 ? new Date(log.effect_measured_at).toLocaleDateString('ko-KR')
                                 : new Date(log.executed_at).toLocaleDateString('ko-KR')}
                             </td>
-                            <td className="text-muted">{AGENT_LABEL[log.agent] ?? log.agent}</td>
+                            <td>
+                              {(() => {
+                                const p = PLATFORM[log.agent]
+                                return p
+                                  ? <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700, color: p.color, background: p.bg, whiteSpace: 'nowrap' }}>{p.label}</span>
+                                  : <span className="text-muted">{log.agent ?? '-'}</span>
+                              })()}
+                            </td>
                             <td style={{ fontWeight: 500, maxWidth: 160 }}>{log.target_name}</td>
                             <td>{log.action_type}</td>
                             <td>
@@ -316,7 +335,14 @@ export default function ActionLogs() {
                       {pending.map(log => (
                         <tr key={log.log_id}>
                           <td className="text-muted">{new Date(log.executed_at).toLocaleDateString('ko-KR')}</td>
-                          <td className="text-muted">{AGENT_LABEL[log.agent] ?? log.agent}</td>
+                          <td>
+                            {(() => {
+                              const p = PLATFORM[log.agent]
+                              return p
+                                ? <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700, color: p.color, background: p.bg, whiteSpace: 'nowrap' }}>{p.label}</span>
+                                : <span className="text-muted">{log.agent ?? '-'}</span>
+                            })()}
+                          </td>
                           <td style={{ fontWeight: 500 }}>{log.target_name}</td>
                           <td>{log.action_type}</td>
                           <td><span className="badge verdict-pending">측정 대기</span></td>
