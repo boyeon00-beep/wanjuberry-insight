@@ -3,22 +3,18 @@ import { api } from '../api'
 
 function WingReportUpload() {
   const [file, setFile]           = useState(null)
-  const [reportFrom, setFrom]     = useState('')
-  const [reportTo, setTo]         = useState('')
   const [loading, setLoading]     = useState(false)
   const [result, setResult]       = useState(null)
   const [error, setError]         = useState(null)
 
   async function upload() {
-    if (!file || !reportFrom || !reportTo) return
+    if (!file) return
     setLoading(true)
     setResult(null)
     setError(null)
     try {
       const fd = new FormData()
       fd.append('file', file)
-      fd.append('report_from', reportFrom)
-      fd.append('report_to', reportTo)
       const res = await api.uploadCoupangAdReport(fd)
       setResult(res)
     } catch (e) {
@@ -38,23 +34,6 @@ function WingReportUpload() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ fontSize: 13, width: 80, flexShrink: 0 }}>보고서 기간</span>
-          <input
-            type="date"
-            value={reportFrom}
-            onChange={e => setFrom(e.target.value)}
-            style={{ padding: '6px 10px', border: '1px solid #ddd', borderRadius: 6, fontSize: 13 }}
-          />
-          <span style={{ fontSize: 13 }}>~</span>
-          <input
-            type="date"
-            value={reportTo}
-            onChange={e => setTo(e.target.value)}
-            style={{ padding: '6px 10px', border: '1px solid #ddd', borderRadius: 6, fontSize: 13 }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <span style={{ fontSize: 13, width: 80, flexShrink: 0 }}>파일 선택</span>
           <input
             type="file"
@@ -68,13 +47,13 @@ function WingReportUpload() {
           {error  && <span style={{ fontSize: 13, color: '#e53e3e' }}>{error}</span>}
           {result && (
             <span style={{ fontSize: 13, color: '#38a169' }}>
-              저장 {result.saved}건 (매칭 {result.matched} / 미매칭 {result.unmatched})
+              저장 {result.saved}건 (매칭 {result.matched} / 미매칭 {result.unmatched}) · {result.report_from} ~ {result.report_to}
             </span>
           )}
           <button
             className="btn btn-primary"
             onClick={upload}
-            disabled={loading || !file || !reportFrom || !reportTo}
+            disabled={loading || !file}
           >
             {loading ? '업로드 중…' : '업로드'}
           </button>

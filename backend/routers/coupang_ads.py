@@ -1,8 +1,9 @@
 import io
+from datetime import date
+from typing import Optional
 
 import openpyxl
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-from datetime import date
 
 import store
 
@@ -26,18 +27,9 @@ _REQUIRED_COLS = [
 @router.post("/upload")
 async def upload_wing_report(
     file: UploadFile = File(...),
-    report_from: str = Form(...),
-    report_to: str = Form(...),
+    report_from: Optional[str] = Form(None),
+    report_to:   Optional[str] = Form(None),
 ):
-    try:
-        dt_from = date.fromisoformat(report_from)
-        dt_to   = date.fromisoformat(report_to)
-    except ValueError:
-        raise HTTPException(400, "날짜 형식 오류 — YYYY-MM-DD")
-
-    if dt_from > dt_to:
-        raise HTTPException(400, "시작일이 종료일보다 늦음")
-
     content = await file.read()
     try:
         wb = openpyxl.load_workbook(io.BytesIO(content))
@@ -50,6 +42,28 @@ async def upload_wing_report(
     missing = [c for c in _REQUIRED_COLS if c not in col_idx]
     if missing:
         raise HTTPException(400, f"필수 컬럼 없음: {missing}")
+
+    # 날짜 자동 추출 (YYYYMMDD 숫자형 또는 문자열)
+    if not report_from or not report_to:
+        date_idx = next((i for i, h in enumerate(headers) if h == "날짜"), None)
+        if date_idx is None:
+            raise HTTPException(400, "파일에 날짜 컬럼이 없습니다. 기간을 직접 입력해주세요.")
+        raw_dates = [row[date_idx] for row in ws.iter_rows(min_row=2, values_only=True) if row[date_idx] is not None]
+        if not raw_dates:
+            raise HTTPException(400, "날짜 컬럼이 비어있습니다. 기간을 직접 입력해주세요.")
+        def _to_date(v) -> date:
+            s = str(int(float(v)))  # 20260501.0 → "20260501"
+            return date(int(s[:4]), int(s[4:6]), int(s[6:8]))
+        dt_from = _to_date(min(raw_dates))
+        dt_to   = _to_date(max(raw_dates))
+    else:
+        try:
+            dt_from = date.fromisoformat(report_from)
+            dt_to   = date.fromisoformat(report_to)
+        except ValueError:
+            raise HTTPException(400, "날짜 형식 오류 — YYYY-MM-DD")
+        if dt_from > dt_to:
+            raise HTTPException(400, "시작일이 종료일보다 늦음")
 
     # vendorItemId 기준으로 지면별 행 합산
     aggregated: dict[str, dict] = {}
