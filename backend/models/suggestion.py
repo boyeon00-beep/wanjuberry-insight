@@ -27,6 +27,7 @@ ActionType = Literal[
     "예산_조정",
     "예산_증액",
     "캠페인_일시중지",
+    "확장소재_수정",
 ]
 
 ExecutionTier = Literal["ai_auto", "operator_manual", "ai_after_approval"]
