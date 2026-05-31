@@ -130,6 +130,33 @@ Brain 고도화 5종 (2026-05-31):
   ROAS 트래킹 ✅ (cost_7d = clkCnt×cpc, roas_7d = salesAmt/cost_7d — costAmt 직접 필드 없음, 역산)
   store.get_logs_in_window / get_cohort_patterns 추가 ✅
   DB 스키마 변경 없음 (result_metrics JSONB에 신규 필드 추가)
+UX 개선 (2026-05-31):
+  제안함 쿠팡 탭 — 상품 전체 PUT 동시 승인 주의 안내 추가 ✅
+  Wing 보고서 업로드 설정 → 분석 페이지로 이동 ✅ (분석 전 업로드 유도)
+  Wing 업로드 날짜 자동 추출 ✅ (날짜 컬럼 min/max 파싱 — 수동 입력 제거)
+  분석 페이지 Wing 섹션: 최근 업로드 기간 표시 ✅
+Wing 리포트 형식 확정 (2026-05-31):
+  쿠팡 Wing → 광고관리 → 맞춤형 광고 보고서 (보고서2)
+  필수 컬럼 10개: 광고 집행 옵션 ID / 광고집행 상품명 / 캠페인 이름 / 광고그룹 /
+    노출수 / 클릭수 / 광고비(원) / 총 주문수(14일) / 총 전환 매출액(14일)(원) / 총 판매 수량(14일)
+  업로드 주기: 주 1회 / 기간: 직전 14일 권장
+데이터 초기화 실행 (2026-05-31):
+  테스트 데이터 전체 삭제 ✅ (action_logs / suggestions / collected_products / collected_ads /
+    keyword_volume / analysis_runs / coupang_ad_reports)
+  유지 테이블: farm_profile / constraints / product_labels
+Effect Tracker 재설계 (2026-05-31):
+  7일 격리 비교 ✅ (30일 슬라이딩 창 → 승인 직전 7일 vs 실행 후 7일 순수 비교)
+  광고 지표 교체 ✅ (monthly_total 외부 검색량 → clicks_7d 우리 실클릭)
+  naver_commerce.get_product_order_stats_range(from, to) ✅
+  coupang.get_revenue_history_range(from, to) ✅
+Brain 고도화 5종 (2026-05-31):
+  신뢰도 스코어 ✅ (상품 <5건·광고 <10클릭 → confidence=low → Brain 경고 주입)
+  복합 실행 감지 ✅ (같은 target 관찰 창 내 다른 실행 → compound_flag → Brain 경고 주입)
+  코호트 패턴 주입 ✅ (action_type별 positive율 집계, 3건↑ 누적 시 Brain 프롬프트에 자동 삽입)
+  관찰 기간 차등화 ✅ (광고/예산 3일, 키워드/카피 7일, 상품명/가격 14일)
+  ROAS 트래킹 ✅ (cost_7d = clkCnt×cpc, roas_7d = salesAmt/cost_7d — costAmt 직접 필드 없음, 역산)
+  store.get_logs_in_window / get_cohort_patterns 추가 ✅
+  DB 스키마 변경 없음 (result_metrics JSONB에 신규 필드 추가)
 ```
 
 ---
