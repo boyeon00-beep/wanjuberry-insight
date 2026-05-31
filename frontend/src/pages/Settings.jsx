@@ -1,67 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from '../api'
 
-function WingReportUpload() {
-  const [file, setFile]           = useState(null)
-  const [loading, setLoading]     = useState(false)
-  const [result, setResult]       = useState(null)
-  const [error, setError]         = useState(null)
-
-  async function upload() {
-    if (!file) return
-    setLoading(true)
-    setResult(null)
-    setError(null)
-    try {
-      const fd = new FormData()
-      fd.append('file', file)
-      const res = await api.uploadCoupangAdReport(fd)
-      setResult(res)
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div className="card">
-      <div className="card-title">쿠팡 Wing 광고 보고서 업로드</div>
-      <p className="text-muted" style={{ marginBottom: 16 }}>
-        쿠팡 Wing → 광고관리 → 맞춤형 보고서에서 다운로드한 Excel 파일을 업로드합니다.
-        동일 기간 데이터는 덮어씁니다.
-      </p>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ fontSize: 13, width: 80, flexShrink: 0 }}>파일 선택</span>
-          <input
-            type="file"
-            accept=".xlsx,.xls"
-            onChange={e => setFile(e.target.files[0] ?? null)}
-            style={{ fontSize: 13 }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 12 }}>
-          {error  && <span style={{ fontSize: 13, color: '#e53e3e' }}>{error}</span>}
-          {result && (
-            <span style={{ fontSize: 13, color: '#38a169' }}>
-              저장 {result.saved}건 (매칭 {result.matched} / 미매칭 {result.unmatched}) · {result.report_from} ~ {result.report_to}
-            </span>
-          )}
-          <button
-            className="btn btn-primary"
-            onClick={upload}
-            disabled={loading || !file}
-          >
-            {loading ? '업로드 중…' : '업로드'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 const API_KEYS = [
   { key: 'ANTHROPIC_API_KEY',      label: 'Claude API' },
@@ -124,7 +63,6 @@ export default function Settings() {
       <ProductLabels />
       <FarmProfileSection />
       <FarmConstraints />
-      <WingReportUpload />
     </>
   )
 }

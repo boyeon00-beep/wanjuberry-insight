@@ -1,6 +1,74 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api'
+
+function WingUploadSection() {
+  const [summary, setSummary]   = useState(null)
+  const [file, setFile]         = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [result, setResult]     = useState(null)
+  const [error, setError]       = useState(null)
+  const fileRef                 = useRef(null)
+
+  useEffect(() => {
+    api.getCoupangAdSummary()
+      .then(data => setSummary(data?.length ? data[0] : null))
+      .catch(() => {})
+  }, [result])
+
+  async function upload() {
+    if (!file) return
+    setLoading(true)
+    setResult(null)
+    setError(null)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await api.uploadCoupangAdReport(fd)
+      setResult(res)
+      setFile(null)
+      if (fileRef.current) fileRef.current.value = ''
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="card" style={{ borderLeft: '3px solid #e4371c' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
+        <div>
+          <div className="card-title" style={{ marginBottom: 4 }}>쿠팡 Wing 광고 보고서</div>
+          <p className="text-muted" style={{ fontSize: 13, margin: 0 }}>
+            {summary
+              ? <>최근 업로드: <strong>{summary.report_from} ~ {summary.report_to}</strong> · {summary.product_name ?? ''}</>
+              : '업로드된 보고서 없음 — 쿠팡 분석 시 광고 데이터가 반영되지 않습니다.'}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          {error  && <span style={{ fontSize: 12, color: '#e53e3e' }}>{error}</span>}
+          {result && <span style={{ fontSize: 12, color: '#38a169' }}>저장 {result.saved}건 · {result.report_from} ~ {result.report_to}</span>}
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".xlsx,.xls"
+            onChange={e => setFile(e.target.files[0] ?? null)}
+            style={{ fontSize: 12 }}
+          />
+          <button
+            className="btn btn-primary"
+            style={{ fontSize: 13, padding: '6px 14px' }}
+            onClick={upload}
+            disabled={loading || !file}
+          >
+            {loading ? '업로드 중…' : '업로드'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const PLATFORM = {
   product_analyzer: { label: '네이버 스마트스토어', color: '#03c75a', bg: '#e6f9ee' },
@@ -97,6 +165,8 @@ export default function Analysis() {
   return (
     <>
       <div className="page-title">분석</div>
+
+      <WingUploadSection />
 
       <div className="card">
         <div className="card-title">수집 → 분석 → 제안 생성</div>
