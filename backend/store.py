@@ -100,52 +100,6 @@ def add_action_log(log: ActionLog) -> None:
     get_client().table("action_logs").insert(log.model_dump()).execute()
 
 
-def get_baseline_metrics(agent: str, target_id: str, target_name: str) -> dict:
-    """승인 시점의 핵심 지표 스냅샷."""
-    if agent == "product_analyzer":
-        res = (
-            get_client()
-            .table("collected_products")
-            .select("sales_count, sales_revenue, review_count, review_score")
-            .eq("product_id", target_id)
-            .eq("platform", "naver")
-            .order("collected_at", desc=True)
-            .limit(1)
-            .execute()
-        )
-        return res.data[0] if res.data else {}
-
-    if agent == "coupang_analyzer":
-        res = (
-            get_client()
-            .table("collected_products")
-            .select("sales_count, sales_revenue")
-            .eq("product_id", target_id)
-            .eq("platform", "coupang")
-            .order("collected_at", desc=True)
-            .limit(1)
-            .execute()
-        )
-        return res.data[0] if res.data else {}
-
-    if agent == "ad_analyzer":
-        runs = get_runs()
-        if not runs:
-            return {}
-        latest_task_id = runs[0]["task_id"]
-        res = (
-            get_client()
-            .table("keyword_volume")
-            .select("monthly_total, competition, is_bidding")
-            .eq("task_id", latest_task_id)
-            .eq("keyword", target_name)
-            .limit(1)
-            .execute()
-        )
-        return res.data[0] if res.data else {}
-
-    return {}
-
 
 def get_approved_logs_pending_measurement(min_days: int = 7) -> list[dict]:
     """effect_verdict='pending'이고 min_days 이상 지난 성공 로그."""

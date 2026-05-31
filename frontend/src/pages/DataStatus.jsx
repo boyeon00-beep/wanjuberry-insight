@@ -111,8 +111,8 @@ function ProductsTab({ naver, coupang }) {
                   <tr>
                     <th>상품명</th>
                     <th style={{ textAlign: 'right' }}>가격</th>
-                    <th style={{ textAlign: 'right' }}>판매수</th>
-                    <th style={{ textAlign: 'right' }}>매출</th>
+                    <th style={{ textAlign: 'right' }}>판매수 (30일)</th>
+                    <th style={{ textAlign: 'right' }}>매출 (30일)</th>
                     <th style={{ textAlign: 'right' }}>리뷰</th>
                     <th style={{ textAlign: 'right' }}>재고</th>
                     <th>유형</th>
@@ -154,8 +154,8 @@ function ProductsTab({ naver, coupang }) {
                   <tr>
                     <th>상품명</th>
                     <th style={{ textAlign: 'right' }}>가격</th>
-                    <th style={{ textAlign: 'right' }}>판매수</th>
-                    <th style={{ textAlign: 'right' }}>매출</th>
+                    <th style={{ textAlign: 'right' }}>판매수 (30일)</th>
+                    <th style={{ textAlign: 'right' }}>매출 (30일)</th>
                     <th>유형</th>
                   </tr>
                 </thead>

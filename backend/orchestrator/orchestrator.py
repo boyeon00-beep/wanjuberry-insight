@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Literal
 
 import store
@@ -182,27 +182,52 @@ class Orchestrator:
         if not logs:
             return {"measured": 0}
 
-        product_map = {p["product_id"]: p for p in context.get("collected_products", [])}
-        coupang_map = {p["product_id"]: p for p in context.get("coupang_products", [])}
-        kw_map      = {k["keyword"]: k   for k in context.get("keyword_volume", [])}
-
         measured = 0
         for log in logs:
             agent       = log["agent"]
             target_id   = log["target_id"]
-            target_name = log["target_name"]
+            action_type = log.get("action_type", "")
             baseline    = log.get("baseline_metrics") or {}
 
+            # 실행 후 7일 윈도우 (executed_at+1 ~ executed_at+7)
+            executed_date = log["executed_at"][:10]
+            from_date = date.fromisoformat(executed_date) + timedelta(days=1)
+            to_date   = date.fromisoformat(executed_date) + timedelta(days=7)
+
             result: dict = {}
-            if agent == "product_analyzer" and target_id in product_map:
-                p = product_map[target_id]
-                result = {"sales_count": p.get("sales_count", 0), "sales_revenue": p.get("sales_revenue", 0)}
-            elif agent == "coupang_analyzer" and target_id in coupang_map:
-                p = coupang_map[target_id]
-                result = {"sales_count": p.get("sales_count", 0), "sales_revenue": p.get("sales_revenue", 0)}
-            elif agent == "ad_analyzer" and target_name in kw_map:
-                k = kw_map[target_name]
-                result = {"monthly_total": k.get("monthly_total", 0)}
+            try:
+                if agent == "product_analyzer":
+                    from clients import naver_commerce
+                    stats = naver_commerce.get_product_order_stats_range(from_date, to_date)
+                    s = stats.get(target_id, {})
+                    result = {
+                        "sales_count_7d": s.get("order_count", 0),
+                        "revenue_7d":     s.get("revenue", 0),
+                    }
+
+                elif agent == "coupang_analyzer":
+                    from clients import coupang
+                    orders = coupang.get_revenue_history_range(from_date, to_date)
+                    count, revenue = _aggregate_coupang_for_product(orders, target_id)
+                    result = {"sales_count_7d": count, "revenue_7d": revenue}
+
+                elif agent == "ad_analyzer":
+                    from clients import naver_ad
+                    start = from_date.strftime("%Y-%m-%d")
+                    end   = to_date.strftime("%Y-%m-%d")
+
+                    if action_type in ("입찰가_조정", "키워드_제외"):
+                        keyword_id = baseline.get("target_keyword_id")
+                        if keyword_id:
+                            raw = naver_ad.get_keyword_stats([keyword_id], start, end)
+                            result = _sum_ad_stats(raw, keyword_id)
+                    else:
+                        campaign_id = baseline.get("target_campaign_id", target_id)
+                        raw = naver_ad.get_campaign_stats([campaign_id], start, end)
+                        result = _sum_ad_stats(raw, campaign_id)
+
+            except Exception:
+                result = {}
 
             verdict = _calculate_verdict(baseline, result, agent)
             store.update_action_log_effect(log["log_id"], verdict, result)
@@ -246,12 +271,18 @@ def _get_coupang_strategy_mode(coupang_products: list[dict], wing_data: list[dic
 
 
 def _calculate_verdict(baseline: dict, result: dict, agent: str) -> str:
+    """7일 전/후 지표를 비교해 판정. 같은 7일 창끼리 비교하므로 희석 없음."""
     if not baseline or not result:
         return "unmeasurable"
 
-    key = "sales_count" if agent in ("product_analyzer", "coupang_analyzer") else "monthly_total"
-    b = baseline.get(key)
-    r = result.get(key)
+    if agent in ("product_analyzer", "coupang_analyzer"):
+        b = baseline.get("sales_count_7d")
+        r = result.get("sales_count_7d")
+    elif agent == "ad_analyzer":
+        b = baseline.get("clicks_7d")
+        r = result.get("clicks_7d")
+    else:
+        return "unmeasurable"
 
     if b is None or r is None or b == 0:
         return "unmeasurable"
@@ -262,6 +293,32 @@ def _calculate_verdict(baseline: dict, result: dict, agent: str) -> str:
     if change < -0.05:
         return "negative"
     return "neutral"
+
+
+def _aggregate_coupang_for_product(orders: list[dict], product_id: str) -> tuple[int, int]:
+    count, revenue = 0, 0
+    for order in orders:
+        sign = 1 if order.get("saleType", "SALE") == "SALE" else -1
+        for item in order.get("items", []):
+            if str(item.get("productId", "")) == product_id:
+                count   += sign * int(item.get("quantity", 0))
+                revenue += sign * int(item.get("saleAmount", 0))
+    return max(count, 0), max(revenue, 0)
+
+
+def _sum_ad_stats(raw: list[dict], entity_id: str) -> dict:
+    totals = {"clkCnt": 0, "impCnt": 0, "salesAmt": 0.0}
+    for row in raw:
+        if str(row.get("id", "")) == entity_id:
+            totals["clkCnt"]   += int(float(row.get("clkCnt", 0)))
+            totals["impCnt"]   += int(float(row.get("impCnt", 0)))
+            totals["salesAmt"] += float(row.get("salesAmt", 0))
+    imp, clk = totals["impCnt"], totals["clkCnt"]
+    return {
+        "clicks_7d":      clk,
+        "impressions_7d": imp,
+        "ctr_7d":         round(clk / imp, 4) if imp > 0 else 0.0,
+    }
 
 
 orchestrator = Orchestrator()

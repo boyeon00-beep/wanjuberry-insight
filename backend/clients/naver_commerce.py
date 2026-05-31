@@ -83,10 +83,20 @@ def get_product_order_stats(days: int = 30) -> dict[str, dict]:
     API 제약: from/to 최대 24시간 차이 → 하루씩 루프
     """
     today = date.today()
-    stats: dict[str, dict] = defaultdict(lambda: {"order_count": 0, "quantity": 0, "revenue": 0})
+    return get_product_order_stats_range(today - timedelta(days=days - 1), today)
 
-    for i in range(days):
-        day     = today - timedelta(days=i)
+
+def get_product_order_stats_range(from_date: date, to_date: date) -> dict[str, dict]:
+    """날짜 범위 지정 주문 집계 — from_date~to_date 하루씩 루프.
+
+    반환 형식: { productId: { order_count, quantity, revenue } }
+    API 제약: from/to 최대 24시간 차이 → 하루씩 루프
+    """
+    stats: dict[str, dict] = defaultdict(lambda: {"order_count": 0, "quantity": 0, "revenue": 0})
+    delta = (to_date - from_date).days + 1
+
+    for i in range(delta):
+        day     = from_date + timedelta(days=i)
         from_dt = day.strftime("%Y-%m-%dT00:00:00.000+09:00")
         to_dt   = day.strftime("%Y-%m-%dT23:59:59.999+09:00")
         _fetch_day_orders(from_dt, to_dt, stats)

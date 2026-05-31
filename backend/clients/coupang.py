@@ -129,12 +129,19 @@ def get_revenue_history(days: int = 30) -> list[dict]:
 
     반환: order 단위 리스트. 각 order는 saleType(SALE|REFUND) + items[] 포함.
     """
+    today     = date.today()
+    date_to   = today - timedelta(days=1)
+    date_from = today - timedelta(days=min(days, 31))
+    return get_revenue_history_range(date_from, date_to)
+
+
+def get_revenue_history_range(from_date: date, to_date: date) -> list[dict]:
+    """날짜 범위 지정 매출내역 조회 (cursor 페이지네이션).
+
+    반환: order 단위 리스트. 각 order는 saleType(SALE|REFUND) + items[] 포함.
+    """
     vendor_id = os.environ["COUPANG_VENDOR_ID"]
     path      = "/v2/providers/openapi/apis/api/v1/revenue-history"
-
-    today     = date.today()
-    date_to   = today - timedelta(days=1)               # 어제까지만
-    date_from = today - timedelta(days=min(days, 31))
 
     all_orders = []
     token      = ""  # 첫 페이지는 빈값 필수
@@ -142,8 +149,8 @@ def get_revenue_history(days: int = 30) -> list[dict]:
     while True:
         params = {
             "vendorId":            vendor_id,
-            "recognitionDateFrom": date_from.strftime("%Y-%m-%d"),
-            "recognitionDateTo":   date_to.strftime("%Y-%m-%d"),
+            "recognitionDateFrom": from_date.strftime("%Y-%m-%d"),
+            "recognitionDateTo":   to_date.strftime("%Y-%m-%d"),
             "token":               token,
             "maxPerPage":          50,
         }

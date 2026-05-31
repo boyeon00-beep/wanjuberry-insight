@@ -77,12 +77,100 @@ async def approve_suggestion(suggestion_id: str):
 
     store.update_suggestion_status(suggestion_id, "approved")
     suggestion = Suggestion(**row)
-    baseline = store.get_baseline_metrics(row["agent"], row["target_id"], row["target_name"])
+    baseline = _fetch_baseline(row["agent"], row["action_type"], row["target_id"], row["target_name"])
     from domain.seasonality import get_season_context
     from orchestrator.orchestrator import _get_strategy_mode
     ad_strategy_mode = _get_strategy_mode(get_season_context()["season_flag"])
     log = await execute(suggestion, baseline_metrics=baseline or None, ad_strategy_mode=ad_strategy_mode)
     return {"suggestion": row, "action_log": log}
+
+
+def _fetch_baseline(agent: str, action_type: str, target_id: str, target_name: str) -> dict:
+    """승인 시점의 직전 7일 지표 수집 — 7일 후 성과 비교의 기준선."""
+    from datetime import date, timedelta
+    today     = date.today()
+    from_date = today - timedelta(days=7)
+
+    if agent == "product_analyzer":
+        try:
+            from clients import naver_commerce
+            stats = naver_commerce.get_product_order_stats_range(from_date, today)
+            s = stats.get(target_id, {})
+            return {
+                "sales_count_7d": s.get("order_count", 0),
+                "revenue_7d":     s.get("revenue", 0),
+                "baseline_from":  from_date.isoformat(),
+                "baseline_to":    today.isoformat(),
+            }
+        except Exception:
+            return {}
+
+    if agent == "coupang_analyzer":
+        try:
+            from clients import coupang
+            orders = coupang.get_revenue_history_range(from_date, today)
+            count, revenue = _aggregate_coupang_for_product(orders, target_id)
+            return {
+                "sales_count_7d": count,
+                "revenue_7d":     revenue,
+                "baseline_from":  from_date.isoformat(),
+                "baseline_to":    today.isoformat(),
+            }
+        except Exception:
+            return {}
+
+    if agent == "ad_analyzer":
+        try:
+            from clients import naver_ad
+            start = from_date.strftime("%Y-%m-%d")
+            end   = today.strftime("%Y-%m-%d")
+
+            if action_type in ("입찰가_조정", "키워드_제외"):
+                keyword_id = target_id if target_id.startswith("nkw-") else None
+                if not keyword_id:
+                    return {}
+                raw = naver_ad.get_keyword_stats([keyword_id], start, end)
+                result = _sum_ad_stats(raw, keyword_id)
+                result["target_keyword_id"] = keyword_id
+            else:
+                # 캠페인 레벨: 예산_조정, 예산_증액, 캠페인_일시중지
+                raw = naver_ad.get_campaign_stats([target_id], start, end)
+                result = _sum_ad_stats(raw, target_id)
+                result["target_campaign_id"] = target_id
+
+            result["baseline_from"] = from_date.isoformat()
+            result["baseline_to"]   = today.isoformat()
+            return result
+        except Exception:
+            return {}
+
+    return {}
+
+
+def _aggregate_coupang_for_product(orders: list[dict], product_id: str) -> tuple[int, int]:
+    count, revenue = 0, 0
+    for order in orders:
+        sign = 1 if order.get("saleType", "SALE") == "SALE" else -1
+        for item in order.get("items", []):
+            if str(item.get("productId", "")) == product_id:
+                count   += sign * int(item.get("quantity", 0))
+                revenue += sign * int(item.get("saleAmount", 0))
+    return max(count, 0), max(revenue, 0)
+
+
+def _sum_ad_stats(raw: list[dict], entity_id: str) -> dict:
+    totals = {"clkCnt": 0, "impCnt": 0, "salesAmt": 0.0}
+    for row in raw:
+        if str(row.get("id", "")) == entity_id:
+            totals["clkCnt"]   += int(float(row.get("clkCnt", 0)))
+            totals["impCnt"]   += int(float(row.get("impCnt", 0)))
+            totals["salesAmt"] += float(row.get("salesAmt", 0))
+    imp, clk = totals["impCnt"], totals["clkCnt"]
+    return {
+        "clicks_7d":      clk,
+        "impressions_7d": imp,
+        "ctr_7d":         round(clk / imp, 4) if imp > 0 else 0.0,
+    }
 
 
 class RejectBody(BaseModel):
