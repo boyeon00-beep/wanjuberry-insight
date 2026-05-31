@@ -43,7 +43,7 @@ async def _collect_real(context: dict) -> dict:
         stats_list = client.get_campaign_stats(campaign_ids, start_date, end_date)
         for s in stats_list:
             cid = s["id"]
-            st  = s.get("stat", {})
+            st  = s.get("stat") or s
             if cid not in stats_by_id:
                 stats_by_id[cid] = {"impCnt": 0, "clkCnt": 0, "salesAmt": 0.0, "convAmt": 0.0}
             stats_by_id[cid]["impCnt"]   += int(float(st.get("impCnt", 0)))
@@ -84,7 +84,7 @@ async def _collect_real(context: dict) -> dict:
         kw_stats_by_id: dict[str, dict] = {}
         for s in kw_stats_list:
             kid = s["id"]
-            st  = s.get("stat", {})
+            st  = s.get("stat") or s
             if kid not in kw_stats_by_id:
                 kw_stats_by_id[kid] = {"impCnt": 0, "clkCnt": 0, "salesAmt": 0.0, "avgRnk": 0.0, "_cnt": 0}
             kw_stats_by_id[kid]["impCnt"]   += int(float(st.get("impCnt", 0)))
