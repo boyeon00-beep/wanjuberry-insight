@@ -67,11 +67,12 @@ def get_channel_products(page: int = 1, page_size: int = 100) -> list[dict]:
     products = []
     for item in contents:
         origin_no = str(item.get("originProductNo", ""))
+        group_no  = str(item.get("groupProductNo", "") or "")
         for cp in item.get("channelProducts", []):
             status = cp.get("statusType", "")
             if status not in _ACTIVE_DISPLAY_STATUSES:
                 continue
-            products.append({**cp, "originProductNo": origin_no})
+            products.append({**cp, "originProductNo": origin_no, "groupProductNo": group_no})
     return products
 
 

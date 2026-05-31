@@ -487,6 +487,7 @@ def _product_to_row(task_id: str, p: dict) -> dict:
         "options":            p.get("options", []),
         "collected_at":       p["collected_at"],
         "vendor_item_ids":    p.get("vendor_item_ids", []),
+        "group_product_no":   p.get("group_product_no", "") or "",
     }
 
 

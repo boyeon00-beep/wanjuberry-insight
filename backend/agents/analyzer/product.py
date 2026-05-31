@@ -43,6 +43,13 @@ execution_tier 고정 규칙 (반드시 아래 값만 사용, 임의 변경 금�
   · 냉동생과 상품에 "복분자즙", "복분자원액", "복분자엑기스"처럼 가공품 구매 의도가 강한 키워드는 보수적으로 제안한다
 - berry_type이 "미분류"이면 상품명을 참고하되, 혼동 위험이 있으면 제안을 보류한다
 
+그룹상품 제안 규칙:
+- product_id가 "GROUP-"으로 시작하면 그룹 전체를 대상으로 제안 1개만 생성 (variants 참고)
+- target_id: product_id 그대로 사용 (예: "GROUP-12345")
+- target_name: "상품명 [그룹 N종]" 형식 (예: "냉동복분자 [그룹 3종]")
+- execution_tier: 반드시 operator_manual (운영자가 판매자센터에서 그룹 전체 직접 적용)
+- reason에 반드시 "그룹상품 공통 적용" 명시
+
 하지 말아야 할 제안:
 - 상품 데이터에 없는 인증, 무농약, 유기농, HACCP 문구 제안 금지
 - 냉동생과 상품에 "생과 당일수확 배송"처럼 오해 가능한 문구 제안 금지
@@ -217,22 +224,63 @@ def _summarize_effect_history(history: list[dict]) -> list[dict]:
 
 
 def _summarize_products(products: list[dict]) -> list[dict]:
-    """Claude에 넘길 최소 필요 필드만 추출"""
-    return [
-        {
-            "product_id": p["product_id"],
-            "name": p["name"],
-            "berry_type": p.get("berry_type") or "미분류",
-            "price": p["price"],
-            "sales_count": p["sales_count"],
-            "review_count": p["review_count"],
-            "review_score": p["review_score"],
-            "category": p["category"],
-            "tags": p["tags"],
-            "stock": sum(opt["stock"] for opt in p.get("options", [])),
-            "product_type": p["domain"]["product_type"],
-            "weight_kg": p["domain"]["weight_kg"],
+    """Claude에 넘길 최소 필요 필드만 추출. 그룹상품은 groupProductNo 기준으로 묶어서 1개 엔트리로 반환"""
+    from collections import defaultdict
+
+    groups: dict[str, list] = defaultdict(list)
+    individuals: list[dict] = []
+
+    for p in products:
+        gpn = p.get("group_product_no", "") or ""
+        if gpn:
+            groups[gpn].append(p)
+        else:
+            individuals.append(p)
+
+    result = []
+
+    for gpn, members in groups.items():
+        rep = members[0]
+        prices = sorted({m["price"] for m in members})
+        price_str = (
+            f"{prices[0]:,.0f}원 ~ {prices[-1]:,.0f}원" if len(prices) > 1
+            else f"{prices[0]:,.0f}원"
+        )
+        result.append({
+            "product_id":        f"GROUP-{gpn}",
+            "is_group":          True,
+            "member_count":      len(members),
+            "variants":          [m["name"] for m in members],
+            "name":              rep["name"],
+            "berry_type":        rep.get("berry_type") or "미분류",
+            "price_range":       price_str,
+            "sales_count":       sum(m["sales_count"] for m in members),
+            "sales_revenue":     sum(m.get("sales_revenue", 0) for m in members),
+            "review_count":      rep["review_count"],
+            "review_score":      rep["review_score"],
+            "category":          rep["category"],
+            "tags":              rep.get("tags", []),
+            "stock":             sum(sum(opt["stock"] for opt in m.get("options", [])) for m in members),
+            "product_type":      rep["domain"]["product_type"],
+            "weight_kg":         rep["domain"]["weight_kg"],
+            "unit_price_per_kg": rep["domain"]["unit_price_per_kg"],
+        })
+
+    for p in individuals:
+        result.append({
+            "product_id":        p["product_id"],
+            "name":              p["name"],
+            "berry_type":        p.get("berry_type") or "미분류",
+            "price":             p["price"],
+            "sales_count":       p["sales_count"],
+            "review_count":      p["review_count"],
+            "review_score":      p["review_score"],
+            "category":          p["category"],
+            "tags":              p.get("tags", []),
+            "stock":             sum(opt["stock"] for opt in p.get("options", [])),
+            "product_type":      p["domain"]["product_type"],
+            "weight_kg":         p["domain"]["weight_kg"],
             "unit_price_per_kg": p["domain"]["unit_price_per_kg"],
-        }
-        for p in products
-    ]
+        })
+
+    return result

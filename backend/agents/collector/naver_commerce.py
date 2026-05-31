@@ -78,6 +78,7 @@ def _real_to_product_model(
             season_flag=season_flag,
         ),
         collected_at=collected_at,
+        group_product_no=str(raw.get("groupProductNo", "") or ""),
     )
 
 
