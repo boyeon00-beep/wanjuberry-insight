@@ -132,6 +132,15 @@ export default function Suggestions() {
 
         return (
           <>
+            {tab === 'coupang' && (
+              <div style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 13, color: '#5d4037', lineHeight: 1.7 }}>
+                <strong>⚠ 쿠팡 승인 순서 주의</strong><br />
+                <strong>상품명_수정 · 태그_추가 · 태그_수정</strong>은 같은 상품에 동시에 승인하면 앞의 변경이 취소될 수 있습니다.<br />
+                실행 로그에서 <strong>[수정 확인]</strong>으로 쿠팡 반영을 확인한 뒤 다음 제안을 승인하세요.<br />
+                <span style={{ color: '#7e7e7e' }}>가격_검토 · 재입고_제안은 별도 API라 동시 승인 무관합니다.</span>
+              </div>
+            )}
+
             {newItems.length > 0 && (
               <section>
                 <div className="section-header">새 제안</div>
