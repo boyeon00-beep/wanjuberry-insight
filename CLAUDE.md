@@ -117,6 +117,19 @@ Phase 6: 자동화 루프 고도화 (Learning Loop)   ← ✅ 완료 (2026-05-22
   executor 상품명 파싱 버그 수정 ✅ (proposed_value에서 "(32자)" 미제거 → 상품명에 그대로 들어가던 버그)
   verifier agent 버그 수정 ✅ (log.agent 항상 "executor" → suggestion.agent로 교체)
   데이터 초기화 SQL 준비 완료 (미실행 — 운영자가 타이밍 결정)
+Effect Tracker 재설계 (2026-05-31):
+  7일 격리 비교 ✅ (30일 슬라이딩 창 → 승인 직전 7일 vs 실행 후 7일 순수 비교)
+  광고 지표 교체 ✅ (monthly_total 외부 검색량 → clicks_7d 우리 실클릭)
+  naver_commerce.get_product_order_stats_range(from, to) ✅
+  coupang.get_revenue_history_range(from, to) ✅
+Brain 고도화 5종 (2026-05-31):
+  신뢰도 스코어 ✅ (상품 <5건·광고 <10클릭 → confidence=low → Brain 경고 주입)
+  복합 실행 감지 ✅ (같은 target 관찰 창 내 다른 실행 → compound_flag → Brain 경고 주입)
+  코호트 패턴 주입 ✅ (action_type별 positive율 집계, 3건↑ 누적 시 Brain 프롬프트에 자동 삽입)
+  관찰 기간 차등화 ✅ (광고/예산 3일, 키워드/카피 7일, 상품명/가격 14일)
+  ROAS 트래킹 ✅ (cost_7d = clkCnt×cpc, roas_7d = salesAmt/cost_7d — costAmt 직접 필드 없음, 역산)
+  store.get_logs_in_window / get_cohort_patterns 추가 ✅
+  DB 스키마 변경 없음 (result_metrics JSONB에 신규 필드 추가)
 ```
 
 ---
@@ -157,6 +170,29 @@ Phase 6: 자동화 루프 고도화 (Learning Loop)   ← ✅ 완료 (2026-05-22
 | AI 제안 → 운영자 승인 → AI 실행 | `ai_after_approval` | 예산_증액, 캠페인_일시중지, 가격_검토(쿠팡) |
 
 **Brain 프롬프트에 tier 고정 규칙 명시됨** — LLM이 임의로 바꾸지 않도록 `agents/analyzer/{product,ad,coupang}.py` SYSTEM에 하드코딩
+
+### Effect Tracker 알고리즘 (2026-05-31 재설계)
+
+**기준선 수집:** 승인 시점에 직전 7일 실데이터 수집 → `baseline_metrics`에 저장
+**성과 측정:** 실행일+1 ~ 실행일+obs_days 기간 API 재조회 → `result_metrics`에 저장
+
+**관찰 기간 (action_type별):**
+| action_type | obs_days | 이유 |
+|---|---|---|
+| 입찰가_조정 / 예산_조정 / 예산_증액 / 캠페인_일시중지 | 3일 | 광고는 빠른 피드백 |
+| 키워드_추가 / 키워드_제외 / 카피_수정 / 태그_추가·수정 / 재입고_제안 | 7일 | 중간 반응 속도 |
+| 상품명_수정 / 이미지_교체 / 가격_검토 | 14일 | SEO·검색 노출 반영 시간 |
+
+**판정 지표:**
+- 상품/쿠팡: `sales_count_7d` 비교 (기준 5건 미만 → confidence=low)
+- 광고: `clicks_7d` 비교 (기준 10클릭 미만 → confidence=low)
+- ROAS: `cost_7d = clkCnt×cpc`, `roas_7d = salesAmt/cost_7d` (광고만, costAmt 직접 필드 없음)
+
+**result_metrics 추가 필드:**
+- `confidence`: "low" | "high"
+- `compound_flag`: True (같은 target 관찰 창 내 다른 실행 있을 때)
+- `obs_days`: 실제 사용된 관찰 기간
+- `cost_7d` / `roas_7d`: 광고 액션만
 
 ### 시즌 플래그 원칙
 ```
