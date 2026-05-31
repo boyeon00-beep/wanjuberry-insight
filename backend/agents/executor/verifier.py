@@ -55,11 +55,11 @@ def _verify_naver_product(action_type: str, target_id: str, proposed_value: str)
     if action_type == "상품명_수정":
         current_name = body.get("name", "")
         expected = _parse_proposed_name(proposed_value)
-        return "matched" if current_name == expected else "not_matched"
+        return "matched" if _norm(current_name) == _norm(expected) else "not_matched"
 
     if action_type in ("태그_추가", "태그_수정"):
-        current_tags = {t.get("text", "") for t in (body.get("sellerTags") or [])}
-        expected_tags = {t.strip().strip("'\"") for t in proposed_value.split(",") if t.strip()}
+        current_tags = {_norm(t.get("text", "")) for t in (body.get("sellerTags") or [])}
+        expected_tags = {_norm(t) for t in proposed_value.replace("'", "").replace('"', "").split(",") if t.strip()}
         if action_type == "태그_추가":
             return "matched" if expected_tags.issubset(current_tags) else "not_matched"
         return "matched" if expected_tags == current_tags else "not_matched"
@@ -126,12 +126,12 @@ def _verify_coupang(action_type: str, target_id: str, proposed_value: str) -> st
     if action_type == "상품명_수정":
         current_name = product.get("sellerProductName", "")
         expected = _parse_proposed_name(proposed_value)
-        return "matched" if current_name == expected else "coupang_reviewing"
+        return "matched" if _norm(current_name) == _norm(expected) else "coupang_reviewing"
 
     if action_type in ("태그_추가", "태그_수정"):
         items = product.get("items", [])
-        current_tags = set((items[0].get("searchTags") or []) if items else [])
-        expected_tags = {t.strip() for t in proposed_value.replace("'", "").replace('"', "").split(",") if t.strip()}
+        current_tags = {_norm(t) for t in ((items[0].get("searchTags") or []) if items else [])}
+        expected_tags = {_norm(t) for t in proposed_value.replace("'", "").replace('"', "").split(",") if t.strip()}
         if action_type == "태그_추가":
             matched = expected_tags.issubset(current_tags)
         else:
@@ -152,6 +152,11 @@ def _verify_coupang(action_type: str, target_id: str, proposed_value: str) -> st
 
 
 # ── 헬퍼 ──────────────────────────────────────────────────────────────────
+
+def _norm(s: str) -> str:
+    """비교 전 공백 정규화 — 연속 공백 → 단일 공백, 앞뒤 trim"""
+    return re.sub(r'\s+', ' ', s.strip())
+
 
 def _parse_proposed_name(proposed_value: str) -> str:
     """'상품명' (32자) 형태에서 순수 상품명만 추출"""
