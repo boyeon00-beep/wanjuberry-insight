@@ -42,7 +42,7 @@ class Suggestion(BaseModel):
     action_type: ActionType
     current_value: str
     proposed_value: str
-    reason: str
+    reason: str = ""
     priority: Literal["high", "medium", "low"]
     execution_tier: ExecutionTier
     status: SuggestionStatus = "pending"
