@@ -159,17 +159,22 @@ def _aggregate_coupang_for_product(orders: list[dict], product_id: str) -> tuple
 
 
 def _sum_ad_stats(raw: list[dict], entity_id: str) -> dict:
-    totals = {"clkCnt": 0, "impCnt": 0, "salesAmt": 0.0}
+    clk_total = imp_total = cost_total = 0
+    sales_total = 0.0
     for row in raw:
         if str(row.get("id", "")) == entity_id:
-            totals["clkCnt"]   += int(float(row.get("clkCnt", 0)))
-            totals["impCnt"]   += int(float(row.get("impCnt", 0)))
-            totals["salesAmt"] += float(row.get("salesAmt", 0))
-    imp, clk = totals["impCnt"], totals["clkCnt"]
+            clk  = int(float(row.get("clkCnt", 0)))
+            cpc  = float(row.get("cpc", 0))
+            clk_total   += clk
+            imp_total   += int(float(row.get("impCnt", 0)))
+            sales_total += float(row.get("salesAmt", 0))
+            cost_total  += int(clk * cpc)  # 일별 clicks × avg_cpc = 일별 광고비
     return {
-        "clicks_7d":      clk,
-        "impressions_7d": imp,
-        "ctr_7d":         round(clk / imp, 4) if imp > 0 else 0.0,
+        "clicks_7d":      clk_total,
+        "impressions_7d": imp_total,
+        "ctr_7d":         round(clk_total / imp_total, 4) if imp_total > 0 else 0.0,
+        "cost_7d":        cost_total,
+        "roas_7d":        round(sales_total / cost_total, 2) if cost_total > 0 else None,
     }
 
 

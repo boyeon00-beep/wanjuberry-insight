@@ -149,6 +149,63 @@ def get_action_log(log_id: str) -> dict | None:
     return res.data
 
 
+def get_logs_in_window(target_id: str, from_date, to_date, exclude_log_id: str = "") -> list[dict]:
+    """같은 target_id에 대해 해당 날짜 창에 실행된 다른 성공 로그 — 복합 실행 감지용."""
+    from datetime import timedelta
+    res = (
+        get_client()
+        .table("action_logs")
+        .select("log_id, action_type")
+        .eq("target_id", target_id)
+        .eq("status", "success")
+        .gte("executed_at", from_date.isoformat())
+        .lte("executed_at", (to_date + timedelta(days=1)).isoformat())
+        .execute()
+    )
+    return [r for r in res.data if r["log_id"] != exclude_log_id]
+
+
+def get_cohort_patterns() -> list[dict]:
+    """action_type × agent × effect_verdict 집계 — Brain 프롬프트 주입용.
+
+    데이터가 충분히 쌓이기 전에는 빈 리스트 반환.
+    """
+    res = (
+        get_client()
+        .table("action_logs")
+        .select("action_type, agent, effect_verdict")
+        .eq("status", "success")
+        .not_.is_("effect_verdict", "null")
+        .neq("effect_verdict", "pending")
+        .neq("effect_verdict", "unmeasurable")
+        .execute()
+    )
+    if not res.data:
+        return []
+
+    from collections import defaultdict
+    buckets: dict = defaultdict(lambda: defaultdict(int))
+    for row in res.data:
+        key = f"{row['action_type']}|{row['agent']}"
+        buckets[key][row["effect_verdict"]] += 1
+
+    patterns = []
+    for key, verdicts in buckets.items():
+        action_type, agent = key.split("|", 1)
+        total    = sum(verdicts.values())
+        positive = verdicts.get("positive", 0)
+        patterns.append({
+            "action_type":      action_type,
+            "agent":            agent,
+            "total":            total,
+            "positive":         positive,
+            "neutral":          verdicts.get("neutral", 0),
+            "negative":         verdicts.get("negative", 0),
+            "positive_rate_pct": round(positive / total * 100) if total else 0,
+        })
+    return sorted(patterns, key=lambda x: x["total"], reverse=True)
+
+
 def update_action_log_verify(log_id: str, verify_status: str) -> None:
     from datetime import datetime, timezone
     get_client().table("action_logs").update({

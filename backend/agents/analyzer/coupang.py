@@ -113,6 +113,18 @@ def _constraints_block(constraints: list[dict]) -> str:
     return f"[운영자 확인 팩트 — 절대 위반 금지]\n{lines}\n\n"
 
 
+def _cohort_block(patterns: list[dict], agent: str) -> str:
+    relevant = [p for p in patterns if p.get("agent") == agent and p.get("total", 0) >= 3]
+    if not relevant:
+        return ""
+    lines = "\n".join(
+        f"- {p['action_type']}: 총 {p['total']}회 → positive {p['positive']}, "
+        f"neutral {p['neutral']}, negative {p['negative']} (성공률 {p['positive_rate_pct']}%)"
+        for p in relevant
+    )
+    return f"[과거 실적 패턴 — 성공률 높은 제안 우선, 낮은 제안은 보수적으로]\n{lines}\n\n"
+
+
 async def analyze(context: dict) -> dict:
     products = context.get("coupang_products", [])
     if not products:
@@ -126,6 +138,7 @@ async def analyze(context: dict) -> dict:
     coupang_strategy_mode = context.get("coupang_strategy_mode", "READY_CHECK")
     effect_history        = context.get("coupang_effect_history", [])
     wing_data             = context.get("coupang_ad_summary", [])
+    cohort_patterns       = context.get("cohort_patterns", [])
 
     products_summary   = _summarize_products(products)
     rejection_summary  = _summarize_rejections(rejection_history)
@@ -135,6 +148,7 @@ async def analyze(context: dict) -> dict:
     user_msg = (
         _profile_block(context.get("farm_profile", ""))
         + _constraints_block(context.get("farm_constraints", []))
+        + _cohort_block(cohort_patterns, "coupang_analyzer")
         + _USER_TEMPLATE.format(
             season_flag=season_flag,
             season_note=season_note,
@@ -231,11 +245,17 @@ def _summarize_wing_data(wing_data: list[dict]) -> list[dict]:
 def _summarize_effect_history(history: list[dict]) -> list[dict]:
     if not history:
         return []
-    return [
-        {
+    result = []
+    for h in history:
+        entry: dict = {
             "action_type":    h.get("action_type", ""),
             "target_name":    h.get("target_name", ""),
             "effect_verdict": h.get("effect_verdict", ""),
         }
-        for h in history
-    ]
+        rm = h.get("result_metrics") or {}
+        if rm.get("confidence") == "low":
+            entry["note"] = "소량데이터_낮은신뢰도"
+        if rm.get("compound_flag"):
+            entry["note"] = entry.get("note", "") + " 복합실행"
+        result.append(entry)
+    return result

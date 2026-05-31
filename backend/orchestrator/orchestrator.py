@@ -123,6 +123,7 @@ class Orchestrator:
         context["ad_effect_history"]      = store.get_effect_history(agent="ad_analyzer",      limit=8)
         context["product_effect_history"] = store.get_effect_history(agent="product_analyzer", limit=8)
         context["coupang_effect_history"] = store.get_effect_history(agent="coupang_analyzer", limit=8)
+        context["cohort_patterns"]        = store.get_cohort_patterns()
 
         # 운영자 지정 베리 분류 주입 — AI가 이름으로 추론하지 않도록 명시적 주입
         label_map = store.get_product_label_map()
@@ -178,10 +179,12 @@ class Orchestrator:
         }
 
     async def _measure_effects(self, context: dict) -> dict:
-        logs = store.get_approved_logs_pending_measurement(min_days=7)
+        # 가장 짧은 관찰 기간(3일)이 지난 로그를 모두 가져온 뒤 action_type별 기간으로 재필터
+        logs = store.get_approved_logs_pending_measurement(min_days=3)
         if not logs:
             return {"measured": 0}
 
+        today   = date.today()
         measured = 0
         for log in logs:
             agent       = log["agent"]
@@ -189,10 +192,14 @@ class Orchestrator:
             action_type = log.get("action_type", "")
             baseline    = log.get("baseline_metrics") or {}
 
-            # 실행 후 7일 윈도우 (executed_at+1 ~ executed_at+7)
-            executed_date = log["executed_at"][:10]
-            from_date = date.fromisoformat(executed_date) + timedelta(days=1)
-            to_date   = date.fromisoformat(executed_date) + timedelta(days=7)
+            # action_type별 관찰 기간 — 광고/예산은 3일, SEO성 변경은 14일
+            obs_days = _OBSERVATION_DAYS.get(action_type, _DEFAULT_OBSERVATION_DAYS)
+            exec_date = date.fromisoformat(log["executed_at"][:10])
+            if (today - exec_date).days < obs_days:
+                continue  # 아직 관찰 기간 미달
+
+            from_date = exec_date + timedelta(days=1)
+            to_date   = exec_date + timedelta(days=obs_days)
 
             result: dict = {}
             try:
@@ -229,7 +236,14 @@ class Orchestrator:
             except Exception:
                 result = {}
 
-            verdict = _calculate_verdict(baseline, result, agent)
+            verdict, confidence = _calculate_verdict(baseline, result, agent)
+
+            # 복합 실행 감지: 같은 target에 같은 관찰 창에 다른 성공 실행이 있으면 compound 플래그
+            overlapping = store.get_logs_in_window(target_id, from_date, to_date, exclude_log_id=log["log_id"])
+            result["confidence"]    = confidence
+            result["compound_flag"] = len(overlapping) > 0
+            result["obs_days"]      = obs_days
+
             store.update_action_log_effect(log["log_id"], verdict, result)
             measured += 1
 
@@ -237,6 +251,25 @@ class Orchestrator:
 
     def get_runs(self) -> list[dict]:
         return store.get_runs()
+
+
+# action_type별 관찰 기간 (일) — 광고/예산은 빠른 피드백, SEO성 변경은 느린 피드백
+_OBSERVATION_DAYS: dict[str, int] = {
+    "입찰가_조정":    3,
+    "예산_조정":      3,
+    "예산_증액":      3,
+    "캠페인_일시중지": 3,
+    "키워드_추가":    7,
+    "키워드_제외":    7,
+    "카피_수정":      7,
+    "태그_추가":      7,
+    "태그_수정":      7,
+    "상품명_수정":    14,
+    "이미지_교체":    14,
+    "가격_검토":      14,
+    "재입고_제안":    7,
+}
+_DEFAULT_OBSERVATION_DAYS = 7
 
 
 def _get_strategy_mode(season_flag: str) -> str:
@@ -270,29 +303,34 @@ def _get_coupang_strategy_mode(coupang_products: list[dict], wing_data: list[dic
     return base
 
 
-def _calculate_verdict(baseline: dict, result: dict, agent: str) -> str:
-    """7일 전/후 지표를 비교해 판정. 같은 7일 창끼리 비교하므로 희석 없음."""
+def _calculate_verdict(baseline: dict, result: dict, agent: str) -> tuple[str, str]:
+    """7일 전/후 지표 비교. (verdict, confidence) 반환.
+
+    confidence: 'low' = 샘플 부족 (상품 <5건, 광고 <10클릭), 'high' = 충분
+    """
     if not baseline or not result:
-        return "unmeasurable"
+        return "unmeasurable", "n/a"
 
     if agent in ("product_analyzer", "coupang_analyzer"):
         b = baseline.get("sales_count_7d")
         r = result.get("sales_count_7d")
+        confidence = "low" if (b is not None and b < 5) else "high"
     elif agent == "ad_analyzer":
         b = baseline.get("clicks_7d")
         r = result.get("clicks_7d")
+        confidence = "low" if (b is not None and b < 10) else "high"
     else:
-        return "unmeasurable"
+        return "unmeasurable", "n/a"
 
     if b is None or r is None or b == 0:
-        return "unmeasurable"
+        return "unmeasurable", "n/a"
 
     change = (r - b) / b
     if change > 0.05:
-        return "positive"
+        return "positive", confidence
     if change < -0.05:
-        return "negative"
-    return "neutral"
+        return "negative", confidence
+    return "neutral", confidence
 
 
 def _aggregate_coupang_for_product(orders: list[dict], product_id: str) -> tuple[int, int]:
@@ -307,17 +345,22 @@ def _aggregate_coupang_for_product(orders: list[dict], product_id: str) -> tuple
 
 
 def _sum_ad_stats(raw: list[dict], entity_id: str) -> dict:
-    totals = {"clkCnt": 0, "impCnt": 0, "salesAmt": 0.0}
+    clk_total = imp_total = cost_total = 0
+    sales_total = 0.0
     for row in raw:
         if str(row.get("id", "")) == entity_id:
-            totals["clkCnt"]   += int(float(row.get("clkCnt", 0)))
-            totals["impCnt"]   += int(float(row.get("impCnt", 0)))
-            totals["salesAmt"] += float(row.get("salesAmt", 0))
-    imp, clk = totals["impCnt"], totals["clkCnt"]
+            clk  = int(float(row.get("clkCnt", 0)))
+            cpc  = float(row.get("cpc", 0))
+            clk_total   += clk
+            imp_total   += int(float(row.get("impCnt", 0)))
+            sales_total += float(row.get("salesAmt", 0))
+            cost_total  += int(clk * cpc)  # 일별 clicks × avg_cpc = 일별 광고비
     return {
-        "clicks_7d":      clk,
-        "impressions_7d": imp,
-        "ctr_7d":         round(clk / imp, 4) if imp > 0 else 0.0,
+        "clicks_7d":      clk_total,
+        "impressions_7d": imp_total,
+        "ctr_7d":         round(clk_total / imp_total, 4) if imp_total > 0 else 0.0,
+        "cost_7d":        cost_total,
+        "roas_7d":        round(sales_total / cost_total, 2) if cost_total > 0 else None,
     }
 
 

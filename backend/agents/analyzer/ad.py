@@ -108,6 +108,18 @@ def _constraints_block(constraints: list[dict]) -> str:
     return f"[운영자 확인 팩트 — 절대 위반 금지]\n{lines}\n\n"
 
 
+def _cohort_block(patterns: list[dict], agent: str) -> str:
+    relevant = [p for p in patterns if p.get("agent") == agent and p.get("total", 0) >= 3]
+    if not relevant:
+        return ""
+    lines = "\n".join(
+        f"- {p['action_type']}: 총 {p['total']}회 → positive {p['positive']}, "
+        f"neutral {p['neutral']}, negative {p['negative']} (성공률 {p['positive_rate_pct']}%)"
+        for p in relevant
+    )
+    return f"[과거 실적 패턴 — 성공률 높은 제안 우선, 낮은 제안은 보수적으로]\n{lines}\n\n"
+
+
 async def analyze(context: dict) -> dict:
     campaigns = context.get("collected_campaigns", [])
     if not campaigns:
@@ -122,6 +134,7 @@ async def analyze(context: dict) -> dict:
 
     ad_strategy_mode  = context.get("ad_strategy_mode", "PREPARE")
     effect_history    = context.get("ad_effect_history", [])
+    cohort_patterns   = context.get("cohort_patterns", [])
 
     campaigns_summary    = _summarize_campaigns(campaigns)
     ad_copies_summary    = _summarize_ad_copies(ad_copies)
@@ -132,6 +145,7 @@ async def analyze(context: dict) -> dict:
     user_msg = (
         _profile_block(context.get("farm_profile", ""))
         + _constraints_block(context.get("farm_constraints", []))
+        + _cohort_block(cohort_patterns, "ad_analyzer")
         + _USER_TEMPLATE.format(
             season_flag=season_flag,
             season_note=season_note,
@@ -276,13 +290,21 @@ def _summarize_rejections(history: list[dict]) -> list[dict]:
 def _summarize_effect_history(history: list[dict]) -> list[dict]:
     if not history:
         return []
-    return [
-        {
-            "action_type":    h.get("action_type", ""),
-            "target_name":    h.get("target_name", ""),
-            "effect_verdict": h.get("effect_verdict", ""),
+    result = []
+    for h in history:
+        entry: dict = {
+            "action_type":      h.get("action_type", ""),
+            "target_name":      h.get("target_name", ""),
+            "effect_verdict":   h.get("effect_verdict", ""),
             "ad_strategy_mode": h.get("ad_strategy_mode", ""),
-            "executed_at":    h.get("executed_at", ""),
+            "executed_at":      h.get("executed_at", ""),
         }
-        for h in history
-    ]
+        rm = h.get("result_metrics") or {}
+        if rm.get("confidence") == "low":
+            entry["note"] = "소량데이터_낮은신뢰도"
+        if rm.get("compound_flag"):
+            entry["note"] = entry.get("note", "") + " 복합실행"
+        if rm.get("roas_7d") is not None:
+            entry["roas_7d"] = rm["roas_7d"]
+        result.append(entry)
+    return result
