@@ -171,6 +171,14 @@ def _execute_ad_copy(suggestion, baseline_metrics, ad_strategy_mode):
     if not new_headline:
         return _make_log(suggestion, "failed", f"카피 파싱 실패: {suggestion.proposed_value}", baseline_metrics, ad_strategy_mode)
 
+    # 글자수 검증 — 네이버 파워링크 제한
+    if len(new_headline) > 15:
+        return _make_log(suggestion, "failed", f"headline 15자 초과 ({len(new_headline)}자): '{new_headline}'", baseline_metrics, ad_strategy_mode)
+    if new_desc1 and len(new_desc1) > 45:
+        return _make_log(suggestion, "failed", f"description1 45자 초과 ({len(new_desc1)}자): '{new_desc1}'", baseline_metrics, ad_strategy_mode)
+    if new_desc2 and len(new_desc2) > 45:
+        return _make_log(suggestion, "failed", f"description2 45자 초과 ({len(new_desc2)}자): '{new_desc2}'", baseline_metrics, ad_strategy_mode)
+
     # adAttr만 변경 — 전체 ad 오브젝트 대신 최소 필드 전달
     ad_attr = dict(ad_obj.get("adAttr") or {})
     if new_headline:
