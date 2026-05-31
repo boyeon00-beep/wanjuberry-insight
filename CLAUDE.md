@@ -144,19 +144,15 @@ Wing 리포트 형식 확정 (2026-05-31):
   테스트 데이터 전체 삭제 ✅ (action_logs / suggestions / collected_products / collected_ads /
     keyword_volume / analysis_runs / coupang_ad_reports)
   유지 테이블: farm_profile / constraints / product_labels
-Effect Tracker 재설계 (2026-05-31):
-  7일 격리 비교 ✅ (30일 슬라이딩 창 → 승인 직전 7일 vs 실행 후 7일 순수 비교)
-  광고 지표 교체 ✅ (monthly_total 외부 검색량 → clicks_7d 우리 실클릭)
-  naver_commerce.get_product_order_stats_range(from, to) ✅
-  coupang.get_revenue_history_range(from, to) ✅
-Brain 고도화 5종 (2026-05-31):
-  신뢰도 스코어 ✅ (상품 <5건·광고 <10클릭 → confidence=low → Brain 경고 주입)
-  복합 실행 감지 ✅ (같은 target 관찰 창 내 다른 실행 → compound_flag → Brain 경고 주입)
-  코호트 패턴 주입 ✅ (action_type별 positive율 집계, 3건↑ 누적 시 Brain 프롬프트에 자동 삽입)
-  관찰 기간 차등화 ✅ (광고/예산 3일, 키워드/카피 7일, 상품명/가격 14일)
-  ROAS 트래킹 ✅ (cost_7d = clkCnt×cpc, roas_7d = salesAmt/cost_7d — costAmt 직접 필드 없음, 역산)
-  store.get_logs_in_window / get_cohort_patterns 추가 ✅
-  DB 스키마 변경 없음 (result_metrics JSONB에 신규 필드 추가)
+버그 수정 및 개선 (2026-05-31 후속):
+  Suggestion.reason 필수 → 기본값 빈문자열 ✅ (Claude 응답 누락 시 파싱 실패 방지)
+  블랙베리 상품 키워드 전략 수정 ✅ (블랙베리 중심 → 복분자 주력·블랙베리 보조)
+  상품명 수정 규칙 추가 ✅ (대괄호 접두어 금지, 동일 키워드 중복 금지)
+  제안 최대 개수 5개 → 10개 ✅ (product/ad/coupang 전체)
+  analyzer max_tokens 4000 → 8000 ✅ (제안 10개 + 상세 reason 토큰 초과 방지)
+  Wing 업로드 섹션 상품명 표시 제거 ✅ (기간만 표시)
+  네이버 광고 stats 파싱 버그 수정 ✅ (s.get("stat", {}) → s.get("stat") or s —
+    필드가 stat 하위가 아닌 최상위에 직접 위치하여 노출/클릭 항상 0으로 집계되던 버그)
 ```
 
 ---
