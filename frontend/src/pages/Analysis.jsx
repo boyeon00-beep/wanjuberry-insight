@@ -42,7 +42,7 @@ function WingUploadSection() {
           <div className="card-title" style={{ marginBottom: 4 }}>쿠팡 Wing 광고 보고서</div>
           <p className="text-muted" style={{ fontSize: 13, margin: 0 }}>
             {summary
-              ? <>최근 업로드: <strong>{summary.report_from} ~ {summary.report_to}</strong> · {summary.product_name ?? ''}</>
+              ? <>최근 업로드: <strong>{summary.report_from} ~ {summary.report_to}</strong></>
               : '업로드된 보고서 없음 — 쿠팡 분석 시 광고 데이터가 반영되지 않습니다.'}
           </p>
         </div>
