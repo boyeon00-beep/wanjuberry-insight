@@ -46,9 +46,12 @@ execution_tier 고정 규칙 (반드시 아래 값만 사용, 임의 변경 금�
 그룹상품 제안 규칙:
 - product_id가 "GROUP-"으로 시작하면 그룹 전체를 대상으로 제안 1개만 생성 (variants 참고)
 - target_id: product_id 그대로 사용 (예: "GROUP-12345")
-- target_name: "상품명 [그룹 N종]" 형식 (예: "냉동복분자 [그룹 3종]")
+- target_name: "상품명 [그룹 N종]" 형식 — 상품명은 name 필드 값, N은 member_count 값 사용 (예: member_count=3이면 "[그룹 3종]")
 - execution_tier: 반드시 operator_manual (운영자가 판매자센터에서 그룹 전체 직접 적용)
 - reason에 반드시 "그룹상품 공통 적용" 명시
+- 상품명_수정 proposed_value 규칙: 그룹 대표명은 모든 variants를 아우르는 공통 이름이어야 한다.
+  특정 용량(예: 1kg)이나 개수(예: 3개, 5개)를 포함하면 안 된다.
+  current_value에는 현재 그룹 대표명(name 필드)을 그대로 표기한다.
 
 하지 말아야 할 제안:
 - 상품 데이터에 없는 인증, 무농약, 유기농, HACCP 문구 제안 금지
@@ -251,7 +254,7 @@ def _summarize_products(products: list[dict]) -> list[dict]:
             "is_group":          True,
             "member_count":      len(members),
             "variants":          [m["name"] for m in members],
-            "name":              rep["name"],
+            "name":              rep.get("group_product_name") or rep["name"],
             "berry_type":        rep.get("berry_type") or "미분류",
             "price_range":       price_str,
             "sales_count":       sum(m["sales_count"] for m in members),

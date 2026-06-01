@@ -27,8 +27,17 @@ async def _collect_real(context: dict) -> dict:
     raw_products = client.get_channel_products(page=1, page_size=100)
     order_stats  = client.get_product_order_stats(days=30)  # 최근 30일 주문 집계
 
+    # 그룹상품 대표명 사전 수집 (groupProductNo별 1회 API 호출)
+    unique_groups = {str(p.get("groupProductNo", "") or "") for p in raw_products}
+    unique_groups.discard("")
+    group_name_map: dict[str, str] = {}
+    for gpn in unique_groups:
+        name = client.get_group_product_name(gpn)
+        if name:
+            group_name_map[gpn] = name
+
     products = [
-        _real_to_product_model(p, season_flag, collected_at, order_stats)
+        _real_to_product_model(p, season_flag, collected_at, order_stats, group_name_map)
         for p in raw_products
     ]
 
@@ -45,6 +54,7 @@ def _real_to_product_model(
     season_flag: str,
     collected_at: str,
     order_stats: dict[str, dict] | None = None,
+    group_name_map: dict[str, str] | None = None,
 ) -> ProductModel:
     name       = raw.get("name", "")
     sale_price = float(raw.get("discountedPrice") or raw.get("salePrice", 0))
@@ -79,6 +89,7 @@ def _real_to_product_model(
         ),
         collected_at=collected_at,
         group_product_no=str(raw.get("groupProductNo", "") or ""),
+        group_product_name=(group_name_map or {}).get(str(raw.get("groupProductNo", "") or ""), ""),
     )
 
 

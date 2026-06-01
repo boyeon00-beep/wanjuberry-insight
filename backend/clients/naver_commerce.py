@@ -141,6 +141,20 @@ def _fetch_day_orders(from_dt: str, to_dt: str, stats: dict) -> None:
         page += 1
 
 
+def get_group_product_name(group_product_no: str) -> str:
+    """그룹상품 대표명 조회 — GET /v2/standard-group-products/{no}. 실패 시 빈 문자열 반환."""
+    try:
+        res = httpx.get(
+            f"{_BASE}/external/v2/standard-group-products/{group_product_no}",
+            headers=_auth_headers(),
+            timeout=10,
+        )
+        res.raise_for_status()
+        return res.json().get("groupProductName", "")
+    except Exception:
+        return ""
+
+
 def get_channel_product_detail(channel_product_no: str) -> dict:
     """채널 상품 상세 조회 (GET /v2/products/channel-products/{no})"""
     res = httpx.get(

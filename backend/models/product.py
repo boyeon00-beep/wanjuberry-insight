@@ -31,3 +31,4 @@ class ProductModel(BaseModel):
     collected_at: str
     vendor_item_ids: list[str] = []  # Wing 보고서 매칭용 vendorItemId 목록
     group_product_no: str = ""       # 그룹상품 번호 (없으면 빈 문자열)
+    group_product_name: str = ""     # 그룹상품 대표명 (수집 시 API 조회, DB 미저장)
