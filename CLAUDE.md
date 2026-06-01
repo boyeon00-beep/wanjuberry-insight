@@ -162,13 +162,18 @@ Brain 프롬프트 품질 고도화 (2026-05-31 세션):
   키워드 의도 유형 reason 명시 ✅ (키워드_추가·제외 제안 시 의도 유형 필수 표기)
 그룹상품 통합 분석 지원 (2026-05-31 세션):
   수집: clients/naver_commerce.py — groupProductNo 추출 및 전달 ✅
-  모델: models/product.py — group_product_no 필드 추가 ✅
+  모델: models/product.py — group_product_no / group_product_name 필드 추가 ✅
   수집기: agents/collector/naver_commerce.py — group_product_no 저장 ✅
   DB: migration 014 — collected_products.group_product_no 컬럼 ✅ (Supabase 실행 완료)
   Brain: _summarize_products() — 그룹 묶어서 GROUP-{no} 1개 엔트리 반환 ✅
   Brain: SYSTEM 프롬프트 — 그룹 제안 = operator_manual + 제안 1개 ✅
-  → 다음 확인: 분석 실행 후 제안함에서 "[그룹 N종]" 표기 여부 확인 필요
-    (Naver API가 groupProductNo를 실제 응답에 포함하는지 첫 실행으로 검증)
+버그 수정 및 개선 (2026-06-01):
+  그룹상품 대표명 API 필드명 수정 ✅ (groupProductName → groupProduct.name — GET /v2/standard-group-products/{no} 응답 구조)
+  그룹상품 target_name N종 동적 참조 ✅ (member_count 필드 기준, 하드코딩 제거)
+  제안함 정렬 변경 ✅ (priority별 → 상품별 그룹핑 — 같은 상품 제안을 한 블록에 묶어 표시)
+  kg당 단가 계산 오류 수정 ✅ ("1kg, 3개" → 총 3kg 계산 — naver_commerce + coupang 수집기 둘 다)
+  냉동생과 제약 텍스트 업데이트 ✅ (급냉 생과도 인정, 급냉→냉동 교체 금지 명시 — Supabase 직접 수정)
+  데이터 초기화 2차 실행 ✅ (coupang_ad_reports 제외, 나머지 6개 테이블 초기화)
 ```
 
 ---
