@@ -106,15 +106,22 @@ def _infer_product_type(name: str) -> str:
 
 def _infer_weight_kg(name: str, options: list) -> float:
     import re
-    # 옵션명 또는 상품명에서 "1kg", "500g" 등 추출
     targets = [name] + [o.name for o in options]
     for text in targets:
         m = re.search(r"(\d+(?:\.\d+)?)\s*kg", text, re.IGNORECASE)
         if m:
-            return float(m.group(1))
-        m = re.search(r"(\d+)\s*g(?!\w)", text, re.IGNORECASE)
-        if m:
-            return float(m.group(1)) / 1000
+            unit_kg = float(m.group(1))
+        else:
+            m = re.search(r"(\d+)\s*g(?!\w)", text, re.IGNORECASE)
+            if m:
+                unit_kg = float(m.group(1)) / 1000
+            else:
+                continue
+        # 세트 구성 개수 감지 — 예: "1kg, 3개" → 총 3kg
+        m_count = re.search(r"[,×x\s]\s*(\d+)\s*개", text)
+        if m_count:
+            unit_kg *= int(m_count.group(1))
+        return unit_kg
     return 1.0  # 기본값
 
 

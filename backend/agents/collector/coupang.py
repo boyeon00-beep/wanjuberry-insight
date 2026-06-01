@@ -149,11 +149,18 @@ def _infer_product_type(name: str) -> str:
 def _infer_weight_kg(name: str) -> float:
     m = re.search(r"(\d+(?:\.\d+)?)\s*kg", name, re.IGNORECASE)
     if m:
-        return float(m.group(1))
-    m = re.search(r"(\d+)\s*g(?!\w)", name, re.IGNORECASE)
-    if m:
-        return float(m.group(1)) / 1000
-    return 1.0
+        unit_kg = float(m.group(1))
+    else:
+        m = re.search(r"(\d+)\s*g(?!\w)", name, re.IGNORECASE)
+        if m:
+            unit_kg = float(m.group(1)) / 1000
+        else:
+            return 1.0
+    # 세트 구성 개수 감지 — 예: "1kg, 3개" → 총 3kg
+    m_count = re.search(r"[,×x\s]\s*(\d+)\s*개", name)
+    if m_count:
+        unit_kg *= int(m_count.group(1))
+    return unit_kg
 
 
 # --- Empty fallback (키 미설정 시) ---
