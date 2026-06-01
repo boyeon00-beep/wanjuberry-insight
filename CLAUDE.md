@@ -174,6 +174,15 @@ Brain 프롬프트 품질 고도화 (2026-05-31 세션):
   kg당 단가 계산 오류 수정 ✅ ("1kg, 3개" → 총 3kg 계산 — naver_commerce + coupang 수집기 둘 다)
   냉동생과 제약 텍스트 업데이트 ✅ (급냉 생과도 인정, 급냉→냉동 교체 금지 명시 — Supabase 직접 수정)
   데이터 초기화 2차 실행 ✅ (coupang_ad_reports 제외, 나머지 6개 테이블 초기화)
+버그 수정 및 개선 (2026-06-02):
+  태그 제약 Supabase 등록 ✅ ('복분자'·'블랙베리' 단독 태그 등록 불가 — 카테고리명 거부됨, 복합 태그는 허용)
+  AI 자동 실행 토글 추가 ✅ (AI_EXECUTION_ENABLED env var — false 시 ai_auto도 운영자 직접 완료로 처리)
+    Railway 환경변수: AI_EXECUTION_ENABLED=false (현재 비활성화 상태)
+    나중에 true로 변경 시 기존 executor 코드 그대로 AI 자동 실행으로 복귀
+  SuggestionCard aiExecutionEnabled prop 누락 수정 ✅ (빈 화면 버그)
+  Settings.jsx useRef import 누락 수정 ✅ (설정 페이지 빈 화면 버그)
+  그룹상품 execution_tier 코드 강제 고정 ✅ (GROUP- prefix → 코드에서 operator_manual 덮어씀 — Brain 미준수 방어)
+  데이터 초기화 3차 예정 (내일 — 현재 테스트 제안 남아 있음)
 ```
 
 ---
