@@ -14,6 +14,10 @@ from routers import coupang_ads
 
 app = FastAPI(title="완주베리 AI 운영 인사이트")
 
+# AI 자동 실행 토글 — false 시 ai_auto 제안도 운영자 직접 완료로 처리
+# 나중에 AI 실행을 다시 켜려면 Railway 환경변수 AI_EXECUTION_ENABLED=true 로 변경
+AI_EXECUTION_ENABLED = os.environ.get("AI_EXECUTION_ENABLED", "true").lower() == "true"
+
 _cors_origins = os.getenv("CORS_ORIGIN", "*")
 cors_origins = [o.strip() for o in _cors_origins.split(",")]
 
@@ -47,6 +51,11 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/config")
+def get_config():
+    return {"ai_execution_enabled": AI_EXECUTION_ENABLED}
+
+
 # --- 분석 실행 ---
 
 @app.post("/analysis/run")
@@ -78,6 +87,26 @@ async def approve_suggestion(suggestion_id: str):
     store.update_suggestion_status(suggestion_id, "approved")
     suggestion = Suggestion(**row)
     baseline = _fetch_baseline(row["agent"], row["action_type"], row["target_id"], row["target_name"])
+
+    # AI 자동 실행 비활성화 시: ai_auto 제안도 운영자 직접 완료로 기록
+    if not AI_EXECUTION_ENABLED and suggestion.execution_tier == "ai_auto":
+        from models.action_log import ActionLog
+        log = ActionLog(
+            suggestion_id=suggestion_id,
+            task_id=suggestion.task_id,
+            agent=suggestion.agent,
+            action_type=suggestion.action_type,
+            target_id=suggestion.target_id,
+            target_name=suggestion.target_name,
+            execution_tier=suggestion.execution_tier,
+            status="completed",
+            detail="운영자 직접 완료 (AI 자동 실행 비활성화)",
+            baseline_metrics=baseline or None,
+        )
+        store.add_action_log(log)
+        return {"suggestion": row, "action_log": log.model_dump()}
+
+    # AI 자동 실행 (AI_EXECUTION_ENABLED=true 일 때)
     from domain.seasonality import get_season_context
     from orchestrator.orchestrator import _get_strategy_mode
     ad_strategy_mode = _get_strategy_mode(get_season_context()["season_flag"])

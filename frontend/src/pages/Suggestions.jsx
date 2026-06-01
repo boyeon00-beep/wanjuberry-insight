@@ -52,10 +52,11 @@ const REJECTION_TAGS = [
 const STATUS_LABEL = { approved: '승인', rejected: '거절', expired: '만료' }
 
 export default function Suggestions() {
-  const [items, setItems]     = useState([])
-  const [loading, setLoading] = useState(true)
-  const [busy, setBusy]       = useState(null)
-  const [tab, setTab]         = useState('smartstore')
+  const [items, setItems]               = useState([])
+  const [loading, setLoading]           = useState(true)
+  const [busy, setBusy]                 = useState(null)
+  const [tab, setTab]                   = useState('smartstore')
+  const [aiExecutionEnabled, setAiExec] = useState(true)
 
   function load() {
     setLoading(true)
@@ -64,7 +65,10 @@ export default function Suggestions() {
       .finally(() => setLoading(false))
   }
 
-  useEffect(load, [])
+  useEffect(() => {
+    load()
+    api.getConfig().then(r => setAiExec(r.ai_execution_enabled ?? true)).catch(() => {})
+  }, [])
 
   async function approve(id) {
     setBusy(id)
@@ -259,7 +263,7 @@ function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat, isNe
             </div>
           )}
 
-          {s.execution_tier === 'operator_manual' && (
+          {(s.execution_tier === 'operator_manual' || (!aiExecutionEnabled && s.execution_tier === 'ai_auto')) && (
             <div style={{ marginTop: 8, fontSize: 12, color: '#6b7280', background: '#f0f4ff', padding: '6px 10px', borderRadius: 4, border: '1px solid #c7d2fe' }}>
               운영자 직접 실행 항목 — 아래 버튼은 직접 완료했음을 기록합니다
             </div>
@@ -270,7 +274,7 @@ function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat, isNe
 
         <div style={{ marginLeft: 16, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 80 }}>
           <button className="btn btn-success" disabled={isBusy || showTags} onClick={() => onApprove(s.suggestion_id)}>
-            {s.execution_tier === 'operator_manual' ? '직접 완료' : '승인'}
+            {(s.execution_tier === 'operator_manual' || (!aiExecutionEnabled && s.execution_tier === 'ai_auto')) ? '직접 완료' : '승인'}
           </button>
           {!showTags && (
             <button className="btn btn-danger" disabled={isBusy} onClick={() => setShowTags(true)}>

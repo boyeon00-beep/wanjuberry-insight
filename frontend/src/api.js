@@ -39,6 +39,7 @@ export const api = {
   getKeywordVolume:    ()   => request('GET',  '/ads/keyword-volume'),
   getCampaigns:        ()   => request('GET',  '/campaigns'),
   getNaverProducts:    ()   => request('GET',  '/products'),
+  getConfig:               ()   => request('GET', '/config'),
   getCoupangProducts:      ()   => request('GET', '/coupang/products'),
   getCoupangAdSummary:     ()   => request('GET', '/coupang-ads/summary'),
   uploadCoupangAdReport: (formData) => {
