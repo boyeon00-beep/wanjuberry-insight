@@ -166,7 +166,7 @@ export default function Suggestions() {
                   <div key={group.name} className="product-group">
                     <div className="product-group-header">{group.name}</div>
                     {group.items.map(s => (
-                      <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} />
+                      <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} aiExecutionEnabled={aiExecutionEnabled} />
                     ))}
                   </div>
                 ))}
@@ -185,7 +185,7 @@ export default function Suggestions() {
                   <div key={group.name} className="product-group">
                     <div className="product-group-header">{group.name}</div>
                     {group.items.map(s => (
-                      <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} isRepeat />
+                      <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} isRepeat aiExecutionEnabled={aiExecutionEnabled} />
                     ))}
                   </div>
                 ))}
@@ -202,7 +202,7 @@ export default function Suggestions() {
                   </p>
                 </div>
                 {needsData.map(s => (
-                  <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} isNeedsData />
+                  <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} isNeedsData aiExecutionEnabled={aiExecutionEnabled} />
                 ))}
               </section>
             )}
@@ -221,7 +221,7 @@ export default function Suggestions() {
 }
 
 /* ── 제안 카드 ── */
-function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat, isNeedsData }) {
+function SuggestionCard({ s, busy, onApprove, onReject, platform, isRepeat, isNeedsData, aiExecutionEnabled = true }) {
   const [showTags, setShowTags] = useState(false)
   const isBusy = busy === s.suggestion_id
 
