@@ -316,6 +316,69 @@ def debug_naver_ad():
     return result
 
 
+@app.get("/debug/naver-group-products")
+def debug_naver_group_products_list():
+    """상품 검색에서 groupProductNo 목록 확인"""
+    import os
+    if not os.environ.get("NAVER_COMMERCE_CLIENT_ID"):
+        return {"mode": "mock", "message": "NAVER_COMMERCE_CLIENT_ID 미설정"}
+
+    from clients import naver_commerce as client
+    import httpx as _httpx
+
+    try:
+        res = _httpx.post(
+            "https://api.commerce.naver.com/external/v1/products/search",
+            json={"page": 1, "size": 100},
+            headers=client._auth_headers(),
+            timeout=15,
+        )
+        contents = res.json().get("contents", [])
+        groups = []
+        for item in contents:
+            gpn = item.get("groupProductNo")
+            if gpn:
+                groups.append({
+                    "groupProductNo": gpn,
+                    "originProductNo": item.get("originProductNo"),
+                    "item_keys": list(item.keys()),
+                    "channelProducts_count": len(item.get("channelProducts", [])),
+                })
+        return {
+            "total_items": len(contents),
+            "items_with_groupProductNo": len(groups),
+            "groups": groups[:10],
+            "first_item_keys": list(contents[0].keys()) if contents else [],
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.get("/debug/naver-group-product/{group_product_no}")
+def debug_naver_group_product(group_product_no: str):
+    """그룹상품 API 원본 응답 진단 — 응답 필드명 확인용"""
+    import os
+    if not os.environ.get("NAVER_COMMERCE_CLIENT_ID"):
+        return {"mode": "mock", "message": "NAVER_COMMERCE_CLIENT_ID 미설정"}
+
+    from clients import naver_commerce as client
+    import httpx as _httpx
+
+    try:
+        res = _httpx.get(
+            f"https://api.commerce.naver.com/external/v2/standard-group-products/{group_product_no}",
+            headers=client._auth_headers(),
+            timeout=10,
+        )
+        return {
+            "http_status": res.status_code,
+            "response_keys": list(res.json().keys()) if isinstance(res.json(), dict) else "not_dict",
+            "raw": res.json(),
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @app.get("/ads/keyword-volume")
 def get_keyword_volume():
     return store.get_latest_keyword_volume()
