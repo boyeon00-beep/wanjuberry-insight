@@ -179,6 +179,11 @@ async def analyze(context: dict) -> dict:
     except json.JSONDecodeError as e:
         raise ValueError(f"Claude 응답 파싱 실패: {e}\n원문: {raw_text!r}") from e
 
+    # 그룹상품(GROUP- prefix)은 executor가 처리 불가 — Brain 지시 무관하게 강제 고정
+    for item in raw_list:
+        if str(item.get("target_id", "")).startswith("GROUP-"):
+            item["execution_tier"] = "operator_manual"
+
     suggestions = [
         Suggestion(task_id=task_id, agent="product_analyzer", **item)
         for item in raw_list
