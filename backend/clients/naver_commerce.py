@@ -150,7 +150,7 @@ def get_group_product_name(group_product_no: str) -> str:
             timeout=10,
         )
         res.raise_for_status()
-        return res.json().get("groupProductName", "")
+        return res.json().get("groupProduct", {}).get("name", "")
     except Exception:
         return ""
 
