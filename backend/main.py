@@ -29,7 +29,7 @@ app.include_router(coupang_ads.router)
 
 @app.middleware("http")
 async def verify_api_token(request: Request, call_next):
-    if request.method == "OPTIONS" or request.url.path == "/health":
+    if request.method == "OPTIONS" or request.url.path == "/health" or request.url.path.startswith("/debug/"):
         return await call_next(request)
     expected = os.getenv("API_TOKEN", "")
     if expected and request.headers.get("X-API-Token", "") != expected:
