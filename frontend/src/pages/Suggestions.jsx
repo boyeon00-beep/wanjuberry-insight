@@ -27,6 +27,20 @@ const AGENT_BY_TAB = {
 const PRIORITIES = ['high', 'medium', 'low']
 const PRIORITY_LABEL = { high: '높음', medium: '보통', low: '낮음' }
 
+function groupByProduct(items) {
+  const map = {}
+  items.forEach(s => {
+    const key = s.target_id || s.target_name
+    if (!map[key]) map[key] = { name: s.target_name, items: [] }
+    map[key].items.push(s)
+  })
+  // 각 상품 내부는 priority 순 정렬
+  return Object.values(map).map(g => ({
+    ...g,
+    items: [...g.items].sort((a, b) => PRIORITIES.indexOf(a.priority) - PRIORITIES.indexOf(b.priority)),
+  }))
+}
+
 const REJECTION_TAGS = [
   { tag: '시즌맞지않음', label: '시즌 안 맞음' },
   { tag: '이미시도해봤음', label: '이미 해봤음' },
@@ -144,21 +158,14 @@ export default function Suggestions() {
             {newItems.length > 0 && (
               <section>
                 <div className="section-header">새 제안</div>
-                {PRIORITIES.map(priority => {
-                  const group = newItems.filter(s => s.priority === priority)
-                  if (group.length === 0) return null
-                  return (
-                    <div key={priority} className="priority-group">
-                      <div className={`priority-group-header priority-header-${priority}`}>
-                        <span className={`badge badge-${priority}`}>{PRIORITY_LABEL[priority]}</span>
-                        <span className="priority-group-count">{group.length}개</span>
-                      </div>
-                      {group.map(s => (
-                        <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} />
-                      ))}
-                    </div>
-                  )
-                })}
+                {groupByProduct(newItems).map(group => (
+                  <div key={group.name} className="product-group">
+                    <div className="product-group-header">{group.name}</div>
+                    {group.items.map(s => (
+                      <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} />
+                    ))}
+                  </div>
+                ))}
               </section>
             )}
 
@@ -170,21 +177,14 @@ export default function Suggestions() {
                     이전에 거절/만료된 항목의 재시도
                   </span>
                 </div>
-                {PRIORITIES.map(priority => {
-                  const group = repeatItems.filter(s => s.priority === priority)
-                  if (group.length === 0) return null
-                  return (
-                    <div key={priority} className="priority-group">
-                      <div className={`priority-group-header priority-header-${priority}`}>
-                        <span className={`badge badge-${priority}`}>{PRIORITY_LABEL[priority]}</span>
-                        <span className="priority-group-count">{group.length}개</span>
-                      </div>
-                      {group.map(s => (
-                        <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} isRepeat />
-                      ))}
-                    </div>
-                  )
-                })}
+                {groupByProduct(repeatItems).map(group => (
+                  <div key={group.name} className="product-group">
+                    <div className="product-group-header">{group.name}</div>
+                    {group.items.map(s => (
+                      <SuggestionCard key={s.suggestion_id} s={s} busy={busy} onApprove={approve} onReject={reject} platform={meta} isRepeat />
+                    ))}
+                  </div>
+                ))}
               </section>
             )}
 

@@ -164,6 +164,20 @@ body {
   border-bottom: 2px solid #e5e7eb;
 }
 
+/* 상품 그룹 */
+.product-group { margin-bottom: 16px; }
+.product-group-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  background: #f3f4f6;
+  border-left: 3px solid #9ca3af;
+  padding: 7px 12px;
+  border-radius: 4px 4px 0 0;
+}
+.product-group .card { border-radius: 0; border-top: 1px solid #f0f0f0; margin-bottom: 0; }
+.product-group .card:last-child { border-radius: 0 0 6px 6px; }
+
 /* 우선순위 그룹 */
 .priority-group { margin-bottom: 24px; }
 .priority-group-header {
