@@ -72,9 +72,9 @@ export default function Suggestions() {
 
   async function approve(id) {
     setBusy(id)
-    try { await api.approveSuggestion(id); load() }
+    try { await api.approveSuggestion(id) }
     catch (e) { alert(e.message) }
-    finally { setBusy(null) }
+    finally { setBusy(null); load() }
   }
 
   async function reject(id, rejectionTag) {
