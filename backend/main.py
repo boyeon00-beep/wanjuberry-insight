@@ -99,7 +99,7 @@ async def approve_suggestion(suggestion_id: str):
             target_id=suggestion.target_id,
             target_name=suggestion.target_name,
             execution_tier=suggestion.execution_tier,
-            status="completed",
+            status="success",
             detail="운영자 직접 완료 (AI 자동 실행 비활성화)",
             baseline_metrics=baseline or None,
         )
