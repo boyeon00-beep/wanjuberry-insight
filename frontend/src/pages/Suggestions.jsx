@@ -79,9 +79,9 @@ export default function Suggestions() {
 
   async function reject(id, rejectionTag) {
     setBusy(id)
-    try { await api.rejectSuggestion(id, { rejection_tag: rejectionTag ?? null }); load() }
+    try { await api.rejectSuggestion(id, { rejection_tag: rejectionTag ?? null }) }
     catch (e) { alert(e.message) }
-    finally { setBusy(null) }
+    finally { setBusy(null); load() }
   }
 
   const pendingCount = (agentKey) =>
